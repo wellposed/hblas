@@ -59,10 +59,7 @@ library
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.6 && <4.7, storable-complex >= 0.2.0 && < 0.3.0
   extra-libraries: openblas
-  include-dirs: OpenBLAS/ 
-  -- cblas
-  include-dirs: OpenBLAS/lapack-netlib/lapacke/include/
-  extra-lib-dirs: OpenBLAS/
+
         
   
   -- Directories containing source files.

@@ -43,7 +43,17 @@ buildOpenBLAS= "make DYNAMIC_ARCH=1  USE_THREAD=1 -j1 NO_SHARED=1 "
 #endif
 
 
-myhook = simpleUserHooks & _preConf %~ (\f args confargs -> do buildBLIS ; f args confargs)
+myhook = simpleUserHooks & _preConf %~ (\f args confargs -> 
+            do buildBLIS ;
+                cwd <- System.Directory.getCurrentDirectory;
+                hookedInfo <-f args confargs; 
+                return  $ adjustHookedInfoOpenBLAS cwd hookedInfo)
+adjustHookedInfoOpenBLAS :: String -> HookedBuildInfo -> HookedBuildInfo
+adjustHookedInfoOpenBLAS cwd (mbi,lsbi) = (fmap adjustBuildInfo mbi, map (\ (s,bi)-> (s,adjustBuildInfo bi)) lsbi) 
+    where
+        adjustBuildInfo  build = build{extraLibDirs=(cwd++ "/OpenBLAS/"): extraLibDirs build,
+                                        includeDirs=(cwd++ "/OpenBLAS/lapack-netlib/lapacke/include/"): includeDirs build}    
+
 
 --for now this likely won't work on windows, but patches welcome
 buildBLIS = do  freshBlis <- doesDirectoryExist "OpenBLAS"
