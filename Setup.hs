@@ -54,7 +54,7 @@ buildBLIS = do  freshBlis <- doesDirectoryExist "OpenBLAS"
                     else do  system "cd OpenBLAS ; git pull origin develop"
                 system  $ "cd OpenBLAS ; "++ buildOpenBLAS
                 -- calling make twice to work around build bug i see locally
-                system  $ "cd OpenBLAS ; "++buildOpenBLAS
+                --system  $ "cd OpenBLAS ; "++buildOpenBLAS
 
 
 -- 

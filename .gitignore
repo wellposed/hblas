@@ -1,1 +1,3 @@
 /OpenBLAS/
+.cabal-sandbox
+cabal.sandbox.config

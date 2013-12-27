@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+
 {-# LANGUAGE ForeignFunctionInterface #-}
 
 
@@ -8,58 +8,86 @@ import Foreign.Ptr
 import Foreign()
 import Foreign.C.Types
 
---/*Set the number of threads on runtime.*/
-foreign import ccall unsafe "openblas_set_num_threads" openblas_set_num_threads_unsafe :: CInt -> IO ()
+-- /*Set the number of threads on runtime.*/
+foreign import ccall unsafe "openblas_set_num_threads" openblas_set_num_threads_ffi :: CInt -> IO ()
 
-foreign import ccall unsafe "goto_set_num_threads" goto_set_num_threads_unsafe :: CInt -> IO ()
-
-
-#define OPENBLAS_OPENMP 2 
-
-
-/*
- * Since all of GotoBlas was written without const,
- * we disable it at build time.
- */
+foreign import ccall unsafe "goto_set_num_threads" goto_set_num_threads_ffi :: CInt -> IO ()
 
 
 
---#define CBLAS_INDEX size_t
+
+
+
+
+
+
+
 newtype CBLAS_Index = CBIndex CSize 
 
-newtype CBLAS_ORDER_INT = CBOInt CInt 
+newtype CBLAS_ORDER = CBOInt CUChar
     deriving (Eq,Show)
 data CBLAS_Order = CBLAS_RowMajor | CBLAS_ColMajor 
     deriving (Eq,Show)
 encodeOrder CBLAS_RowMajor = CBOInt 101
 encodeOrder CBLAS_ColMajor = CBOInt 102 
 
-newtype CBLAS_TransposeInt = CBLAS_TransposeInt { unCBLAS_TransposeInt :: CInt } deriving (Eq, Show)
-data CBLAS_Tranpose = CBlasNoTransPose | CBlasTranpose | CBlasConjTranspose | CBlasConjNoTranpose 
+--newtype CBLAS_TransposeT = CBLAS_TransposeT{ unCBLAS_TransposeT :: CUChar } deriving (Eq, Show)
+--data CBLAS_Tranpose = CBlasNoTransPose | CBlasTranpose | CBlasConjTranspose | CBlasConjNoTranpose 
 
-encodeTranpose  CBlasNoTransPose = CBLAS_TransposeInt 111
-encodeTranpose  CBlasTranpose = CBLAS_TransposeInt 112
-encodeTranpose  CBlasConjTranspose = CBLAS_TransposeInt 113
-encodeTranpose  CBlasConjNoTranpose = CBLAS_TransposeInt 114
+--encodeTranpose  CBlasNoTransPose = CBLAS_TransposeT 111
+--encodeTranpose  CBlasTranpose = CBLAS_TransposeT 112
+--encodeTranpose  CBlasConjTranspose = CBLAS_TransposeT 113
+--encodeTranpose  CBlasConjNoTranpose = CBLAS_TransposeT 114
+
+--newtype CBLAS_UPLO_T = CBlasUPLO CUChar
+--    deriving (Eq,Show)
+--data CBLAS_UPLO = CBUpper | CBLower
+--    deriving (Eq,Show)
+--encodeUPLO CBUpper = CBlasUPLO 121  
+--encodeUPLO CBLower = CBlasUPLO 122
+
+--netwype CBLAS_DiagT = CBLAS_Diag CUChar 
+--    --deriving (Show)
+
+--data CBlasDiag = CBlasNonUnit   | CBlasUnit 
+--    deriving (Eq,Show )
+    
+--encodeDiag CBlasNonUnit = CBLAS_Diag 131
+--encodeDiag CBlasUnit = CBLAS_Diag 132
+
+--newtype CBLAS_SideT = CBLAS_SideT { unCBLAS_SideT :: CUChar } 
+--    --deriving (Eq, Show)
+--data CBlasSide = CBlasLeft | CBlasRight 
+--    deriving (Eq,Show)
+--encodeSide CBlasLeft = CBLAS_SideT 141
+--encodeSide CBlasRight = CBLAS_SideT 142
 
 
 --typedef enum CBLAS_ORDER     {CblasRowMajor=101, CblasColMajor=102} CBLAS_ORDER;
 --typedef enum CBLAS_TRANSPOSE {CblasNoTrans=111, CblasTrans=112, CblasConjTrans=113, CblasConjNoTrans=114} CBLAS_TRANSPOSE;
-typedef enum CBLAS_UPLO      {CblasUpper=121, CblasLower=122} CBLAS_UPLO;
-typedef enum CBLAS_DIAG      {CblasNonUnit=131, CblasUnit=132} CBLAS_DIAG;
-typedef enum CBLAS_SIDE      {CblasLeft=141, CblasRight=142} CBLAS_SIDE;
+--typedef enum CBLAS_UPLO      {CblasUpper=121, CblasLower=122} CBLAS_UPLO;
+--typedef enum CBLAS_DIAG      {CblasNonUnit=131, CblasUnit=132} CBLAS_DIAG;
+--typedef enum CBLAS_SIDE      {CblasLeft=141, CblasRight=142} CBLAS_SIDE;
 
-CFloat  cblas_sdsdot(  CInt n,   CFloat alpha,   CFloat *x,   CInt incx,   CFloat *y,   CInt incy);
-CDouble cblas_dsdot (  CInt n,   CFloat *x,   CInt incx,   CFloat *y,   CInt incy);
-CFloat  cblas_sdot(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy);
-CDouble cblas_ddot(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy);
+foreign import ccall unsafe "cblas_sdsdot" cblas_sdsdot_ffi :: CInt -> CFloat -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat 
+foreign import ccall unsafe "cblas_dsdot" cblas_dsdot_ffi :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CDouble
+foreign import ccall unsafe "cblas_sdot" cblas_sdot_ffi :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat
+foreign import ccall unsafe "cblas_ddot" cblas_ddot_ffi :: CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> IO CDouble
+--CFloat  cblas_sdsdot(  CInt n,   CFloat alpha,   CFloat *x,   CInt incx,   CFloat *y,   CInt incy);
+--CDouble cblas_dsdot (  CInt n,   CFloat *x,   CInt incx,   CFloat *y,   CInt incy);
+--CFloat  cblas_sdot(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy);
+--CDouble cblas_ddot(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy);
 
+{-
+not doing these right now, because requires handling return value as a complex number,
+we can only handle pointers to complex numbers right now
+-}
 --openblas_complex_CFloat  cblas_cdotu(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy);
 --openblas_complex_CFloat  cblas_cdotc(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy);
 --openblas_complex_CDouble cblas_zdotu(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy);
 --openblas_complex_CDouble cblas_zdotc(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy);
 
-void  cblas_cdotu_sub(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy, openblas_complex_CFloat  *ret);
+{-void  cblas_cdotu_sub(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy, openblas_complex_CFloat  *ret);
 void  cblas_cdotc_sub(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy, openblas_complex_CFloat  *ret);
 void  cblas_zdotu_sub(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy, openblas_complex_CDouble *ret);
 void  cblas_zdotc_sub(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy, openblas_complex_CDouble *ret);
@@ -309,10 +337,5 @@ void cblas_cher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS
 void cblas_zher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
                     CDouble *alpha,   CDouble *A,   CInt lda,   CDouble *B,   CInt ldb,   CDouble beta, CDouble *C,   CInt ldc);
 
-void cblas_xerbla(CInt p, char *rout, char *form, ...);
-
-#ifdef __cplusplus
-}
-#endif  /* __cplusplus */
-
-#endif
+--void cblas_xerbla(CInt p, char *rout, char *form, ...);
+-}
