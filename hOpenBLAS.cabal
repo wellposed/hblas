@@ -58,7 +58,9 @@ library
   
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.6 && <4.7, storable-complex >= 0.2.0 && < 0.3.0
-  extra-libraries: openblas
+  -- extra-libraries: openblas
+  -- extra-lib-dirs: OpenBLAS/ 
+  -- extra-include-dirs: OpenBLAS/
 
         
   
