@@ -43,29 +43,19 @@ buildOpenBLAS= "make DYNAMIC_ARCH=1  USE_THREAD=1 -j1 NO_SHARED=1 "
 #endif
 
 
-myhook = simpleUserHooks & _preConf %~ (\f args confargs ->  f args confargs )
---            do buildBLIS ;
---                cwd <- System.Directory.getCurrentDirectory;
---                hookedInfo <-f args confargs; 
---                return  $ adjustHookedInfoOpenBLAS cwd hookedInfo)
---adjustHookedInfoOpenBLAS :: String -> HookedBuildInfo -> HookedBuildInfo
---adjustHookedInfoOpenBLAS cwd (mbi,lsbi) = (fmap adjustBuildInfo mbi, map (\ (s,bi)-> (s,adjustBuildInfo bi)) lsbi) 
---    where
---        adjustBuildInfo  build = build{extraLibDirs=(cwd++ "/OpenBLAS/"): extraLibDirs build,
---                                        includeDirs=(cwd++ "/OpenBLAS/lapack-netlib/lapacke/include/"): includeDirs build}    
+myhook = simpleUserHooks & _preConf %~ (\f args confargs ->  
+            do buildBLIS ; f args confargs ) 
+
+
 
 
 --for now this likely won't work on windows, but patches welcome
-buildBLIS = do  freshBlis <- doesDirectoryExist "OpenBLAS"
+buildBLIS = do  putStrLn "OpenBLAS is built at configure time. This can take a while! Make sure you have gfortran installed too."
+                freshBlis <- doesDirectoryExist "OpenBLAS"
                 if  freshBlis then system "git clone  git@github.com:xianyi/OpenBLAS.git"
-                 -- ; cd OpenBLAS ; git checkout master"                 
-                
-                    -- for now lets just clone from the main repo
                     else do  system "cd OpenBLAS ; git pull origin develop"
                 system  $ "cd OpenBLAS ; "++ buildOpenBLAS
-                -- calling make twice to work around build bug i see locally
-                --system  $ "cd OpenBLAS ; "++buildOpenBLAS
-
+  
 
 -- 
 _preConf f conf = fmap (\el -> conf{preConf=el}) (f $ preConf $ conf)
