@@ -62,8 +62,8 @@ library
   extra-libraries: openblas 
   if os(OSX)
         -- where macports installs libs
-        extra-lib-dirs: /opt/local/lib/
-        include-dirs: /opt/local/include/
+        --- extra-lib-dirs: /opt/local/lib/
+        --- include-dirs: /opt/local/include/
         -- where homebrew installs libs
         extra-lib-dirs: /usr/local/lib/
         include-dirs: /usr/local/include/
@@ -86,8 +86,8 @@ Test-Suite simple-test
     extra-libraries: openblas 
     if os(OSX)
         -- where macports installs libs
-        extra-lib-dirs: /opt/local/lib/
-        include-dirs: /opt/local/include/
+        -- extra-lib-dirs: /opt/local/lib/
+        -- include-dirs: /opt/local/include/
         -- where homebrew installs libs
         extra-lib-dirs: /usr/local/lib/
         include-dirs: /usr/local/include/
