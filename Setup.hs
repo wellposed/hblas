@@ -56,8 +56,8 @@ buildOpenBLAS= "make DYNAMIC_ARCH=1  USE_THREAD=1 -j1 NO_SHARED=1 "
 #endif
 
 
-myhook = simpleUserHooks & _preConf %~ (\f args confargs ->  
-            do buildBLIS ; f args confargs ) 
+--myhook = simpleUserHooks & _preConf %~ (\f args confargs ->  
+--            do buildBLIS ; f args confargs ) 
 
 (ldLibraryPathVar, ldLibraryPathSep) = 
         case buildOS of
@@ -77,7 +77,10 @@ addOpenBLAStoLdLibraryPath  = do
 
 adjustLinking cwd =  combine cwd "OpenBLAS/libopenblas.a"    
 
-main = do defaultMainWithHooks simpleUserHooks {
+main = do defaultMainWithHooks myhooks
+
+
+myhooks = simpleUserHooks {
 
     confHook = \(genericPackageDescription, hookedBuildInfo) configFlags -> do
         cwd <- getCurrentDirectory 
@@ -107,14 +110,18 @@ main = do defaultMainWithHooks simpleUserHooks {
         setEnv v (either (const id) (\o n -> o ++ " " ++ n) oldGhcRts "-K32M")
         haddockHook simpleUserHooks packageDescription localBuildInfo userHooks haddockFlags
         either (const (unsetEnv v)) (setEnv v) oldGhcRts
-   }
+   }  & _preConf %~ (\f args confargs ->  
+            do buildBLIS ; f args confargs ) 
 
 --for now this likely won't work on windows, but patches welcome
+
 buildBLIS = do  putStrLn "OpenBLAS is built at configure time. This can take a while! Make sure you have gfortran installed too."
+
                 freshBlis <- doesDirectoryExist "OpenBLAS"
                 if  freshBlis then system "git clone  git@github.com:xianyi/OpenBLAS.git"
                     else do  system "cd OpenBLAS ; git pull origin develop"
-                system  $ "cd OpenBLAS ; "++ buildOpenBLAS
+                preBuilt <- doesFileExist "OpenBLAS/libopenblas.a"
+                if not preBuilt  then (system  $ "cd OpenBLAS ; "++ buildOpenBLAS )>>= \x -> return () else putStrLn "OpenBLAS already built"
   
 
 -- 
