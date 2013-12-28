@@ -22,14 +22,14 @@ foreign import ccall unsafe "goto_set_num_threads" goto_set_num_threads_ffi :: C
 
 
 
-newtype CBLAS_Index = CBIndex CSize 
+--newtype CBLAS_Index = CBIndex CSize 
 
-newtype CBLAS_ORDER = CBOInt CUChar
-    deriving (Eq,Show)
-data CBLAS_Order = CBLAS_RowMajor | CBLAS_ColMajor 
-    deriving (Eq,Show)
-encodeOrder CBLAS_RowMajor = CBOInt 101
-encodeOrder CBLAS_ColMajor = CBOInt 102 
+--newtype CBLAS_ORDER = CBOInt CUChar
+--    deriving (Eq,Show)
+--data CBLAS_Order = CBLAS_RowMajor | CBLAS_ColMajor 
+--    deriving (Eq,Show)
+--encodeOrder CBLAS_RowMajor = CBOInt 101
+--encodeOrder CBLAS_ColMajor = CBOInt 102 
 
 --newtype CBLAS_TransposeT = CBLAS_TransposeT{ unCBLAS_TransposeT :: CUChar } deriving (Eq, Show)
 --data CBLAS_Tranpose = CBlasNoTransPose | CBlasTranpose | CBlasConjTranspose | CBlasConjNoTranpose 
@@ -69,10 +69,10 @@ encodeOrder CBLAS_ColMajor = CBOInt 102
 --typedef enum CBLAS_DIAG      {CblasNonUnit=131, CblasUnit=132} CBLAS_DIAG;
 --typedef enum CBLAS_SIDE      {CblasLeft=141, CblasRight=142} CBLAS_SIDE;
 
-foreign import ccall unsafe "OpenBLAS/libopenblas.a  cblas_sdsdot" cblas_sdsdot_ffi :: CInt -> CFloat -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat 
-foreign import ccall unsafe "OpenBLAS/libopenblas.a  cblas_dsdot" cblas_dsdot_ffi :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CDouble
-foreign import ccall unsafe "OpenBLAS/libopenblas.a cblas_sdot" cblas_sdot_ffi :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat
-foreign import ccall unsafe "OpenBLAS/libopenblas.a  cblas_ddot" cblas_ddot_ffi :: CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> IO CDouble
+foreign import ccall unsafe "cblas_sdsdot" cblas_sdsdot_ffi :: CInt -> CFloat -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat 
+foreign import ccall unsafe "cblas_dsdot" cblas_dsdot_ffi :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CDouble
+foreign import ccall unsafe "cblas_sdot" cblas_sdot_ffi :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat
+foreign import ccall unsafe "cblas_ddot" cblas_ddot_ffi :: CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> IO CDouble
 --CFloat  cblas_sdsdot(  CInt n,   CFloat alpha,   CFloat *x,   CInt incx,   CFloat *y,   CInt incy);
 --CDouble cblas_dsdot (  CInt n,   CFloat *x,   CInt incx,   CFloat *y,   CInt incy);
 --CFloat  cblas_sdot(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy);
