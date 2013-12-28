@@ -45,7 +45,6 @@ build-type:          Custom
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
 
-
 library
   -- Modules exported by the library.
   exposed-modules:      Numerical.OpenBLAS.FFI 
@@ -61,22 +60,23 @@ library
           vector 
   -- look, no external deps for openblas! 
   extra-libraries: openblas 
-  include-dirs:    OpenBLAS/ 
-  --extra-lib-dirs: OpenBLAS/
-
-
-
-  -- extra-lib-dirs: OpenBLAS/ 
-  -- extra-include-dirs: OpenBLAS/
-
-        
+  if os(OSX)
+        -- where macports installs libs
+        extra-lib-dirs: /opt/local/lib/
+        include-dirs: /opt/local/include/
+        -- where homebrew installs libs
+        extra-lib-dirs: /usr/local/lib/
+        include-dirs: /usr/local/include/
+        -- by default brew doesn't link openblas
+        extra-lib-dirs: /usr/local/opt/openblas/lib
+        include-dirs: /usr/local/opt/openblas/include
   
   -- Directories containing source files.
   hs-source-dirs:      src
   
   -- Base language which the package is written in.
   default-language:    Haskell2010
-  
+  -- ld-options: OpenBLAS/libopenblas.a  
 Test-Suite test
     type:                exitcode-stdio-1.0
     main-is:             Test.hs
@@ -84,8 +84,13 @@ Test-Suite test
     default-language:    Haskell2010
     build-depends:       hOpenBLAS == 0.1.0.0
     extra-libraries: openblas 
-    include-dirs:    OpenBLAS/ 
-    extra-lib-dirs: OpenBLAS/
+    if os(OSX)
+        -- where macports installs libs
+        extra-lib-dirs: /opt/local/lib/
+        include-dirs: /opt/local/include/
+        -- where homebrew installs libs
+        extra-lib-dirs: /usr/local/lib/
+        include-dirs: /usr/local/include/
   
   
     
