@@ -1,5 +1,5 @@
 
-{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE ForeignFunctionInterface, GeneralizedNewtypeDeriving #-}
 
 
 module Numerical.OpenBLAS.FFI  where 
@@ -22,45 +22,46 @@ foreign import ccall unsafe "cblas.h goto_set_num_threads" goto_set_num_threads_
 
 
 
---newtype CBLAS_Index = CBIndex CSize 
+newtype CBLAS_Index = CBIndex CSize 
 
---newtype CBLAS_ORDER = CBOInt CUChar
---    deriving (Eq,Show)
---data CBLAS_Order = CBLAS_RowMajor | CBLAS_ColMajor 
---    deriving (Eq,Show)
---encodeOrder CBLAS_RowMajor = CBOInt 101
---encodeOrder CBLAS_ColMajor = CBOInt 102 
+newtype CBLAS_ORDER = CBOInt CUChar
+    deriving (Eq,Show)
+data CBLAS_Order = CBLAS_RowMajor | CBLAS_ColMajor 
+    deriving (Eq,Show)
+encodeOrder CBLAS_RowMajor = CBOInt 101
+encodeOrder CBLAS_ColMajor = CBOInt 102 
 
---newtype CBLAS_TransposeT = CBLAS_TransposeT{ unCBLAS_TransposeT :: CUChar } deriving (Eq, Show)
---data CBLAS_Tranpose = CBlasNoTransPose | CBlasTranpose | CBlasConjTranspose | CBlasConjNoTranpose 
+newtype CBLAS_TransposeT = CBLAS_TransposeT{ unCBLAS_TransposeT :: CUChar } deriving (Eq, Show)
+data CBLAS_Tranpose = CBlasNoTransPose | CBlasTranpose | CBlasConjTranspose | CBlasConjNoTranpose 
 
---encodeTranpose  CBlasNoTransPose = CBLAS_TransposeT 111
---encodeTranpose  CBlasTranpose = CBLAS_TransposeT 112
---encodeTranpose  CBlasConjTranspose = CBLAS_TransposeT 113
---encodeTranpose  CBlasConjNoTranpose = CBLAS_TransposeT 114
+encodeTranpose  CBlasNoTransPose = CBLAS_TransposeT 111
+encodeTranpose  CBlasTranpose = CBLAS_TransposeT 112
+encodeTranpose  CBlasConjTranspose = CBLAS_TransposeT 113
+encodeTranpose  CBlasConjNoTranpose = CBLAS_TransposeT 114
 
---newtype CBLAS_UPLO_T = CBlasUPLO CUChar
---    deriving (Eq,Show)
---data CBLAS_UPLO = CBUpper | CBLower
---    deriving (Eq,Show)
---encodeUPLO CBUpper = CBlasUPLO 121  
---encodeUPLO CBLower = CBlasUPLO 122
+newtype CBLAS_UPLO_T = CBlasUPLO CUChar
+    deriving (Eq,Show)
+data CBLAS_UPLO = CBUpper | CBLower
+    deriving (Eq,Show)
+encodeUPLO CBUpper = CBlasUPLO 121  
+encodeUPLO CBLower = CBlasUPLO 122
 
---netwype CBLAS_DiagT = CBLAS_Diag CUChar 
---    --deriving (Show)
+newtype CBLAS_DiagT = CBLAS_DiagT CUChar 
+    deriving (Show,Eq)
 
---data CBlasDiag = CBlasNonUnit   | CBlasUnit 
---    deriving (Eq,Show )
+
+data CBlasDiag = CBlasNonUnit   | CBlasUnit 
+    deriving (Eq,Show )
     
---encodeDiag CBlasNonUnit = CBLAS_Diag 131
---encodeDiag CBlasUnit = CBLAS_Diag 132
+encodeDiag CBlasNonUnit = CBLAS_DiagT 131
+encodeDiag CBlasUnit = CBLAS_DiagT 132
 
---newtype CBLAS_SideT = CBLAS_SideT { unCBLAS_SideT :: CUChar } 
---    --deriving (Eq, Show)
---data CBlasSide = CBlasLeft | CBlasRight 
---    deriving (Eq,Show)
---encodeSide CBlasLeft = CBLAS_SideT 141
---encodeSide CBlasRight = CBLAS_SideT 142
+newtype CBLAS_SideT = CBLAS_SideT { unCBLAS_SideT :: CUChar } 
+    deriving (Eq, Show)
+data CBlasSide = CBlasLeft | CBlasRight 
+    deriving (Eq,Show)
+encodeSide CBlasLeft = CBLAS_SideT 141
+encodeSide CBlasRight = CBLAS_SideT 142
 
 
 --typedef enum CBLAS_ORDER     {CblasRowMajor=101, CblasColMajor=102} CBLAS_ORDER;
