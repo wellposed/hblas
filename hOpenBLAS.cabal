@@ -60,7 +60,7 @@ library
   build-depends:       base >=4.6 && <4.7, storable-complex >= 0.2.0 && < 0.3.0
   -- look, no external deps for openblas! 
   extra-libraries: openblas
-  ghc
+  ld-options: -static -pthread
   -- extra-lib-dirs: OpenBLAS/ 
   -- extra-include-dirs: OpenBLAS/
 
@@ -72,3 +72,9 @@ library
   -- Base language which the package is written in.
   default-language:    Haskell2010
   
+Test-Suite test
+    type:                exitcode-stdio-1.0
+    main-is:             Test.hs
+    build-depends:       base
+    default-language:    Haskell2010
+    build-depends:       hOpenBLAS == 0.1.0.0

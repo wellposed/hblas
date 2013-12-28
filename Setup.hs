@@ -86,6 +86,8 @@ main = do defaultMainWithHooks simpleUserHooks {
             configExtraLibDirs = libDirs ++ configExtraLibDirs configFlags,
             configExtraIncludeDirs = includeDirs ++ configExtraIncludeDirs configFlags
                 }
+        putStrLn $ show $ configExtraIncludeDirs configFlags'
+        putStrLn $ show  $ configExtraLibDirs configFlags'
         addOpenBLAStoLdLibraryPath
         confHook simpleUserHooks  (genericPackageDescription, hookedBuildInfo) configFlags',
 
