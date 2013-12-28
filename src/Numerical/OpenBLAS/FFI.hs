@@ -9,9 +9,9 @@ import Foreign()
 import Foreign.C.Types
 
 -- /*Set the number of threads on runtime.*/
-foreign import ccall unsafe "openblas_set_num_threads" openblas_set_num_threads_ffi :: CInt -> IO ()
+foreign import ccall unsafe "cblas.h openblas_set_num_threads" openblas_set_num_threads_ffi :: CInt -> IO ()
 
-foreign import ccall unsafe "goto_set_num_threads" goto_set_num_threads_ffi :: CInt -> IO ()
+foreign import ccall unsafe "cblas.h goto_set_num_threads" goto_set_num_threads_ffi :: CInt -> IO ()
 
 
 
@@ -69,10 +69,10 @@ foreign import ccall unsafe "goto_set_num_threads" goto_set_num_threads_ffi :: C
 --typedef enum CBLAS_DIAG      {CblasNonUnit=131, CblasUnit=132} CBLAS_DIAG;
 --typedef enum CBLAS_SIDE      {CblasLeft=141, CblasRight=142} CBLAS_SIDE;
 
-foreign import ccall unsafe "cblas_sdsdot" cblas_sdsdot_ffi :: CInt -> CFloat -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat 
-foreign import ccall unsafe "cblas_dsdot" cblas_dsdot_ffi :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CDouble
-foreign import ccall unsafe "cblas_sdot" cblas_sdot_ffi :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat
-foreign import ccall unsafe "cblas_ddot" cblas_ddot_ffi :: CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> IO CDouble
+foreign import ccall unsafe "cblas.h cblas_sdsdot" cblas_sdsdot_ffi :: CInt -> CFloat -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat 
+foreign import ccall unsafe "cblas.h cblas_dsdot" cblas_dsdot_ffi :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CDouble
+foreign import ccall unsafe "cblas.h cblas_sdot" cblas_sdot_ffi :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat
+foreign import ccall unsafe "cblas.h cblas_ddot" cblas_ddot_ffi :: CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> IO CDouble
 --CFloat  cblas_sdsdot(  CInt n,   CFloat alpha,   CFloat *x,   CInt incx,   CFloat *y,   CInt incy);
 --CDouble cblas_dsdot (  CInt n,   CFloat *x,   CInt incx,   CFloat *y,   CInt incy);
 --CFloat  cblas_sdot(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy);

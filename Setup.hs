@@ -75,6 +75,8 @@ addOpenBLAStoLdLibraryPath  = do
     libDir <- makeRelativeToCurrentDirectory "OpenBLAS/"
     addToLdLibraryPath libDir
 
+adjustLinking cwd =  combine cwd "OpenBLAS/libopenblas.a"    
+
 main = do defaultMainWithHooks simpleUserHooks {
 
     confHook = \(genericPackageDescription, hookedBuildInfo) configFlags -> do
@@ -89,7 +91,7 @@ main = do defaultMainWithHooks simpleUserHooks {
         putStrLn $ show $ configExtraIncludeDirs configFlags'
         putStrLn $ show  $ configExtraLibDirs configFlags'
         addOpenBLAStoLdLibraryPath
-        confHook simpleUserHooks  (genericPackageDescription, hookedBuildInfo) configFlags',
+        confHook simpleUserHooks  (genericPackageDescription,(\(hbi,rest )-> ( fmap (\bi ->  bi{ldOptions =[ adjustLinking cwd] ++ ldOptions bi }) hbi , rest)) hookedBuildInfo) configFlags',
 
     buildHook = \packageDescription localBuildInfo userHooks buildFlags -> do
         addOpenBLAStoLdLibraryPath 
