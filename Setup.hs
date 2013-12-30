@@ -82,9 +82,9 @@ adjustLinking cwd =  combine cwd "OpenBLAS/libopenblas.a"
 main = do defaultMainWithHooks myhooks
 
 
-getAllTheObjs = do 
-        cwd <-getCurrentDirectory
-        getDirectoryContents "priv-objs"
+--getAllTheObjs = do 
+        --cwd <-getCurrentDirectory
+        --getDirectoryContents "priv-objs"
 
 myhooks = simpleUserHooks {
 
@@ -99,9 +99,9 @@ myhooks = simpleUserHooks {
                 }
         putStrLn $ show $ configExtraIncludeDirs configFlags'
         putStrLn $ show  $ configExtraLibDirs configFlags'
-        allTheObjs <- getAllTheObjs
+        --allTheObjs <- getAllTheObjs
         (confHook simpleUserHooks )  (genericPackageDescription,(\(hbi,rest )-> 
-            ( fmap (\bi ->  bi{ldOptions =allTheObjs ++[ adjustLinking cwd] ++ ldOptions bi }) hbi 
+            ( fmap (\bi ->  bi{ldOptions =[ adjustLinking cwd] ++ ldOptions bi }) hbi 
                 , rest)) hookedBuildInfo) configFlags'
 
     ,buildHook = \packageDescription localBuildInfo userHooks buildFlags -> do
