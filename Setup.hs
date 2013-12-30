@@ -13,9 +13,11 @@ import Distribution.Simple.Setup
 
 import System.Directory
 import System.Cmd 
+import Data.List 
 
-import System.Environment
-import System.SetEnv
+--import System.Process 
+--import System.Environment
+--import System.SetEnv
 
 import Control.Exception (SomeException, try)
 import Control.Monad
@@ -59,26 +61,30 @@ buildOpenBLAS= "make DYNAMIC_ARCH=1  USE_THREAD=1 -j1 NO_SHARED=1 "
 myhook = simpleUserHooks & _preConf %~ (\f args confargs ->  
             do buildBLIS ; f args confargs ) 
 
-(ldLibraryPathVar, ldLibraryPathSep) = 
-        case buildOS of
-          OSX -> ("DYLD_LIBRARY_PATH",":")
-          _ -> ("LD_LIBRARY_PATH",":")
+--(ldLibraryPathVar, ldLibraryPathSep) = 
+--        case buildOS of
+--          OSX -> ("DYLD_LIBRARY_PATH",":")
+          --_ -> ("LD_LIBRARY_PATH",":")
 
-addToLdLibraryPath s = do
-     v <- try $ getEnv ldLibraryPathVar :: IO (Either SomeException String)
-     setEnv ldLibraryPathVar (s ++ either (const "") (ldLibraryPathSep ++) v)
-
-
+--addToLdLibraryPath s = do
+--     v <- try $ getEnv ldLibraryPathVar :: IO (Either SomeException String)
+--     setEnv ldLibraryPathVar (s ++ either (const "") (ldLibraryPathSep ++) v)
 
 
-addOpenBLAStoLdLibraryPath  = do
-    libDir <- makeRelativeToCurrentDirectory "OpenBLAS/"
-    addToLdLibraryPath libDir
+
+
+--addOpenBLAStoLdLibraryPath  = do
+--    libDir <- makeRelativeToCurrentDirectory "OpenBLAS/"
+--    addToLdLibraryPath libDir
 
 adjustLinking cwd =  combine cwd "OpenBLAS/libopenblas.a"    
 
 main = do defaultMainWithHooks myhooks
 
+
+getAllTheObjs = do 
+        cwd <-getCurrentDirectory
+        getDirectoryContents "priv-objs"
 
 myhooks = simpleUserHooks {
 
@@ -93,16 +99,26 @@ myhooks = simpleUserHooks {
                 }
         putStrLn $ show $ configExtraIncludeDirs configFlags'
         putStrLn $ show  $ configExtraLibDirs configFlags'
-        addOpenBLAStoLdLibraryPath
-        confHook simpleUserHooks  (genericPackageDescription,(\(hbi,rest )-> ( fmap (\bi ->  bi{ldOptions =[ adjustLinking cwd] ++ ldOptions bi }) hbi , rest)) hookedBuildInfo) configFlags'
+        allTheObjs <- getAllTheObjs
+        (confHook simpleUserHooks )  (genericPackageDescription,(\(hbi,rest )-> 
+            ( fmap (\bi ->  bi{ldOptions =allTheObjs ++[ adjustLinking cwd] ++ ldOptions bi }) hbi 
+                , rest)) hookedBuildInfo) configFlags'
 
     ,buildHook = \packageDescription localBuildInfo userHooks buildFlags -> do
-        addOpenBLAStoLdLibraryPath 
-        buildHook simpleUserHooks packageDescription localBuildInfo userHooks buildFlags
+
+        (buildHook simpleUserHooks ) packageDescription localBuildInfo userHooks buildFlags
+    ,postBuild = \ args buildFlags packageDescription localBuildInfo -> 
+            do 
+                --- THIS MAY BE WILDLY UNPORTABLE AND NEED OS / ARCH SPECIFIC HACKS
+                staticLibs <- fmap (filter (\x -> isSuffixOf ".a" x )) $ getDirectoryContents "dist/build/"
+                -- dyLibs <- fmap (filter (\x -> isSuffixOf ".dylib" x ) $ getDirectoryContents "dist/build/"    -- ?
+                -- theObjs <- getAllTheObjs
+                mapM_ (\libname -> 
+                     system  ( "libtool -static -o " ++ ("dist/build/"++libname) ++ " " ++ ("dist/build/"++libname) ++ " OpenBLAS/libopenblas.a") ) staticLibs
+                (postBuild simpleUserHooks) args buildFlags packageDescription localBuildInfo
 
     ,testHook = \packageDescription localBuildInfo userHooks testFlags -> do
-        addOpenBLAStoLdLibraryPath  
-        testHook simpleUserHooks packageDescription localBuildInfo userHooks testFlags
+        (testHook simpleUserHooks) packageDescription localBuildInfo userHooks testFlags
 
     --,haddockHook = \packageDescription localBuildInfo userHooks haddockFlags -> do
     --    let v = "GHCRTS"
@@ -122,7 +138,7 @@ buildBLIS = do  putStrLn "OpenBLAS is built at configure time. This can take a w
                     else do  system "cd OpenBLAS ; git pull origin develop"
                 preBuilt <- doesFileExist "OpenBLAS/libopenblas.a"
                 if not preBuilt  then 
-                    do  (system  $ "cd OpenBLAS ; "++ buildOpenBLAS );
+                    do  (system $ "cd OpenBLAS ; "++ buildOpenBLAS );
                         (system  $ "cd OpenBLAS ; "++ buildOpenBLAS ); -- some weird build error happens if its only once
                         return () 
                     else putStrLn "OpenBLAS already built"
