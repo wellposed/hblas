@@ -63,7 +63,7 @@ library
   extra-libraries: openblas 
   include-dirs:    OpenBLAS/ 
   --extra-lib-dirs: OpenBLAS/
-
+  ld-options:  OpenBLAS/libopenblas.a 
 
 
   -- extra-lib-dirs: OpenBLAS/ 

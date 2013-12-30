@@ -56,8 +56,8 @@ buildOpenBLAS= "make DYNAMIC_ARCH=1  USE_THREAD=1 -j1 NO_SHARED=1 "
 #endif
 
 
---myhook = simpleUserHooks & _preConf %~ (\f args confargs ->  
---            do buildBLIS ; f args confargs ) 
+myhook = simpleUserHooks & _preConf %~ (\f args confargs ->  
+            do buildBLIS ; f args confargs ) 
 
 (ldLibraryPathVar, ldLibraryPathSep) = 
         case buildOS of
@@ -94,22 +94,22 @@ myhooks = simpleUserHooks {
         putStrLn $ show $ configExtraIncludeDirs configFlags'
         putStrLn $ show  $ configExtraLibDirs configFlags'
         addOpenBLAStoLdLibraryPath
-        confHook simpleUserHooks  (genericPackageDescription,(\(hbi,rest )-> ( fmap (\bi ->  bi{ldOptions =[ adjustLinking cwd] ++ ldOptions bi }) hbi , rest)) hookedBuildInfo) configFlags',
+        confHook simpleUserHooks  (genericPackageDescription,(\(hbi,rest )-> ( fmap (\bi ->  bi{ldOptions =[ adjustLinking cwd] ++ ldOptions bi }) hbi , rest)) hookedBuildInfo) configFlags'
 
-    buildHook = \packageDescription localBuildInfo userHooks buildFlags -> do
+    ,buildHook = \packageDescription localBuildInfo userHooks buildFlags -> do
         addOpenBLAStoLdLibraryPath 
-        buildHook simpleUserHooks packageDescription localBuildInfo userHooks buildFlags,
+        buildHook simpleUserHooks packageDescription localBuildInfo userHooks buildFlags
 
-    testHook = \packageDescription localBuildInfo userHooks testFlags -> do
+    ,testHook = \packageDescription localBuildInfo userHooks testFlags -> do
         addOpenBLAStoLdLibraryPath  
-        testHook simpleUserHooks packageDescription localBuildInfo userHooks testFlags,
+        testHook simpleUserHooks packageDescription localBuildInfo userHooks testFlags
 
-    haddockHook = \packageDescription localBuildInfo userHooks haddockFlags -> do
-        let v = "GHCRTS"
-        oldGhcRts <- try $ getEnv v :: IO (Either SomeException String)
-        setEnv v (either (const id) (\o n -> o ++ " " ++ n) oldGhcRts "-K32M")
-        haddockHook simpleUserHooks packageDescription localBuildInfo userHooks haddockFlags
-        either (const (unsetEnv v)) (setEnv v) oldGhcRts
+    --,haddockHook = \packageDescription localBuildInfo userHooks haddockFlags -> do
+    --    let v = "GHCRTS"
+    --    oldGhcRts <- try $ getEnv v :: IO (Either SomeException String)
+    --    setEnv v (either (const id) (\o n -> o ++ " " ++ n) oldGhcRts "-K32M")
+    --    haddockHook simpleUserHooks packageDescription localBuildInfo userHooks haddockFlags
+    --    either (const (unsetEnv v)) (setEnv v) oldGhcRts
    }  & _preConf %~ (\f args confargs ->  
             do buildBLIS ; f args confargs ) 
 
@@ -118,10 +118,14 @@ myhooks = simpleUserHooks {
 buildBLIS = do  putStrLn "OpenBLAS is built at configure time. This can take a while! Make sure you have gfortran installed too."
 
                 freshBlis <- doesDirectoryExist "OpenBLAS"
-                if  freshBlis then system "git clone  git@github.com:xianyi/OpenBLAS.git"
+                if  not  freshBlis then system "git clone  git@github.com:xianyi/OpenBLAS.git"
                     else do  system "cd OpenBLAS ; git pull origin develop"
                 preBuilt <- doesFileExist "OpenBLAS/libopenblas.a"
-                if not preBuilt  then (system  $ "cd OpenBLAS ; "++ buildOpenBLAS )>>= \x -> return () else putStrLn "OpenBLAS already built"
+                if not preBuilt  then 
+                    do  (system  $ "cd OpenBLAS ; "++ buildOpenBLAS );
+                        (system  $ "cd OpenBLAS ; "++ buildOpenBLAS ); -- some weird build error happens if its only once
+                        return () 
+                    else putStrLn "OpenBLAS already built"
   
 
 -- 
