@@ -47,8 +47,9 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules:      Numerical.OpenBLAS.FFI 
-  
+  exposed-modules:      Numerical.OpenBLAS.FFI,
+      Numerical.OpenBLAS.MatrixTypes,
+      Numerical.OpenBLAS.UtilsFFI 
   -- Modules included in this library but not exported.
   -- other-modules:       
   

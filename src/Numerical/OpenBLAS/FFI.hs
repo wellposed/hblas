@@ -17,12 +17,6 @@ foreign import ccall unsafe "cblas.h goto_set_num_threads" goto_set_num_threads_
 
 
 
-
-
-
-
-
-
 newtype CBLAS_Index = CBIndex CSize 
 
 newtype CBLAS_OrderT = CBOInt CUChar
@@ -33,6 +27,7 @@ encodeOrder CBLAS_RowMajor = CBOInt 101
 encodeOrder CBLAS_ColMajor = CBOInt 102 
 
 newtype CBLAS_TransposeT = CBLAS_TransposeT{ unCBLAS_TransposeT :: CUChar } deriving (Eq, Show)
+
 data CBLAS_Tranpose = CBlasNoTransPose | CBlasTranpose | CBlasConjTranspose | CBlasConjNoTranpose 
 
 encodeTranpose  CBlasNoTransPose = CBLAS_TransposeT 111
@@ -318,69 +313,70 @@ honestly the only code that really really matter for numerical algorithms are th
 product procedures.
 
 
-
+the case could be made that for large enough matrices, the funcalls should 
+switch from unsafe to safe ffi calls, but punting on that for now
 
 
 
 -}
-type GemmFun scale el = CBLAS_OrderT -> CBLAS_TransposeT ->  CBLAS_TransposeT -> CBLAS_TransposeT->
+type GemmFunFFI scale el = CBLAS_OrderT -> CBLAS_TransposeT ->  CBLAS_TransposeT -> CBLAS_TransposeT->
         CInt -> CInt -> CInt -> scale -> Ptr el  -> CInt -> Ptr el -> CInt -> Ptr el -> IO ()
 
 -- matrix mult!
 foreign import ccall unsafe "cblas.h cblas_sgemm" 
-    cblas_sgemm_ffi :: GemmFun Float Float
+    cblas_sgemm_ffi :: GemmFunFFI Float Float
 
 foreign import ccall unsafe "cblas.h cblas_dgemm" 
-    cblas_dgemm_ffi :: GemmFun Double Double
+    cblas_dgemm_ffi :: GemmFunFFI Double Double
 
 foreign import ccall unsafe "cblas.h cblas_cgemm" 
-    cblas_cgemm_ffi :: GemmFun (Ptr(Complex Float)) (Complex Float)
+    cblas_cgemm_ffi :: GemmFunFFI (Ptr(Complex Float)) (Complex Float)
 
 foreign import ccall unsafe "cblas.h cblas_zgemm" 
-    cblas_zgemm_ffi :: GemmFun (Ptr (Complex Double)) (Complex Double)
+    cblas_zgemm_ffi :: GemmFunFFI (Ptr (Complex Double)) (Complex Double)
 
 
 
-type SymmFun scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT ->
+type SymmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT ->
      CInt->CInt ->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 
 foreign import ccall unsafe "cblas.h cblas_ssymm" 
-    cblas_ssymm_ffi :: SymmFun Float Float 
+    cblas_ssymm_ffi :: SymmFunFFI Float Float 
 
 foreign import ccall unsafe "cblas.h cblas_dsymm" 
-    cblas_dsymm_ffi :: SymmFun Double Double 
+    cblas_dsymm_ffi :: SymmFunFFI Double Double 
 
 foreign import ccall unsafe "cblas.h cblas_csymm" 
-    cblas_csymm_ffi :: SymmFun (Ptr (Complex Float )) (Complex Float)
+    cblas_csymm_ffi :: SymmFunFFI (Ptr (Complex Float )) (Complex Float)
 
 foreign import ccall unsafe "cblas.h cblas_zsymm" 
-    cblas_zsymm_ffi :: SymmFun (Ptr (Complex Double)) (Complex Double)
+    cblas_zsymm_ffi :: SymmFunFFI (Ptr (Complex Double)) (Complex Double)
 
  
 
-type SyrkFun scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
+type SyrkFunFF scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
      CInt->CInt ->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign import ccall unsafe "cblas.h cblas_ssyrk" 
-    cblas_ssyrk_ffi :: SyrkFun Float Float 
+    cblas_ssyrk_ffi :: SyrkFunFFI Float Float 
 foreign import ccall unsafe "cblas.h cblas_dsyrk" 
-    cblas_dsyrk_ffi :: SyrkFun Double Double
+    cblas_dsyrk_ffi :: SyrkFunFFI Double Double
 foreign import ccall unsafe "cblas.h cblas_csyrk" 
-    cblas_csyrk_ffi :: SyrkFun (Ptr(Complex Float)) (Complex Float)
+    cblas_csyrk_ffi :: SyrkFunFFI (Ptr(Complex Float)) (Complex Float)
 foreign import ccall unsafe "cblas.h cblas_zsyrk" 
-    cblas_zsyrk_ffi :: SyrkFun (Ptr(Complex Double)) (Complex Double)
+    cblas_zsyrk_ffi :: SyrkFunFFI (Ptr(Complex Double)) (Complex Double)
 
 
-type Syr2kFun scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
+type Syr2kFunFFI scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 
 foreign  import ccall unsafe "cblas.h cblas_ssyr2k" 
-    cblas_ssyr2k_ffi :: Syr2kFun Float Float 
+    cblas_ssyr2k_ffi :: Syr2kFunFFI Float Float 
 foreign import ccall unsafe "cblas.h cblas_dsyr2k" 
-    cblas_dsyr2k_ffi :: Syr2kFun Double Double
+    cblas_dsyr2k_ffi :: Syr2kFunFFI Double Double
 foreign  import ccall unsafe "cblas.h cblas_csyr2k" 
-    cblas_csyr2k_ffi :: Syr2kFun (Ptr (Complex Float)) Float  
+    cblas_csyr2k_ffi :: Syr2kFunFFI (Ptr (Complex Float)) Float  
 foreign  import ccall unsafe "cblas.h cblas_zsyr2k" 
-    cblas_zsyr2k_ffi :: Syr2kFun (Ptr (Complex Double)) Double 
+    cblas_zsyr2k_ffi :: Syr2kFunFFI (Ptr (Complex Double)) Double 
 --void cblas_ssyr2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,
 --            CInt N,   CInt K,   CFloat alpha,   CFloat *A,   CInt lda,   CFloat *B,   CInt ldb,   CFloat beta, CFloat *C,   CInt ldc);
 --void cblas_dsyr2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,
@@ -391,16 +387,16 @@ foreign  import ccall unsafe "cblas.h cblas_zsyr2k"
 --            CInt N,   CInt K,   CDouble *alpha,   CDouble *A,   CInt lda,   CDouble *B,   CInt ldb,   CDouble *beta, CDouble *C,   CInt ldc);
 
 
-type TrmmFun scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT +> 
+type TrmmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT +> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas.h cblas_strmm" 
-    cblas_strmm_ffi :: TrmmFun Float Float 
+    cblas_strmm_ffi :: TrmmFunFFI Float Float 
 foreign  import ccall unsafe "cblas.h cblas_dtrmm" 
-    cblas_dtrmm_ffi :: TrmmFun Double Double 
+    cblas_dtrmm_ffi :: TrmmFunFFI Double Double 
 foreign  import ccall unsafe "cblas.h cblas_ctrmm" 
-    cblas_ctrmm_ffi :: TrmmFun (Ptr (Complex Float )) (Complex Float) 
+    cblas_ctrmm_ffi :: TrmmFunFFI (Ptr (Complex Float )) (Complex Float) 
 foreign  import ccall unsafe "cblas.h cblas_ztrmm" 
-    cblas_ztrmm_ffi :: TrmmFun (Ptr (Complex Double )) (Complex Double) 
+    cblas_ztrmm_ffi :: TrmmFunFFI (Ptr (Complex Double )) (Complex Double) 
 
 --void cblas_strmm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CFloat alpha,   CFloat *A,   CInt lda, CFloat *B,   CInt ldb);
@@ -412,16 +408,16 @@ foreign  import ccall unsafe "cblas.h cblas_ztrmm"
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble *alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
 
 -- triangular solver 
-type TrsmFun scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT +> 
+type TrsmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT +> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas.h cblas_strsm" 
-    cblas_strsm_ffi :: TrmmFun Float Float 
+    cblas_strsm_ffi :: TrmmFunFFI Float Float 
 foreign  import ccall unsafe "cblas.h cblas_dtrsm" 
-    cblas_dtrsm_ffi :: TrmmFun Double Double 
+    cblas_dtrsm_ffi :: TrmmFunFFI Double Double 
 foreign  import ccall unsafe "cblas.h cblas_ctrsm" 
-    cblas_ctrsm_ffi :: TrmmFun (Ptr (Complex Float )) (Complex Float) 
+    cblas_ctrsm_ffi :: TrmmFunFFI (Ptr (Complex Float )) (Complex Float) 
 foreign  import ccall unsafe "cblas.h cblas_ztrsm" 
-    cblas_ztrsm_ffi :: TrmmFun (Ptr (Complex Double )) (Complex Double) 
+    cblas_ztrsm_ffi :: TrmmFunFFI (Ptr (Complex Double )) (Complex Double) 
 
 --void cblas_strsm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CFloat alpha,   CFloat *A,   CInt lda, CFloat *B,   CInt ldb);
@@ -433,13 +429,13 @@ foreign  import ccall unsafe "cblas.h cblas_ztrsm"
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble *alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
 
 
-type HemmFun  el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT ->
+type HemmFunFFI  el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT ->
      CInt->CInt -> Ptr el -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 
 foreign  import ccall unsafe "cblas.h cblas_chemm" 
-    cblas_chemm_ffi :: TrmmFun  (Complex Float) 
+    cblas_chemm_ffi :: HemmFunFFI (Complex Float) 
 foreign  import ccall unsafe "cblas.h cblas_zhemm" 
-    cblas_zhemm_ffi :: TrmmFun  (Complex Double) 
+    cblas_zhemm_ffi :: HemmFunFFI  (Complex Double) 
 
 --void cblas_chemm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   CInt M,   CInt N,
 --                   CFloat *alpha,   CFloat *A,   CInt lda,   CFloat *B,   CInt ldb,   CFloat *beta, CFloat *C,   CInt ldc);
@@ -458,13 +454,13 @@ foreign  import ccall unsafe "cblas.h cblas_zherk"
 --void cblas_zherk(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
 --                   CDouble alpha,   CDouble *A,   CInt lda,   CDouble beta, CDouble *C,   CInt ldc);
 
-type Her2kFun scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_TransposeT ->
+type Her2kFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_TransposeT ->
      CInt->CInt -> Ptr el  -> Ptr el -> CInt -> Ptr el -> CInt ->scale ->Ptr el -> CInt -> IO ()
-     
+
 foreign  import ccall unsafe "cblas.h cblas_cher2k" 
-    cblas_cher2k_ffi :: HerkFun  Float  (Complex Float) 
+    cblas_cher2k_ffi :: Her2kFunFFI  Float  (Complex Float) 
 foreign  import ccall unsafe "cblas.h cblas_zher2k" 
-    cblas_zher2k_ffi :: HerkFun  Double  (Complex Double)
+    cblas_zher2k_ffi :: Her2kFunFFI  Double  (Complex Double)
 --void cblas_cher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
 --                    CFloat *alpha,   CFloat *A,   CInt lda,   CFloat *B,   CInt ldb,   CFloat beta, CFloat *C,   CInt ldc);
 --void cblas_zher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
