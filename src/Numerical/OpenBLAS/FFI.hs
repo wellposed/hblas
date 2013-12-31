@@ -99,13 +99,13 @@ we can only handle pointers to complex numbers right now
 --void  cblas_zdotu_sub(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy, openblas_complex_CDouble *ret);
 --void  cblas_zdotc_sub(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy, openblas_complex_CDouble *ret);
 
--- absolute value
+---- absolute value
 foreign import ccall unsafe "cblas.h cblas_sasum" cblas_sasum_ffi :: CInt -> Ptr CFloat -> CInt -> IO CFloat
 foreign import ccall unsafe "cblas.h cblas_dasum" cblas_dasum_ffi :: 
     CInt -> Ptr CDouble -> CInt -> IO CDouble
-foreign import ccall unsafe "cblas.h cblas_casum" cblas_casum_ffi :: 
+foreign import ccall unsafe "cblas.h cblas_scasum" cblas_casum_ffi :: 
     CInt -> Ptr (Complex CFloat)-> CInt -> IO CFloat
-foreign import ccall unsafe "cblas.h cblas_zasum" cblas_zasum_ffi :: 
+foreign import ccall unsafe "cblas.h cblas_dzasum" cblas_zasum_ffi :: 
     CInt -> Ptr (Complex CDouble) -> CInt -> IO CDouble
 --CFloat  cblas_sasum (  CInt n,   CFloat  *x,   CInt incx);
 --CDouble cblas_dasum (  CInt n,   CDouble *x,   CInt incx);
