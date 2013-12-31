@@ -91,7 +91,7 @@ myhooks = simpleUserHooks {
     confHook = \(genericPackageDescription, hookedBuildInfo) configFlags -> do
         cwd <- getCurrentDirectory 
         includeDirs <-   return  [combine cwd "OpenBLAS/"]-- liftM lines $ llvmConfig ["--includedir"]
-        libDirs@[libDir] <- return [combine cwd  "OpenBLAS/"]  -- liftM lines $ llvmConfig 
+        libDirs <- return [combine cwd  "OpenBLAS/"]  -- liftM lines $ llvmConfig 
         putStrLn $ show libDirs
         let configFlags' = configFlags {
             configExtraLibDirs = libDirs ++ configExtraLibDirs configFlags,
