@@ -4,7 +4,7 @@ module Numerical.OpenBLAS.MatrixTypes where
 should not be regarded as being general purpose matrices.
 
 They are designed to exactly express only the matrices which are 
-valid inputs for 
-
-
+valid inputs for BLAS. When applicable, such matrices should be easily mapped 
+to and from other matrix libraries. 
 -}    
+

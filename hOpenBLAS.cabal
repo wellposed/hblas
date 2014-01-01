@@ -58,7 +58,7 @@ library
   
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.6 && <4.7, storable-complex >= 0.2.0 && < 0.3.0,
-          vector 
+          vector , primitive >= 0.5 && < 0.6
   -- look, no external deps for openblas! 
   extra-libraries: openblas
   if os(OSX)

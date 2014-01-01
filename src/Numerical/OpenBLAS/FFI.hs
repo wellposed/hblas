@@ -354,7 +354,7 @@ foreign import ccall unsafe "cblas.h cblas_zsymm"
 
  
 
-type SyrkFunFF scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
+type SyrkFunFFI scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
      CInt->CInt ->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign import ccall unsafe "cblas.h cblas_ssyrk" 
     cblas_ssyrk_ffi :: SyrkFunFFI Float Float 
@@ -387,7 +387,7 @@ foreign  import ccall unsafe "cblas.h cblas_zsyr2k"
 --            CInt N,   CInt K,   CDouble *alpha,   CDouble *A,   CInt lda,   CDouble *B,   CInt ldb,   CDouble *beta, CDouble *C,   CInt ldc);
 
 
-type TrmmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT +> 
+type TrmmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT -> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas.h cblas_strmm" 
     cblas_strmm_ffi :: TrmmFunFFI Float Float 
@@ -408,7 +408,7 @@ foreign  import ccall unsafe "cblas.h cblas_ztrmm"
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble *alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
 
 -- triangular solver 
-type TrsmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT +> 
+type TrsmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT -> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas.h cblas_strsm" 
     cblas_strsm_ffi :: TrmmFunFFI Float Float 
