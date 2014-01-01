@@ -28,9 +28,9 @@ encodeOrder CBLAS_ColMajor = CBOInt 102
 
 newtype CBLAS_TransposeT = CBLAS_TransposeT{ unCBLAS_TransposeT :: CUChar } deriving (Eq, Show)
 
-data CBLAS_Tranpose = CBlasNoTransPose | CBlasTranpose | CBlasConjTranspose | CBlasConjNoTranpose 
+data CBLAS_Tranpose = CBlasNoTranspose | CBlasTranpose | CBlasConjTranspose | CBlasConjNoTranpose 
 
-encodeTranpose  CBlasNoTransPose = CBLAS_TransposeT 111
+encodeTranpose  CBlasNoTranspose = CBLAS_TransposeT 111
 encodeTranpose  CBlasTranpose = CBLAS_TransposeT 112
 encodeTranpose  CBlasConjTranspose = CBLAS_TransposeT 113
 encodeTranpose  CBlasConjNoTranpose = CBLAS_TransposeT 114
