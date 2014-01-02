@@ -33,19 +33,25 @@ maintainer:          carter at wellposed dot com
 
 -- A copyright notice.
 -- copyright:           
-
+cabal-version:       >=1.10
 category:            Math
 
 build-type:          Custom
 
+
+source-repository head
+  type: git
+  location: git://github.com/wellposed/hOpenBLAS.git
+  
 -- Extra files to be distributed with the package, such as examples or a 
 -- README.
 -- extra-source-files:  
 
 -- Constraint on the version of Cabal needed to build this package.
-cabal-version:       >=1.10
+
 
 library
+
   -- Modules exported by the library.
   exposed-modules:      Numerical.OpenBLAS.FFI,
       Numerical.OpenBLAS.MatrixTypes,
