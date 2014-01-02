@@ -13,6 +13,5 @@ main = do
   v  :: IOVector Double <- M.replicate 10 1.0
   res <- unsafeWith v (\ptr-> cblas_ddot_ffi 10 (castPtr ptr) 1 (castPtr ptr) 1) 
   putStrLn $ show res 
- 
-  putStrLn "it works?"
+  putStrLn "it works!"
   
