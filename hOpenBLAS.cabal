@@ -55,7 +55,7 @@ library
   
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
-  
+  ghc-options: -Wall 
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.5 && <4.8, storable-complex >= 0.2.0 && < 0.3.0,
           vector , primitive >= 0.5 && < 0.6

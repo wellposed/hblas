@@ -23,6 +23,8 @@ newtype CBLAS_OrderT = CBOInt CUChar
     deriving (Eq,Show)
 data CBLAS_Order = CBLAS_RowMajor | CBLAS_ColMajor 
     deriving (Eq,Show)
+
+encodeOrder :: CBLAS_Order -> CBLAS_OrderT
 encodeOrder CBLAS_RowMajor = CBOInt 101
 encodeOrder CBLAS_ColMajor = CBOInt 102 
 
@@ -30,6 +32,7 @@ newtype CBLAS_TransposeT = CBLAS_TransposeT{ unCBLAS_TransposeT :: CUChar } deri
 
 data CBLAS_Tranpose = CBlasNoTranspose | CBlasTranpose | CBlasConjTranspose | CBlasConjNoTranpose 
 
+encodeTranpose :: CBLAS_Tranpose -> CBLAS_TransposeT
 encodeTranpose  CBlasNoTranspose = CBLAS_TransposeT 111
 encodeTranpose  CBlasTranpose = CBLAS_TransposeT 112
 encodeTranpose  CBlasConjTranspose = CBLAS_TransposeT 113
@@ -39,6 +42,8 @@ newtype CBLAS_UploT = CBlasUPLO CUChar
     deriving (Eq,Show)
 data CBLAS_Uplo = CBUpper | CBLower
     deriving (Eq,Show)
+
+encodeUPLO :: CBLAS_Uplo -> CBLAS_UploT    
 encodeUPLO CBUpper = CBlasUPLO 121  
 encodeUPLO CBLower = CBlasUPLO 122
 
@@ -49,6 +54,7 @@ newtype CBLAS_DiagT = CBLAS_DiagT CUChar
 data CBlasDiag = CBlasNonUnit   | CBlasUnit 
     deriving (Eq,Show )
     
+encodeDiag :: CBlasDiag -> CBLAS_DiagT    
 encodeDiag CBlasNonUnit = CBLAS_DiagT 131
 encodeDiag CBlasUnit = CBLAS_DiagT 132
 
@@ -56,6 +62,7 @@ newtype CBLAS_SideT = CBLAS_SideT { unCBLAS_SideT :: CUChar }
     deriving (Eq, Show)
 data CBlasSide = CBlasLeft | CBlasRight 
     deriving (Eq,Show)
+encodeSide :: CBlasSide -> CBLAS_SideT    
 encodeSide CBlasLeft = CBLAS_SideT 141
 encodeSide CBlasRight = CBLAS_SideT 142
 

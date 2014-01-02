@@ -24,4 +24,5 @@ if your cloned this repo, ``` cabal install``` will work, otherwise ``` cabal in
 
 ## getting involved
 patches, bug reports,  and other contributions welcome.
-https://travis-ci.org/[wellposed]/[hOpenBLAS].png
+
+[![Build Status](https://secure.travis-ci.org/wellposed/hOpenBLAS.png?branch=master)](http://travis-ci.org/wellposed/hybrid-vectors)
