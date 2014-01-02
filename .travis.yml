@@ -20,7 +20,9 @@ matrix:
     - env: GHCVER=head
 
 before_install:
-  - sudo apt-get install openblas
+  - sudo apt-get install gfortran
+  - git clone git@github.com:xianyi/OpenBLAS.git 
+  - cd Openblas ;  make  USE_THREAD=1 - NO_SHARED=1  PREFIX=/usr ; make install 
   - git clone http://github.com/wellposed/wellposed-travis travis
   - source travis/scripts/set_env.sh
   - ./travis/scripts/before_install.sh
@@ -38,4 +40,4 @@ notifications:
       - "irc.freenode.org#wellposed"
     skip_join: true
     template:
-      - "\x0313<<<REPONAME>>>\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
+      - "\x0313 hOpenBLAS \x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
