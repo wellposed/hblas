@@ -16,8 +16,7 @@ version:             0.1.0.0
 synopsis:            BLAS and Lapack bindings for OpenBLAS
 
 -- A longer description of the package.
-description:   User friendly, simple bindings to BLAS and Lapack, 
-favoring OpenBLAS as the substrate.
+description:   User friendly, simple bindings to BLAS and Lapack, favoring OpenBLAS as the substrate.
 
 -- The license under which the package is released.
 license:             BSD3
