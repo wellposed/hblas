@@ -441,7 +441,10 @@ foreign  import ccall unsafe "cblas.h cblas_ztrmm"
 --void cblas_ztrmm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble *alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
 
--- triangular solver 
+------------------------
+-- triangular solvers 
+-----------------------
+
 type TrsmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT -> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas.h cblas_strsm" 
@@ -462,6 +465,9 @@ foreign  import ccall unsafe "cblas.h cblas_ztrsm"
 --void cblas_ztrsm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble *alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
 
+-------------------------
+-- hermitian matrix mult
+------------------------
 
 type HemmFunFFI  el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT ->
      CInt->CInt -> Ptr el -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
@@ -495,6 +501,8 @@ foreign  import ccall unsafe "cblas.h cblas_cher2k"
     cblas_cher2k_ffi :: Her2kFunFFI  Float  (Complex Float) 
 foreign  import ccall unsafe "cblas.h cblas_zher2k" 
     cblas_zher2k_ffi :: Her2kFunFFI  Double  (Complex Double)
+
+    
 --void cblas_cher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
 --                    CFloat *alpha,   CFloat *A,   CInt lda,   CFloat *B,   CInt ldb,   CFloat beta, CFloat *C,   CInt ldc);
 --void cblas_zher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
