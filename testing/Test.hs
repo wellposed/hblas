@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 import Numerical.OpenBLAS.FFI
 
-import Foreign.C.Types
+
 import Data.Vector.Storable.Mutable as M 
 import Foreign.Ptr
 
