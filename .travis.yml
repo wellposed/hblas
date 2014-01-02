@@ -21,7 +21,7 @@ matrix:
 
 before_install:
   - sudo apt-get install gfortran
-  - git clone http://github.com/xianyi/OpenBLAS.git ;  cd ./OpenBLAS ;  make  USE_THREAD=1  NO_SHARED=1; make  USE_THREAD=1  NO_SHARED=1  ; sudo make install PREFIX=/usr 
+  - git clone http://github.com/xianyi/OpenBLAS.git ;  cd ./OpenBLAS ;  make  USE_THREAD=1  NO_SHARED=1 2>/dev/null ; make  USE_THREAD=1  NO_SHARED=1  ; sudo make install PREFIX=/usr 
   - git clone http://github.com/wellposed/wellposed-travis travis
   - source travis/scripts/set_env.sh
   - ./travis/scripts/before_install.sh
