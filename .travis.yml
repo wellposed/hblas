@@ -20,6 +20,7 @@ matrix:
     - env: GHCVER=head
 
 before_install:
+  - sudo apt-get install openblas
   - git clone http://github.com/wellposed/wellposed-travis travis
   - source travis/scripts/set_env.sh
   - ./travis/scripts/before_install.sh
