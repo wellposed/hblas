@@ -309,16 +309,17 @@ foreign import ccall unsafe "cblas.h cblas_dzasum" cblas_zasum_ffi ::
 
 
 {-
-honestly the only code that really really matter for numerical algorithms are the matrix
-product procedures.
-
-
-the case could be made that for large enough matrices, the funcalls should 
-switch from unsafe to safe ffi calls, but punting on that for now
-
 
 
 -}
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+------------------------------ BLAS LEVEL 3 ROUTINES ---------------------------
+--------------------------------------------------------------------------------
+----------------------- Level 3 ops are faster than Levels 1 or 2 -------------- 
+--------------------------------------------------------------------------------
+
 type GemmFunFFI scale el = CBLAS_OrderT -> CBLAS_TransposeT ->  CBLAS_TransposeT -> CBLAS_TransposeT->
         CInt -> CInt -> CInt -> scale -> Ptr el  -> CInt -> Ptr el -> CInt -> Ptr el -> IO ()
 
@@ -335,6 +336,22 @@ foreign import ccall unsafe "cblas.h cblas_cgemm"
 foreign import ccall unsafe "cblas.h cblas_zgemm" 
     cblas_zgemm_ffi :: GemmFunFFI (Ptr (Complex Double)) (Complex Double)
 
+-- safe ffi variant for large inputs
+foreign import ccall "cblas.h cblas_sgemm" 
+    cblas_sgemm_ffi_safe :: GemmFunFFI Float Float
+
+foreign import ccall "cblas.h cblas_dgemm" 
+    cblas_dgemm_ffi_safe :: GemmFunFFI Double Double
+
+foreign import ccall "cblas.h cblas_cgemm" 
+    cblas_cgemm_ffi_safe :: GemmFunFFI (Ptr(Complex Float)) (Complex Float)
+
+foreign import ccall "cblas.h cblas_zgemm" 
+    cblas_zgemm_ffi_safe :: GemmFunFFI (Ptr (Complex Double)) (Complex Double)
+
+-----------------------------------------
+----- Matrix mult for Symmetric Matrices
+-----------------------------------------
 
 
 type SymmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT ->
@@ -352,10 +369,26 @@ foreign import ccall unsafe "cblas.h cblas_csymm"
 foreign import ccall unsafe "cblas.h cblas_zsymm" 
     cblas_zsymm_ffi :: SymmFunFFI (Ptr (Complex Double)) (Complex Double)
 
- 
 
+foreign import ccall  "cblas.h cblas_ssymm" 
+    cblas_ssymm_ffi_safe :: SymmFunFFI Float Float 
+
+foreign import ccall  "cblas.h cblas_dsymm" 
+    cblas_dsymm_ffi_safe :: SymmFunFFI Double Double 
+
+foreign import ccall  "cblas.h cblas_csymm" 
+    cblas_csymm_ffi_safe :: SymmFunFFI (Ptr (Complex Float )) (Complex Float)
+
+foreign import ccall  "cblas.h cblas_zsymm" 
+    cblas_zsymm_ffi_safe :: SymmFunFFI (Ptr (Complex Double)) (Complex Double)
+
+ 
+-----------------------------------
+---| symmetric rank k  matrix update, C := alpha*A*A' + beta*C
+--- or C = alpha*A'*A + beta*C 
+------------------------------------
 type SyrkFunFFI scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
-     CInt->CInt ->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+     CInt->CInt ->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt ->scale -> Ptr el -> CInt -> IO ()
 foreign import ccall unsafe "cblas.h cblas_ssyrk" 
     cblas_ssyrk_ffi :: SyrkFunFFI Float Float 
 foreign import ccall unsafe "cblas.h cblas_dsyrk" 
@@ -365,9 +398,14 @@ foreign import ccall unsafe "cblas.h cblas_csyrk"
 foreign import ccall unsafe "cblas.h cblas_zsyrk" 
     cblas_zsyrk_ffi :: SyrkFunFFI (Ptr(Complex Double)) (Complex Double)
 
+----------------------
+-----| Symmetric Rank 2k matrix update, C= alpha* A*B' + alpha* B*A' + beta * C
+----- or C= alpha* A'*B + alpha* B'*A + beta * C
+-------------------
+
 
 type Syr2kFunFFI scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
-     CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+     CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> scale ->Ptr el -> CInt -> IO ()
 
 foreign  import ccall unsafe "cblas.h cblas_ssyr2k" 
     cblas_ssyr2k_ffi :: Syr2kFunFFI Float Float 
@@ -377,16 +415,12 @@ foreign  import ccall unsafe "cblas.h cblas_csyr2k"
     cblas_csyr2k_ffi :: Syr2kFunFFI (Ptr (Complex Float)) Float  
 foreign  import ccall unsafe "cblas.h cblas_zsyr2k" 
     cblas_zsyr2k_ffi :: Syr2kFunFFI (Ptr (Complex Double)) Double 
---void cblas_ssyr2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,
---            CInt N,   CInt K,   CFloat alpha,   CFloat *A,   CInt lda,   CFloat *B,   CInt ldb,   CFloat beta, CFloat *C,   CInt ldc);
---void cblas_dsyr2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,
---            CInt N,   CInt K,   CDouble alpha,   CDouble *A,   CInt lda,   CDouble *B,   CInt ldb,   CDouble beta, CDouble *C,   CInt ldc);
---void cblas_csyr2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,
---            CInt N,   CInt K,   CFloat *alpha,   CFloat *A,   CInt lda,   CFloat *B,   CInt ldb,   CFloat *beta, CFloat *C,   CInt ldc);
---void cblas_zsyr2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,
---            CInt N,   CInt K,   CDouble *alpha,   CDouble *A,   CInt lda,   CDouble *B,   CInt ldb,   CDouble *beta, CDouble *C,   CInt ldc);
 
 
+
+-------------------------------
+-------- matrix matrix product for triangular matrices
+------------------------------
 type TrmmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT -> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas.h cblas_strmm" 
