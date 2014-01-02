@@ -24,3 +24,4 @@ if your cloned this repo, ``` cabal install``` will work, otherwise ``` cabal in
 
 ## getting involved
 patches, bug reports,  and other contributions welcome.
+https://travis-ci.org/[wellposed]/[hOpenBLAS].png
