@@ -1,0 +1,40 @@
+language: haskell
+
+env:
+  matrix:
+    - HPVER=2012.4.0.0
+    - HPVER=2013.2.0.0
+    - GHCVER=7.4.2
+    - GHCVER=7.6.3
+    - GHCVER=head
+  global:
+    - CABALVER=1.18
+    - UBUNTU_PKGS=""
+    - EXTRA_DEPS_PRE=""
+    - HEAD_DEPS=""
+    - EXTRA_DEPS=""
+    - CABAL_FLAGS=""
+
+matrix:
+  allow_failures:
+    - env: GHCVER=head
+
+before_install:
+  - git clone http://github.com/wellposed/wellposed-travis travis
+  - source travis/scripts/set_env.sh
+  - ./travis/scripts/before_install.sh
+
+install: ./travis/scripts/install.sh
+
+script: ./travis/scripts/script.sh
+
+notifications:
+  email: false
+  irc:
+    channels:
+      - "irc.freenode.org#numerical-haskell"
+      - "irc.freenode.org#numerical"
+      - "irc.freenode.org#wellposed"
+    skip_join: true
+    template:
+      - "\x0313<<<REPONAME>>>\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
