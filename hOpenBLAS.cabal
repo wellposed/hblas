@@ -95,6 +95,9 @@ Test-Suite simple-test
         -- where homebrew puts OpenBLAS by default 
         extra-lib-dirs: /usr/local/opt/openblas/lib
         include-dirs: /usr/local/opt/openblas/include
+    -- debian / ubuntu don't put openblas in a easy to find spot.
+    extra-lib-dirs: /usr/lib/openblas-base
+
   
     
   
