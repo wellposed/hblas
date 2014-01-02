@@ -2,9 +2,9 @@ language: haskell
 
 env:
   matrix:
-    - HPVER=2012.4.0.0
+    # - HPVER=2012.4.0.0
     - HPVER=2013.2.0.0
-    - GHCVER=7.4.2
+    # - GHCVER=7.4.2
     - GHCVER=7.6.3
     - GHCVER=head
   global:
