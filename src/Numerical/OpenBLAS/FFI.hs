@@ -384,7 +384,7 @@ foreign import ccall  "cblas.h cblas_zsymm"
 
  
 -----------------------------------
----| symmetric rank k  matrix update, C := alpha*A*A' + beta*C
+--- | symmetric rank k  matrix update, C := alpha*A*A' + beta*C
 --- or C = alpha*A'*A + beta*C 
 ------------------------------------
 type SyrkFunFFI scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
@@ -399,7 +399,7 @@ foreign import ccall unsafe "cblas.h cblas_zsyrk"
     cblas_zsyrk_ffi :: SyrkFunFFI (Ptr(Complex Double)) (Complex Double)
 
 ----------------------
------| Symmetric Rank 2k matrix update, C= alpha* A*B' + alpha* B*A' + beta * C
+----- | Symmetric Rank 2k matrix update, C= alpha* A*B' + alpha* B*A' + beta * C
 ----- or C= alpha* A'*B + alpha* B'*A + beta * C
 -------------------
 
@@ -419,7 +419,7 @@ foreign  import ccall unsafe "cblas.h cblas_zsyr2k"
 
 
 -------------------------------
--------- matrix matrix product for triangular matrices
+--------  |matrix matrix product for triangular matrices
 ------------------------------
 type TrmmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT -> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
@@ -442,7 +442,7 @@ foreign  import ccall unsafe "cblas.h cblas_ztrmm"
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble *alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
 
 ------------------------
--- triangular solvers 
+--  |triangular solvers 
 -----------------------
 
 type TrsmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT -> 
@@ -466,7 +466,7 @@ foreign  import ccall unsafe "cblas.h cblas_ztrsm"
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble *alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
 
 -------------------------
--- hermitian matrix mult
+-- | hermitian matrix mult
 ------------------------
 
 type HemmFunFFI  el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT ->
@@ -502,7 +502,7 @@ foreign  import ccall unsafe "cblas.h cblas_cher2k"
 foreign  import ccall unsafe "cblas.h cblas_zher2k" 
     cblas_zher2k_ffi :: Her2kFunFFI  Double  (Complex Double)
 
-    
+
 --void cblas_cher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
 --                    CFloat *alpha,   CFloat *A,   CInt lda,   CFloat *B,   CInt ldb,   CFloat beta, CFloat *C,   CInt ldc);
 --void cblas_zher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
