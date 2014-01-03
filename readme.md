@@ -11,10 +11,14 @@ an unopinionated, simple, portable, easy to install BLAS/LAPACK substrate for hi
 computing libraries to build upon. Morever, this library is strictly a wrapper,
 and simply makes using the functionality of OpenBLAS more accessible.
 
+This library is *NOT* meant to be used a standalone array library (except in desperation),
+but rather should be used by a higher level numerical array library to provide 
+high performance linear algebra routines. 
+
 hOpenBLAS requires having gfortran or another fortran compiler installed in 
 order to build, along with OpenBLAS itself.  For now, only OpenBLAS is supported, because it is the only 
 actively maintained BLAS that is multi-threaded and threadsafe by default. 
-Patches to add support for other thread safe BLAS/LAPACK variants is welcome. 
+Patches to add support for other threadsafe BLAS/LAPACK variants is welcome. 
 
 ## how to install
 * On OS X systems, ```brew tap homebrew/science ; brew install openblas ``` will handle 
@@ -26,7 +30,17 @@ OpenBLAS is thread safe, and thus  when LAPACK is built using OpenBLAS
 (as in the standard OpenBLAS build), it is threadsafe too.  
 * Otherwise, read the documentation at https://github.com/xianyi/OpenBLAS for
 how to install on your system. This will typically involve:
-```git clone https://github.com/xianyi/OpenBLAS ; cd OpenBLAS ; make ; make install PREFIX=$yourPrefixHere``` 
+```
+git clone https://github.com/xianyi/OpenBLAS
+cd OpenBLAS 
+make
+make install PREFIX=$yourPrefixHere # eg PREFIX=/usr on linux systems
+``` 
+note that if you plan to deploy applications on multiple machines
+that have different cpu versions, you may want to build openblas with
+``` make DYNAMIC_ARCH=1 NO_SHARED=1 ; make install NO_SHARED=1 PREFIX=$blah```
+and on OSX systems you may want to also pass ```CC=clang``` to the build command.
+
 
 once openblas is installed, hOpenBLAS can be easily installed just like any other haskell library,
 if your cloned this repo, ``` cabal install``` will work, 

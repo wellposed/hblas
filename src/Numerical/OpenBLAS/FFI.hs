@@ -17,54 +17,54 @@ foreign import ccall unsafe "cblas.h goto_set_num_threads" goto_set_num_threads_
 
 
 
-newtype CBLAS_Index = CBIndex CSize 
+newtype CBLAS_INDEX = CBIndex CSize 
 
-newtype CBLAS_OrderT = CBOInt CUChar
+newtype CBLAS_ORDERT = CBOInt CInt
     deriving (Eq,Show)
-data CBLAS_Order = CBLAS_RowMajor | CBLAS_ColMajor 
-    deriving (Eq,Show)
-
-encodeOrder :: CBLAS_Order -> CBLAS_OrderT
-encodeOrder CBLAS_RowMajor = CBOInt 101
-encodeOrder CBLAS_ColMajor = CBOInt 102 
-
-newtype CBLAS_TransposeT = CBLAS_TransposeT{ unCBLAS_TransposeT :: CUChar } deriving (Eq, Show)
-
-data CBLAS_Tranpose = CBlasNoTranspose | CBlasTranpose | CBlasConjTranspose | CBlasConjNoTranpose 
-
-encodeTranpose :: CBLAS_Tranpose -> CBLAS_TransposeT
-encodeTranpose  CBlasNoTranspose = CBLAS_TransposeT 111
-encodeTranpose  CBlasTranpose = CBLAS_TransposeT 112
-encodeTranpose  CBlasConjTranspose = CBLAS_TransposeT 113
-encodeTranpose  CBlasConjNoTranpose = CBLAS_TransposeT 114
-
-newtype CBLAS_UploT = CBlasUPLO CUChar
-    deriving (Eq,Show)
-data CBLAS_Uplo = CBUpper | CBLower
+data BLASOrder = BLASRowMajor | BLASColMajor 
     deriving (Eq,Show)
 
-encodeUPLO :: CBLAS_Uplo -> CBLAS_UploT    
-encodeUPLO CBUpper = CBlasUPLO 121  
-encodeUPLO CBLower = CBlasUPLO 122
+encodeOrder :: BLASOrder -> CBLAS_ORDERT
+encodeOrder BLASRowMajor = CBOInt 101
+encodeOrder BLASColMajor = CBOInt 102 
 
-newtype CBLAS_DiagT = CBLAS_DiagT CUChar 
+newtype CBLAS_TRANSPOSET = CBLAS_TransposeT{ unCBLAS_TransposeT :: CInt } deriving (Eq, Show)
+
+data BLAS_Tranpose = BlasNoTranspose | BlasTranpose | BlasConjTranspose | BlasConjNoTranpose 
+
+encodeTranpose :: BLAS_Tranpose -> CBLAS_TRANSPOSET
+encodeTranpose  BlasNoTranspose = CBLAS_TransposeT 111
+encodeTranpose  BlasTranpose = CBLAS_TransposeT 112
+encodeTranpose  BlasConjTranspose =  CBLAS_TransposeT 113
+encodeTranpose  BlasConjNoTranpose = CBLAS_TransposeT 114
+
+newtype CBLAS_UPLOT = CBlasUPLO CInt 
+    deriving (Eq,Show)
+data BLASUplo = BUpper | BLower
+    deriving (Eq,Show)
+
+encodeUPLO :: BLASUplo -> CBLAS_UPLOT    
+encodeUPLO BUpper = CBlasUPLO 121  
+encodeUPLO BLower = CBlasUPLO 122
+
+newtype CBLAS_DIAGT = CBLAS_DiagT CUChar 
     deriving (Show,Eq)
 
 
-data CBlasDiag = CBlasNonUnit   | CBlasUnit 
+data BlasDiag = BlasNonUnit   | BlasUnit 
     deriving (Eq,Show )
     
-encodeDiag :: CBlasDiag -> CBLAS_DiagT    
-encodeDiag CBlasNonUnit = CBLAS_DiagT 131
-encodeDiag CBlasUnit = CBLAS_DiagT 132
+encodeDiag :: BlasDiag -> CBLAS_DIAGT    
+encodeDiag BlasNonUnit = CBLAS_DiagT 131
+encodeDiag BlasUnit = CBLAS_DiagT 132
 
-newtype CBLAS_SideT = CBLAS_SideT { unCBLAS_SideT :: CUChar } 
+newtype CBLAS_SIDET = CBLAS_SideT { unCBLAS_SideT :: CUChar } 
     deriving (Eq, Show)
-data CBlasSide = CBlasLeft | CBlasRight 
+data BlasSide = BlasLeft | BlasRight 
     deriving (Eq,Show)
-encodeSide :: CBlasSide -> CBLAS_SideT    
-encodeSide CBlasLeft = CBLAS_SideT 141
-encodeSide CBlasRight = CBLAS_SideT 142
+encodeSide :: BlasSide -> CBLAS_SIDET    
+encodeSide BlasLeft = CBLAS_SideT 141
+encodeSide BlasRight = CBLAS_SideT 142
 
 
 --typedef enum CBLAS_ORDER     {CblasRowMajor=101, CblasColMajor=102} CBLAS_ORDER;
@@ -171,6 +171,9 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_ffi ::
 --void cblas_csscal(  CInt N,   CFloat alpha, CFloat *X,   CInt incX);
 --void cblas_zdscal(  CInt N,   CDouble alpha, CDouble *X,   CInt incX);
 
+
+
+
 --void cblas_sgemv(  enum CBLAS_ORDER order,    enum CBLAS_TRANSPOSE trans,    CInt m,   CInt n,
 --           CFloat alpha,   CFloat  *a,   CInt lda,    CFloat  *x,   CInt incx,    CFloat beta,  CFloat  *y,   CInt incy);
 --void cblas_dgemv(  enum CBLAS_ORDER order,    enum CBLAS_TRANSPOSE trans,    CInt m,   CInt n,
@@ -196,6 +199,11 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_ffi ::
 --void cblas_ctrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
 --void cblas_ztrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
 
+
+
+---------------------
+----- BLAS LEVEL 2
+---------------------
 
 
 --void cblas_strmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
@@ -250,7 +258,9 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_ffi ::
 --void cblas_ztbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CInt K,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
 
-
+----------------
+--- solves  Ax=v where A is k+1 banded triangular matrix, and x and 
+----------------
 --void cblas_stbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CInt K,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
 --void cblas_dtbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
@@ -260,7 +270,9 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_ffi ::
 --void cblas_ztbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CInt K,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
 
-
+-------------------------------------------------------------------------
+-- | matrix vector product v:=Av, where A is a packed triangular nxn matrix
+-------------------------------------------------------------------------
 --void cblas_stpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CFloat *Ap, CFloat *X,   CInt incX);
 --void cblas_dtpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
@@ -270,7 +282,9 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_ffi ::
 --void cblas_ztpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CDouble *Ap, CDouble *X,   CInt incX);
 
-
+--------------------------------------------------
+---  | solve  Ax=v where A is a nxn packed triangular matrix, writes the solution into x. 
+--------------------------------------------------
 --void cblas_stpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CFloat *Ap, CFloat *X,   CInt incX);
 --void cblas_dtpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
@@ -281,16 +295,30 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_ffi ::
 --                   CInt N,   CDouble *Ap, CDouble *X,   CInt incX);
 
 
+----------------------------------
+---- | (unpacked) symmetric matrix vector product    x:=Av
+---------------------------------
+
+type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT
 
 --void cblas_ssymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat alpha,   CFloat *A,
 --                   CInt lda,   CFloat *X,   CInt incX,   CFloat beta, CFloat *Y,   CInt incY);
 --void cblas_dsymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble alpha,   CDouble *A,
 --                   CInt lda,   CDouble *X,   CInt incX,   CDouble beta, CDouble *Y,   CInt incY);
+
+--------------------------------
+---- | hermitian matrix vector product   x:=Av
+--------------------------------
 --void cblas_chemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat *alpha,   CFloat *A,
 --                   CInt lda,   CFloat *X,   CInt incX,   CFloat *beta, CFloat *Y,   CInt incY);
 --void cblas_zhemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble *alpha,   CDouble *A,
 --                   CInt lda,   CDouble *X,   CInt incX,   CDouble *beta, CDouble *Y,   CInt incY);
 
+
+
+---------------
+--- | packed symmetric matrix * vector product  y:= alpha * Av  + beta * y
+---------------
 
 --void cblas_sspmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat alpha,   CFloat *Ap,
 --                   CFloat *X,   CInt incX,   CFloat beta, CFloat *Y,   CInt incY);
@@ -338,7 +366,7 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_ffi ::
 ----------------------- Level 3 ops are faster than Levels 1 or 2 -------------- 
 --------------------------------------------------------------------------------
 
-type GemmFunFFI scale el = CBLAS_OrderT -> CBLAS_TransposeT ->  CBLAS_TransposeT -> CBLAS_TransposeT->
+type GemmFunFFI scale el = CBLAS_ORDERT -> CBLAS_TRANSPOSET ->  CBLAS_TRANSPOSET -> CBLAS_TRANSPOSET->
         CInt -> CInt -> CInt -> scale -> Ptr el  -> CInt -> Ptr el -> CInt -> Ptr el -> IO ()
 
 -- matrix mult!
@@ -372,7 +400,7 @@ foreign import ccall "cblas.h cblas_zgemm"
 -----------------------------------------
 
 
-type SymmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT ->
+type SymmFunFFI scale el = CBLAS_ORDERT -> CBLAS_ORDERT -> CBLAS_UPLOT ->
      CInt->CInt ->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 
 foreign import ccall unsafe "cblas.h cblas_ssymm" 
@@ -387,7 +415,7 @@ foreign import ccall unsafe "cblas.h cblas_csymm"
 foreign import ccall unsafe "cblas.h cblas_zsymm" 
     cblas_zsymm_ffi :: SymmFunFFI (Ptr (Complex Double)) (Complex Double)
 
-
+-- safe ffi variant
 foreign import ccall  "cblas.h cblas_ssymm" 
     cblas_ssymm_ffi_safe :: SymmFunFFI Float Float 
 
@@ -405,7 +433,7 @@ foreign import ccall  "cblas.h cblas_zsymm"
 --- | symmetric rank k  matrix update, C := alpha*A*A' + beta*C
 --- or C = alpha*A'*A + beta*C 
 ------------------------------------
-type SyrkFunFFI scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
+type SyrkFunFFI scale el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET ->
      CInt->CInt ->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt ->scale -> Ptr el -> CInt -> IO ()
 foreign import ccall unsafe "cblas.h cblas_ssyrk" 
     cblas_ssyrk_ffi :: SyrkFunFFI Float Float 
@@ -422,7 +450,8 @@ foreign import ccall unsafe "cblas.h cblas_zsyrk"
 -------------------
 
 
-type Syr2kFunFFI scale el = CBLAS_OrderT -> CBLAS_UploT -> CBLAS_TransposeT ->
+type Syr2kFunFFI scale el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET
+ ->
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> scale ->Ptr el -> CInt -> IO ()
 
 foreign  import ccall unsafe "cblas.h cblas_ssyr2k" 
@@ -439,7 +468,7 @@ foreign  import ccall unsafe "cblas.h cblas_zsyr2k"
 -------------------------------
 --------  |matrix matrix product for triangular matrices
 ------------------------------
-type TrmmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT -> 
+type TrmmFunFFI scale el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT -> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas.h cblas_strmm" 
     cblas_strmm_ffi :: TrmmFunFFI Float Float 
@@ -463,7 +492,7 @@ foreign  import ccall unsafe "cblas.h cblas_ztrmm"
 --  |triangular solvers 
 -----------------------
 
-type TrsmFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT -> CBLAS_TransposeT -> CBLAS_DiagT -> 
+type TrsmFunFFI scale el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT -> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas.h cblas_strsm" 
     cblas_strsm_ffi :: TrmmFunFFI Float Float 
@@ -487,7 +516,7 @@ foreign  import ccall unsafe "cblas.h cblas_ztrsm"
 -- | hermitian matrix mult
 ------------------------
 
-type HemmFunFFI  el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_UploT ->
+type HemmFunFFI  el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_UPLOT ->
      CInt->CInt -> Ptr el -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 
 foreign  import ccall unsafe "cblas.h cblas_chemm" 
@@ -500,7 +529,7 @@ foreign  import ccall unsafe "cblas.h cblas_zhemm"
 --void cblas_zhemm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   CInt M,   CInt N,
 --                   CDouble *alpha,   CDouble *A,   CInt lda,   CDouble *B,   CInt ldb,   CDouble *beta, CDouble *C,   CInt ldc);
 
-type HerkFun scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_TransposeT ->
+type HerkFun scale el = CBLAS_ORDERT -> CBLAS_SIDET-> CBLAS_TRANSPOSET ->
      CInt->CInt ->  scale -> Ptr el -> CInt -> Ptr el -> CInt ->scale ->Ptr el -> CInt -> IO ()
 
 foreign  import ccall unsafe "cblas.h cblas_cherk" 
@@ -512,7 +541,7 @@ foreign  import ccall unsafe "cblas.h cblas_zherk"
 --void cblas_zherk(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
 --                   CDouble alpha,   CDouble *A,   CInt lda,   CDouble beta, CDouble *C,   CInt ldc);
 
-type Her2kFunFFI scale el = CBLAS_OrderT -> CBLAS_SideT -> CBLAS_TransposeT ->
+type Her2kFunFFI scale el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_TRANSPOSET ->
      CInt->CInt -> Ptr el  -> Ptr el -> CInt -> Ptr el -> CInt ->scale ->Ptr el -> CInt -> IO ()
 
 foreign  import ccall unsafe "cblas.h cblas_cher2k" 
