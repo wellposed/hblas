@@ -23,7 +23,7 @@ before_install:
   - sudo apt-get update 
   - sudo apt-get install gfortran
   - git clone http://github.com/wellposed/wellposed-travis travis
-  - ./travis/build-openblas.sh
+  - ./travis/scripts/build-openblas.sh
   - source travis/scripts/set_env.sh
   - ./travis/scripts/before_install.sh
 
