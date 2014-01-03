@@ -22,9 +22,8 @@ matrix:
 before_install:
   - sudo apt-get update 
   - sudo apt-get install gfortran
-
-  - ./travis/build-openblas.sh
   - git clone http://github.com/wellposed/wellposed-travis travis
+  - ./travis/build-openblas.sh
   - source travis/scripts/set_env.sh
   - ./travis/scripts/before_install.sh
 
