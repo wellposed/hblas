@@ -1,5 +1,5 @@
 
-[![Build Status](https://secure.travis-ci.org/wellposed/hOpenBLAS.png?branch=master)](http://travis-ci.org/wellposed/hybrid-vectors)
+[![Build Status](https://secure.travis-ci.org/wellposed/hOpenBLAS.png?branch=master)](http://travis-ci.org/wellposed/hOpenBLAS)
 
 # About
 

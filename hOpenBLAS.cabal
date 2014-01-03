@@ -78,11 +78,7 @@ library
         -- by default brew doesn't link openblas
         extra-lib-dirs: /usr/local/opt/openblas/lib
         include-dirs: /usr/local/opt/openblas/include
-    --if os(linux)
-        -- debian / ubuntu don't put openblas in a easy to find spot.
-      --  extra-lib-dirs: /usr/lib/openblas-base   
-        -- extra-libraries: blas lapack   
-  
+
   -- Directories containing source files.
   hs-source-dirs:      src
   
@@ -109,10 +105,7 @@ Test-Suite simple-test
         extra-lib-dirs: /usr/local/opt/openblas/lib
         include-dirs: /usr/local/opt/openblas/include
 
-    -- if os(linux)
-        -- debian / ubuntu don't put openblas in a easy to find spot.
-        --extra-lib-dirs: /usr/lib/openblas-base
-        --extra-libraries: blas lapack 
+ 
 
   
     
