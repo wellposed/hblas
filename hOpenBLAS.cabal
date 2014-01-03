@@ -55,7 +55,7 @@ library
   -- Modules exported by the library.
   exposed-modules:      Numerical.OpenBLAS.FFI,
       Numerical.OpenBLAS.MatrixTypes,
-      Numerical.OpenBLAS.UtilsFFI 
+      Numerical.OpenBLAS.UtilsFFI, Numerical.BLASUtils
   -- Modules included in this library but not exported.
   -- other-modules:       
   
@@ -75,6 +75,8 @@ library
         -- where homebrew installs libs
         extra-lib-dirs: /usr/local/lib/
         include-dirs: /usr/local/include/
+
+
         -- by default brew doesn't link openblas
         extra-lib-dirs: /usr/local/opt/openblas/lib
         include-dirs: /usr/local/opt/openblas/include
