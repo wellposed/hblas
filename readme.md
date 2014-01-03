@@ -29,7 +29,8 @@ how to install on your system. This will typically involve:
 ```git clone https://github.com/xianyi/OpenBLAS ; cd OpenBLAS ; make ; make install PREFIX=$yourPrefixHere``` 
 
 once openblas is installed, hOpenBLAS can be easily installed just like any other haskell library,
-if your cloned this repo, ``` cabal install``` will work, otherwise ``` cabal install hOpenBLAS``` will do the trick.
+if your cloned this repo, ``` cabal install``` will work, 
+otherwise ``` cabal install hOpenBLAS``` will do the trick.
 
 ## getting involved
 patches, bug reports,  and other contributions welcome.
