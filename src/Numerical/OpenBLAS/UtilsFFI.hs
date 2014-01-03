@@ -17,8 +17,11 @@ withRWStorable val fun = do
 {-# INLINE withRWStorable #-}    
 
 
---withRStorable :: Storable a => a -> (Ptr a -> b)->b  
-
+withRStorable :: (Storable a, PrimMonad m)=> a -> (Ptr a -> m b) -> m b 
+withRStorable val fun = do   
+    valVect <- M.replicate 1 val 
+    unsafeWithPrim valVect fun 
+{-# INLINE withRStorable #-} 
 
 withForeignPtrPrim :: PrimMonad m => ForeignPtr a -> (Ptr a -> m b) -> m b
 -- ^This is a way to look at the pointer living inside a
