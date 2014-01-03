@@ -22,8 +22,9 @@ matrix:
 before_install:
   - sudo apt-get update 
   - sudo apt-get install gfortran
-  - sudo apt-get install libopenblas-dev 
-  - sudo apt-get install liblapack-dev 
+  - git clone http://github.com/xianyi/OpenBLAS.git ;  cd ./OpenBLAS ; 2>/dev/null 1>/dev/null make    ; make    ; sudo make install PREFIX=/usr/ 
+  # - sudo apt-get install libopenblas-dev 
+  # - sudo apt-get install liblapack-dev 
   - git clone http://github.com/wellposed/wellposed-travis travis
   - source travis/scripts/set_env.sh
   - ./travis/scripts/before_install.sh
