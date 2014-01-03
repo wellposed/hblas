@@ -115,11 +115,22 @@ foreign import ccall unsafe "cblas.h cblas_dzasum" cblas_zasum_ffi ::
 --CDouble cblas_dzasum(  CInt n,   CDouble *x,   CInt incx);
 
 
+foreign import ccall unsafe "cblas.h cblas_snrm2" cblas_snrm2_ffi :: CInt -> Ptr CFloat -> CInt -> IO CFloat
+foreign import ccall unsafe "cblas.h cblas_dnrm2" cblas_dnrm2_ffi :: 
+    CInt -> Ptr CDouble -> CInt -> IO CDouble
+foreign import ccall unsafe "cblas.h cblas_scnrm2" cblas_scnrm2_ffi :: 
+    CInt -> Ptr (Complex CFloat)-> CInt -> IO CFloat
+foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_ffi :: 
+    CInt -> Ptr (Complex CDouble) -> CInt -> IO CDouble
+
 
 --CFloat  cblas_snrm2 (  CInt N,   CFloat  *X,   CInt incX);
 --CDouble cblas_dnrm2 (  CInt N,   CDouble *X,   CInt incX);
 --CFloat  cblas_scnrm2(  CInt N,   CFloat  *X,   CInt incX);
 --CDouble cblas_dznrm2(  CInt N,   CDouble *X,   CInt incX);
+
+
+
 
 --CBLAS_INDEX cblas_isamax(  CInt n,   CFloat  *x,   CInt incx);
 --CBLAS_INDEX cblas_idamax(  CInt n,   CDouble *x,   CInt incx);
