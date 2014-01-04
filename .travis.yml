@@ -20,9 +20,6 @@ env:
 matrix:
   allow_failures:
     - env: GHCVER=head
-cache:
-  directories:
-  - ./OpenBLAS 
 
 before_install:
   - sudo apt-get update 
