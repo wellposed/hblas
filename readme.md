@@ -1,9 +1,29 @@
 
+
+$w\pi$©
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+# About hOpenBLAS
+
+hOpenBLAS is opensource component of the [Wellposed](http://www.wellposed.com) software suite.
+
 [![Build Status](https://secure.travis-ci.org/wellposed/hOpenBLAS.png?branch=master)](http://travis-ci.org/wellposed/hOpenBLAS)
 
-# About
-
-hOpenBLAS is a self contained full BLAS and LAPACK binding that provides the 
+hOpenBLAS is a self contained full (well, not quite yet) BLAS and LAPACK binding that provides the 
 full BLAS and LAPACKE APIs in a simple, unopinionated, Haskell wrapper. 
 
 This library is *NOT* meant to be used by end users, it is designed to be 
