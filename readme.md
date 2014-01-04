@@ -1,25 +1,8 @@
-
-
-$w\pi$©
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX", "output/HTML-CSS"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-      processEscapes: true
-    },
-    "HTML-CSS": { availableFonts: ["TeX"] }
-  });
-</script>
-<script type="text/javascript"
-  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
+[![Wellposed](http://www.wellposed.com/mini.png)](http://www.wellposed.com)® 
 
 # About hOpenBLAS
 
-hOpenBLAS is opensource component of the [Wellposed](http://www.wellposed.com) software suite.
+hOpenBLAS is an open source component of the [Wellposed](http://www.wellposed.com)® mathematical software suite. 
 
 [![Build Status](https://secure.travis-ci.org/wellposed/hOpenBLAS.png?branch=master)](http://travis-ci.org/wellposed/hOpenBLAS)
 
