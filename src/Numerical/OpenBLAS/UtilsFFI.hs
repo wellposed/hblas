@@ -10,6 +10,11 @@ import Foreign.ForeignPtr.Unsafe
 
 import Foreign.Ptr
 
+{-
+the IO version of these various utils is in Base.
+but would like to have the 
+-}
+
 withRWStorable:: (Storable a, PrimMonad m)=> a -> (Ptr a -> m b) -> m a 
 withRWStorable val fun = do 
     valVect <- M.replicate 1 val 
@@ -40,4 +45,4 @@ touchForeignPtrPrim fp = unsafePrimToPrim $!  touchForeignPtr fp
 
 unsafeWithPrim ::( Storable a, PrimMonad m )=> MVector (PrimState m) a -> (Ptr a -> m b) -> m b
 {-# INLINE unsafeWithPrim #-}
-unsafeWithPrim (MVector _ fp) = withForeignPtrPrim fp
+unsafeWithPrim (MVector _ fp)  fun = withForeignPtrPrim fp fun 
