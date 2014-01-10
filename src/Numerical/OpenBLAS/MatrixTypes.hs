@@ -12,8 +12,8 @@
 
 module Numerical.OpenBLAS.MatrixTypes where
 
-import Data.Vector.Storable as S
-import Data.Vector.Storable as SV 
+import Data.Vector.Storable as S 
+--import Data.Vector.Storable as SV 
 -- import Control.Monad.Primitive
 
 {-| PSA, the matrix data types used in the hOpenBLAS binding
@@ -65,14 +65,14 @@ uncheckedMatrixIndex (ColMajorMatrix _ _ xstride arr) = \ (x,y)-> arr S.! (y + x
 --- | slice over matrix element in the range (inclusive)  [xstart..xend] X [ystart .. yend]
 --- call as  uncheckedMatrixSlice matrix (xstart,ystart) (xend,yend)
 uncheckedMatrixSlice :: (S.Storable elem)=> Matrix or elem -> (Int,Int)-> (Int,Int)-> Matrix or elem 
-uncheckedMatrixSlice (RowMajorMatrix xdim ydim ystride arr) (xstart,ystart) (xend,yend) = res
+uncheckedMatrixSlice (RowMajorMatrix xdim _ ystride arr) (xstart,ystart) (xend,yend) = res
     where   !res = RowMajorMatrix (xend - xstart + 1) 
                                 (yend - ystart+1) 
                                 (ystride + xstart + (xdim - xend))
                                 (S.slice  ixStart (ixEnd - ixStart) arr   )
             !ixStart = (xstart+ystart*ystride)
             !ixEnd = (xend+yend*ystride)
-uncheckedMatrixSlice (ColMajorMatrix xdim ydim xstride arr)  (xstart,ystart) (xend,yend) =  res
+uncheckedMatrixSlice (ColMajorMatrix _ ydim xstride arr)  (xstart,ystart) (xend,yend) =  res
     where   !res = ColMajorMatrix (xend - xstart + 1) 
                                 (yend - ystart+1) 
                                 (xstride + ystart + (ydim - yend))
