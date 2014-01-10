@@ -1,9 +1,11 @@
--- {-# LANGUAGE PolyKinds   #-}
+
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
 {-#  LANGUAGE GADTs #-}
+
+
+
 -- {-# LANGUAGE DeriveDataTypeable #-}
 -- {-# LANGUAGE MultiParamTypeClasses #-}
 
@@ -23,6 +25,12 @@ to and from other matrix libraries.
 -}    
 
 data Orientation = Row | Column 
+
+
+type family Transpose (x :: Orientation) :: Orientation
+
+type instance Transpose Row = Column
+type instance Transpose Column = Row 
 
 data Matrix :: Orientation -> * -> *  where 
     RowMajorMatrix :: {-# UNPACK #-}!Int -> {-# UNPACK #-}!Int ->{-# UNPACK #-} !Int -> !(S.Vector elem) -> Matrix Row elem 
@@ -49,7 +57,11 @@ uncheckedMatrixIndex :: (S.Storable elem )=> Matrix or elem -> (Int,Int) -> elem
 uncheckedMatrixIndex (RowMajorMatrix _ _ ystride arr) = \ (x,y)-> arr S.! (x + y * ystride)
 uncheckedMatrixIndex (ColMajorMatrix _ _ xstride arr) = \ (x,y)-> arr S.! (y + x* xstride)
 
---- this will need to have its inlining quality checked
+
+
+--- this (uncheckedMatrixSlice) will need to have its inlining quality checked
+
+
 --- | slice over matrix element in the range (inclusive)  [xstart..xend] X [ystart .. yend]
 --- call as  uncheckedMatrixSlice matrix (xstart,ystart) (xend,yend)
 uncheckedMatrixSlice :: (S.Storable elem)=> Matrix or elem -> (Int,Int)-> (Int,Int)-> Matrix or elem 
@@ -68,4 +80,7 @@ uncheckedMatrixSlice (ColMajorMatrix xdim ydim xstride arr)  (xstart,ystart) (xe
             !ixStart = (ystart+xstart*xstride)
             !ixEnd = (yend+xend*xstride)
 
+transposeMatrix :: (inor ~ (Transpose outor) , outor ~ (Transpose inor)  ) => Matrix inor elem -> Matrix outor elem 
+transposeMatrix (RowMajorMatrix x y stride arr)= (ColMajorMatrix x y stride arr)
+transposeMatrix (ColMajorMatrix x y stride arr) =(RowMajorMatrix x y stride arr)
 
