@@ -33,12 +33,14 @@ OpenBLAS is thread safe, and thus  when LAPACK is built using OpenBLAS
 (as in the standard OpenBLAS build), it is threadsafe too.  
 * Otherwise, read the documentation at https://github.com/xianyi/OpenBLAS for
 how to install on your system. This will typically involve:
+
 ```
-git clone https://github.com/xianyi/OpenBLAS
-cd OpenBLAS 
-make
+git clone https://github.com/xianyi/OpenBLAS ; 
+cd OpenBLAS ; 
+make ;
 make install PREFIX=$yourPrefixHere # eg PREFIX=/usr on linux systems
 ``` 
+
 note that if you plan to deploy applications on multiple machines
 that have different cpu versions, you may want to build openblas with
 ``` make DYNAMIC_ARCH=1 NO_SHARED=1 ; make install NO_SHARED=1 PREFIX=$blah```
