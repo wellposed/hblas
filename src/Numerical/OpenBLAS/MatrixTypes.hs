@@ -89,13 +89,9 @@ getDenseMatrixArray (RowMajorDenseMatrix _ _ _ arr) = arr
 getDenseMatrixArray (ColMajorDenseMatrix _ _ _ arr) = arr 
 
 
-uncheckedDenseMatrixIndex :: (S.Storable elem )=> 
-            DenseMatrix or elem -> (Int,Int) -> elem 
-uncheckedDenseMatrixIndex (RowMajorDenseMatrix _ _ ystride arr) = 
-                                            \ (x,y)-> arr S.! (x + y * ystride)
-
-uncheckedDenseMatrixIndex (ColMajorDenseMatrix _ _ xstride arr) =
-                                             \ (x,y)-> arr S.! (y + x* xstride)
+uncheckedDenseMatrixIndex :: (S.Storable elem )=>  DenseMatrix or elem -> (Int,Int) -> elem 
+uncheckedDenseMatrixIndex (RowMajorDenseMatrix _ _ ystride arr) =  \ (x,y)-> arr S.! (x + y * ystride)
+uncheckedDenseMatrixIndex (ColMajorDenseMatrix _ _ xstride arr) = \ (x,y)-> arr S.! (y + x* xstride)
 
 
 
@@ -104,16 +100,14 @@ uncheckedDenseMatrixIndex (ColMajorDenseMatrix _ _ xstride arr) =
 
 --- | slice over matrix element in the range (inclusive)  [xstart..xend] X [ystart .. yend]
 --- call as  @'uncheckedMatrixSlice' matrix (xstart,ystart) (xend,yend) @
-uncheckedDenseMatrixSlice :: (S.Storable elem)=> DenseMatrix or elem ->
-                                             (Int,Int)-> (Int,Int)-> DenseMatrix or elem 
+uncheckedDenseMatrixSlice :: (S.Storable elem)=>  DenseMatrix or elem -> (Int,Int)-> (Int,Int)-> DenseMatrix or elem 
 uncheckedDenseMatrixSlice (RowMajorDenseMatrix xdim _ ystride arr) (xstart,ystart) (xend,yend) = res
     where   !res = RowMajorDenseMatrix (xend - xstart + 1) --  X : n - 0 + 1, because zero indexed
                                 (yend - ystart+1)   -- Y : m - 0 + 1, because zero indexed
                                 (ystride + xstart + (xdim - xend)) -- how much start and end padding per row
                                 (S.slice  ixStart (ixEnd - ixStart) arr   )
             !ixStart = (xstart+ystart*ystride)
-            !ixEnd = (xend+yend*ystride)
-            ---------------------------
+            !ixEnd = (xend+yend*ystride)            
 uncheckedDenseMatrixSlice (ColMajorDenseMatrix _ ydim xstride arr)  (xstart,ystart) (xend,yend) =  res
     where   !res = ColMajorDenseMatrix (xend - xstart + 1) 
                                 (yend - ystart+1) 
@@ -125,8 +119,7 @@ uncheckedDenseMatrixSlice (ColMajorDenseMatrix _ ydim xstride arr)  (xstart,ysta
 -- | tranposeMatrix does a shallow transpose that swaps the format and the x y params, but changes nothing
 -- in the memory layout. 
 -- Most applications where transpose is used in a computation need a deep, copying, tranpose operation
-transposeDenseMatrix :: (inor ~ (Transpose outor) , 
-        outor ~ (Transpose inor)  ) =>  DenseMatrix inor elem -> DenseMatrix outor elem 
+transposeDenseMatrix :: (inor ~ (Transpose outor) ,   outor ~ (Transpose inor)  ) =>   DenseMatrix inor elem -> DenseMatrix outor elem 
 transposeDenseMatrix (RowMajorDenseMatrix x y stride arr)= (ColMajorDenseMatrix y x stride arr)
 transposeDenseMatrix (ColMajorDenseMatrix x y stride arr) =(RowMajorDenseMatrix y x stride arr)
 
