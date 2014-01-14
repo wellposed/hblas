@@ -62,6 +62,16 @@ unsafeFreezeDenseMatrix (ColMajorMutableDenseMatrix a b c mv)=do
         v <- S.unsafeFreeze mv 
         return $! ColMajorDenseMatrix a b c v 
 
+
+unsafeThawDenseMatrix :: (Storable elem, PrimMonad m)=> DenseMatrix or elem-> m (MDenseMatrix (PrimState m) or elem)  
+unsafeThawDenseMatrix (RowMajorDenseMatrix a b c v) = do 
+        mv <- S.unsafeThaw v
+        return $! RowMajorMutableDenseMatrix a b c mv 
+unsafeThawDenseMatrix (ColMajorDenseMatrix a b c v) = do 
+        mv <- S.unsafeThaw v 
+        return $! ColMajorMutableDenseMatrix a b c mv 
+
+
 getDenseMatrixRow :: DenseMatrix or elem -> Int
 getDenseMatrixRow (RowMajorDenseMatrix _ ydim _ _)= ydim
 getDenseMatrixRow (ColMajorDenseMatrix _ ydim _ _) = ydim
