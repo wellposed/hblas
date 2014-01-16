@@ -2,7 +2,7 @@
 {-# LANGUAGE ForeignFunctionInterface, GeneralizedNewtypeDeriving #-}
 
 
-module Numerical.OpenBLAS.FFI  where 
+module Numerical.OpenBLAS.BLAS.FFI  where 
 
 import Foreign.Ptr
 import Foreign()
