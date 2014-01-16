@@ -304,7 +304,8 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_unsafe ::
 ---- |  (unpacked) symmetric matrix vector product    x:=Av, writes result x into v
 ---------------------------------
 
-type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT
+type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CInt ->
+                        Ptr el -> CInt -> el -> Ptr el -> CInt -> IO () 
 
 --void cblas_ssymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat alpha,   CFloat *A,
 --                   CInt lda,   CFloat *X,   CInt incX,   CFloat beta, CFloat *Y,   CInt incY);
