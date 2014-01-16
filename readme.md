@@ -4,13 +4,12 @@
 
 hOpenBLAS is an open source component of the [Wellposed](http://www.wellposed.com)® mathematical software suite. 
 
-Members of the numerical haskell open source community can be found on irc at  `#numerical-haskell`
-on freenode, and via the [numericalhaskell mailing list](https://groups.google.com/forum/#!forum/numericalhaskell) which you can email 
-kdjf
+Members of the numerical haskell open source community can be found on irc at  `#numerical-haskell` on freenode, 
+and via the [numericalhaskell mailing list](https://groups.google.com/forum/#!forum/numericalhaskell). 
 
-sdfd
 
 [![Build Status](https://secure.travis-ci.org/wellposed/hOpenBLAS.png?branch=master)](http://travis-ci.org/wellposed/hOpenBLAS)
+
 
 hOpenBLAS is a self contained full (well, not quite yet) BLAS and LAPACK binding that provides the 
 full BLAS and LAPACKE APIs in a simple, unopinionated, Haskell wrapper. 
