@@ -105,7 +105,8 @@ we can only handle pointers to complex numbers right now
 --void  cblas_zdotc_sub(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy, openblas_complex_CDouble *ret);
 
 ---- absolute value
-foreign import ccall unsafe "cblas.h cblas_sasum" cblas_sasum_unsafe:: CInt -> Ptr CFloat -> CInt -> IO CFloat
+foreign import ccall unsafe "cblas.h cblas_sasum" cblas_sasum_unsafe:: 
+    CInt -> Ptr CFloat -> CInt -> IO CFloat
 foreign import ccall unsafe "cblas.h cblas_dasum" cblas_dasum_unsafe :: 
     CInt -> Ptr CDouble -> CInt -> IO CDouble
 foreign import ccall unsafe "cblas.h cblas_scasum" cblas_casum_unsafe :: 
@@ -118,7 +119,8 @@ foreign import ccall unsafe "cblas.h cblas_dzasum" cblas_zasum_unsafe ::
 --CDouble cblas_dzasum(  CInt n,   CDouble *x,   CInt incx);
 
 
-foreign import ccall unsafe "cblas.h cblas_snrm2" cblas_snrm2_unsafe :: CInt -> Ptr CFloat -> CInt -> IO CFloat
+foreign import ccall unsafe "cblas.h cblas_snrm2" cblas_snrm2_unsafe :: 
+    CInt -> Ptr CFloat -> CInt -> IO CFloat
 foreign import ccall unsafe "cblas.h cblas_dnrm2" cblas_dnrm2_unsafe :: 
     CInt -> Ptr CDouble -> CInt -> IO CDouble
 foreign import ccall unsafe "cblas.h cblas_scnrm2" cblas_scnrm2_unsafe :: 
@@ -262,7 +264,7 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_unsafe ::
 --                   CInt N,   CInt K,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
 
 ----------------
---- solves  Ax=v where A is k+1 banded triangular matrix, and x and 
+--- | solves  Ax=v where A is k+1 banded triangular matrix, and x and 
 ----------------
 --void cblas_stbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CInt K,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
@@ -274,7 +276,7 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_unsafe ::
 --                   CInt N,   CInt K,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
 
 -------------------------------------------------------------------------
--- | matrix vector product v:=Av, where A is a packed triangular nxn matrix
+-- | matrix vector product Av, writes result into v, where A is a packed triangular nxn matrix
 -------------------------------------------------------------------------
 --void cblas_stpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CFloat *Ap, CFloat *X,   CInt incX);
@@ -286,7 +288,7 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_unsafe ::
 --                   CInt N,   CDouble *Ap, CDouble *X,   CInt incX);
 
 --------------------------------------------------
----  | solve  Ax=v where A is a nxn packed triangular matrix, writes the solution into x. 
+---  | solve  Ax=v where A is a nxn packed triangular matrix, v vector input, writes the solution into x. 
 --------------------------------------------------
 --void cblas_stpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CFloat *Ap, CFloat *X,   CInt incX);
@@ -299,7 +301,7 @@ foreign import ccall unsafe "cblas.h cblas_dznrm2" cblas_dznrm2_unsafe ::
 
 
 ----------------------------------
----- | (unpacked) symmetric matrix vector product    x:=Av
+---- |  (unpacked) symmetric matrix vector product    x:=Av, writes result x into v
 ---------------------------------
 
 type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT
@@ -310,7 +312,7 @@ type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT
 --                   CInt lda,   CDouble *X,   CInt incX,   CDouble beta, CDouble *Y,   CInt incY);
 
 --------------------------------
----- | hermitian matrix vector product   x:=Av
+---- | hermitian matrix vector product   x:=Av, writes result x into v
 --------------------------------
 --void cblas_chemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat *alpha,   CFloat *A,
 --                   CInt lda,   CFloat *X,   CInt incX,   CFloat *beta, CFloat *Y,   CInt incY);
@@ -364,11 +366,13 @@ type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
------------------------------- BLAS LEVEL 3 ROUTINES ---------------------------
+------------------------------ | BLAS LEVEL 3 ROUTINES 
 --------------------------------------------------------------------------------
------------------------ Level 3 ops are faster than Levels 1 or 2 -------------- 
+-----------------------  |  Level 3 ops are faster than Levels 1 or 2 
 --------------------------------------------------------------------------------
 
+
+-- |  Matrix mult for general dense matrices
 type GemmFunFFI scale el = CBLAS_ORDERT -> CBLAS_TRANSPOSET ->  CBLAS_TRANSPOSET -> CBLAS_TRANSPOSET->
         CInt -> CInt -> CInt -> scale -> Ptr el  -> CInt -> Ptr el -> CInt -> Ptr el -> IO ()
 
@@ -399,7 +403,7 @@ foreign import ccall "cblas.h cblas_zgemm"
     cblas_zgemm_safe :: GemmFunFFI (Ptr (Complex Double)) (Complex Double)
 
 -----------------------------------------
------ Matrix mult for Symmetric Matrices
+----- |  Matrix mult for Symmetric Matrices
 -----------------------------------------
 
 
@@ -433,7 +437,7 @@ foreign import ccall  "cblas.h cblas_zsymm"
 
  
 -----------------------------------
---- | symmetric rank k  matrix update, C := alpha*A*A' + beta*C
+--- |  symmetric rank k  matrix update, C := alpha*A*A' + beta*C
 --- or C = alpha*A'*A + beta*C 
 ------------------------------------
 type SyrkFunFFI scale el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET ->
@@ -453,9 +457,9 @@ foreign import ccall unsafe "cblas.h cblas_zsyrk"
 -------------------
 
 
-type Syr2kFunFFI scale el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET
- ->
-     CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> scale ->Ptr el -> CInt -> IO ()
+type Syr2kFunFFI scale el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET  ->
+     CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> 
+     scale ->Ptr el -> CInt -> IO ()
 
 foreign  import ccall unsafe "cblas.h cblas_ssyr2k" 
     cblas_ssyr2k_unsafe :: Syr2kFunFFI Float Float 
@@ -469,7 +473,7 @@ foreign  import ccall unsafe "cblas.h cblas_zsyr2k"
 
 
 -------------------------------
---------  |matrix matrix product for triangular matrices
+--------  |  matrix matrix product for triangular matrices
 ------------------------------
 type TrmmFunFFI scale el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT -> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
@@ -492,7 +496,7 @@ foreign  import ccall unsafe "cblas.h cblas_ztrmm"
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble *alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
 
 ------------------------
---  |triangular solvers 
+--  |  triangular solvers 
 -----------------------
 
 type TrsmFunFFI scale el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT -> 
