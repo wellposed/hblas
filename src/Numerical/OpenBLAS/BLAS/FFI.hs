@@ -14,7 +14,10 @@ foreign import ccall unsafe "cblas.h openblas_set_num_threads" openblas_set_num_
 
 foreign import ccall unsafe "cblas.h goto_set_num_threads" goto_set_num_threads_unsafe :: CInt -> IO ()
 
+{- | For All of the BlAS FFI operations, 
 
+
+-}
 
 
 newtype CBLAS_INDEX = CBIndex CSize 
@@ -415,7 +418,7 @@ foreign import ccall unsafe "cblas.h cblas_csymm"
 foreign import ccall unsafe "cblas.h cblas_zsymm" 
     cblas_zsymm_unsafe :: SymmFunFFI (Ptr (Complex Double)) (Complex Double)
 
--- safe ffi variant
+-- safe ffi variant, 
 foreign import ccall  "cblas.h cblas_ssymm" 
     cblas_ssymm_safe :: SymmFunFFI Float Float 
 

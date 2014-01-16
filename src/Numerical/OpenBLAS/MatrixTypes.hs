@@ -6,8 +6,6 @@
 
 
 
--- {-# LANGUAGE DeriveDataTypeable #-}
--- {-# LANGUAGE MultiParamTypeClasses #-}
 
 
 module Numerical.OpenBLAS.MatrixTypes where
@@ -26,7 +24,13 @@ to and from other matrix libraries. That said,
 the BLAS and LAPACK matrix formats capture a rich and very expressive subset
 of Dense Matrix formats.
 
-The primary and hence default format is Dense Row and Column Major Matrices
+The primary and hence default format is Dense Row and Column Major Matrices,
+but support will be added for other formats that BLAS and LAPACK provide operations for.
+
+A guiding rule of thumb for this package is that there are no generic abstractions
+provided, merely machinery to ensure all uses of BLAS and LAPACK operations
+can be used in their full generality in a human friendly type safe fashion.
+It is the role of a higher leve library to provide any generic operations.
 
 -}    
 
@@ -38,7 +42,7 @@ type family Transpose (x :: Orientation) :: Orientation
 type instance Transpose Row = Column
 type instance Transpose Column = Row 
 
--- | 'DenseMatrix' is for dense row or column major 
+-- | 'DenseMatrix' is for dense row or column major
 data DenseMatrix :: Orientation -> * -> *  where 
     RowMajorDenseMatrix :: {-# UNPACK #-}!Int -> {-# UNPACK #-}!Int ->
                         {-# UNPACK #-} !Int -> !(S.Vector elem) -> DenseMatrix Row elem 
@@ -71,6 +75,7 @@ unsafeThawDenseMatrix (ColMajorDenseMatrix a b c v) = do
         mv <- S.unsafeThaw v 
         return $! ColMajorMutableDenseMatrix a b c mv 
 
+ 
 
 getDenseMatrixRow :: DenseMatrix or elem -> Int
 getDenseMatrixRow (RowMajorDenseMatrix _ ydim _ _)= ydim
