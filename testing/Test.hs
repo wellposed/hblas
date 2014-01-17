@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-import Numerical.OpenBLAS.FFI
+import Numerical.OpenBLAS.BLAS.FFI
 
 
 import Data.Vector.Storable.Mutable as M 
