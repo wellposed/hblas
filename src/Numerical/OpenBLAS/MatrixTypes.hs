@@ -58,6 +58,16 @@ data MDenseMatrix :: *  ->Orientation  -> * -> *  where
     ColMajorMutableDenseMatrix :: {-# UNPACK #-} !Int -> {-# UNPACK #-} !Int ->
                           {-# UNPACK #-}!Int -> !(SM.MVector s elem) -> MDenseMatrix s Column elem 
 
+-- data PaddedSymmetricMatrix
+-- data PaddedHermetianMatrix
+--data PaddedTriangularMatrix 
+--- these three may just be wrappers for general dense matrices                       
+
+--data SymmetricMatrix
+--data HermitianMatrix -- may just be a wrapper for symmetric?
+--data TriangularMatrix
+--data BandedMatrix
+
 unsafeFreezeDenseMatrix :: (Storable elem, PrimMonad m)=> MDenseMatrix (PrimState m) or elem -> m (DenseMatrix or elem)
 unsafeFreezeDenseMatrix (RowMajorMutableDenseMatrix  a b c mv) = do
         v <- S.unsafeFreeze mv 
