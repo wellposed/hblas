@@ -126,6 +126,16 @@ mapDenseMatrix f rm@(ColMajorDenseMatrix xdim ydim _ _) =
          S.generate (xdim * ydim ) (\ix -> f $! uncheckedDenseMatrixIndex rm ( quotRem ix ydim ) )
 
 
+imapDenseMatrix :: (S.Storable a, S.Storable b) =>  ((Int,Int)->a->b) -> DenseMatrix or a -> DenseMatrix or b 
+imapDenseMatrix f rm@(RowMajorDenseMatrix xdim ydim _ _) =
+    RowMajorDenseMatrix xdim ydim xdim $!
+             S.generate (xdim * ydim) (\ix -> let ixtup = swap $! quotRem ix xdim in 
+                                         f  ixtup $! uncheckedDenseMatrixIndex rm ixtup   ) 
+imapDenseMatrix f rm@(ColMajorDenseMatrix xdim ydim _ _) =     
+    ColMajorDenseMatrix xdim ydim ydim $!
+         S.generate (xdim * ydim ) (\ix -> let  ixtup = ( quotRem ix ydim ) in 
+                                         f ixtup $! uncheckedDenseMatrixIndex rm ixtup   )
+
 -- | In Matrix format memory order enumeration of the index tuples, for good locality 2dim map
 uncheckedDenseMatrixNextTuple :: DenseMatrix or elem -> (Int,Int) -> Maybe (Int,Int)
 uncheckedDenseMatrixNextTuple (RowMajorDenseMatrix xdim ydim _ _) = 
