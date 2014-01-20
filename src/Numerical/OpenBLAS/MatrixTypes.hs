@@ -108,6 +108,33 @@ uncheckedDenseMatrixIndex :: (S.Storable elem )=>  DenseMatrix or elem -> (Int,I
 uncheckedDenseMatrixIndex (RowMajorDenseMatrix _ _ ystride arr) =  \ (x,y)-> arr S.! (x + y * ystride)
 uncheckedDenseMatrixIndex (ColMajorDenseMatrix _ _ xstride arr) = \ (x,y)-> arr S.! (y + x* xstride)
 
+uncheckedDenseMatrixIndexM :: (Monad m ,S.Storable elem )=>  DenseMatrix or elem -> (Int,Int) -> m elem 
+uncheckedDenseMatrixIndexM (RowMajorDenseMatrix _ _ ystride arr) =  \ (x,y)->return $! arr S.! (x + y * ystride)
+uncheckedDenseMatrixIndexM (ColMajorDenseMatrix _ _ xstride arr) = \ (x,y)->return $! arr S.! (y + x* xstride)
+
+swap :: (a,b)->(b,a)
+swap = \ (x,y)-> (y,x)
+{-# INLINE swap #-}
+
+
+mapDenseMatrix :: (S.Storable a, S.Storable b) =>  (a->b) -> DenseMatrix or a -> DenseMatrix or b 
+mapDenseMatrix f rm@(RowMajorDenseMatrix xdim ydim _ _) =
+    RowMajorDenseMatrix xdim ydim xdim $!
+             S.generate (xdim * ydim) (\ix -> f $! uncheckedDenseMatrixIndex rm (swap $! quotRem ix xdim ) ) 
+mapDenseMatrix f rm@(ColMajorDenseMatrix xdim ydim _ _) =     
+    ColMajorDenseMatrix xdim ydim ydim $!
+         S.generate (xdim * ydim ) (\ix -> f $! uncheckedDenseMatrixIndex rm ( quotRem ix ydim ) )
+
+
+-- | In Matrix format memory order enumeration of the index tuples, for good locality 2dim map
+uncheckedDenseMatrixNextTuple :: DenseMatrix or elem -> (Int,Int) -> Maybe (Int,Int)
+uncheckedDenseMatrixNextTuple (RowMajorDenseMatrix xdim ydim _ _) = 
+        \(!x,!y)-> if  (x >= xdim && y >= ydim) then  Nothing else Just  $! swap $! quotRem (x+ xdim * y + 1) xdim  
+uncheckedDenseMatrixNextTuple (ColMajorDenseMatrix xdim ydim _ _ ) = 
+        \(!x,!y) -> if (x >= xdim && y >=  ydim) then Nothing else Just  $! quotRem (y + ydim * x + 1) ydim 
+                                                        --- dont need the swap for column major
+
+
 
 
 --- this (uncheckedMatrixSlice) will need to have its inlining quality checked
