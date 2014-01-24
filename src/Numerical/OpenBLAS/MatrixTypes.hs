@@ -42,21 +42,29 @@ type family Transpose (x :: Orientation) :: Orientation
 type instance Transpose Row = Column
 type instance Transpose Column = Row 
 
--- | 'DenseMatrix' is for dense row or column major
+-- | 'DenseMatrix' is for dense row or column major matrices
 data DenseMatrix :: Orientation -> * -> *  where 
-    RowMajorDenseMatrix :: {-# UNPACK #-}!Int -> {-# UNPACK #-}!Int ->
-                        {-# UNPACK #-} !Int -> !(S.Vector elem) -> DenseMatrix Row elem 
+    RowMajorDenseMatrix ::{ _XdimRowDenMat :: {-# UNPACK #-}!Int, 
+                            _YdimRowDenMat :: {-# UNPACK #-}!Int ,
+                            _StrideRowDenMat :: {-# UNPACK #-} !Int , 
+                            _bufferRowDenMat :: !(S.Vector elem) }-> DenseMatrix Row elem 
 
-    ColMajorDenseMatrix :: {-# UNPACK #-} !Int -> {-# UNPACK #-} !Int ->
-                      {-# UNPACK #-}!Int -> !(S.Vector elem) -> DenseMatrix Column elem 
+    ColMajorDenseMatrix ::{ _XdimColDenMat:: {-# UNPACK #-} !Int  , 
+                            _YdimColDenMat :: {-# UNPACK #-} !Int ,
+                            _StrideColDenMat :: {-# UNPACK #-}!Int , 
+                            _bufferColDenMat ::  !(S.Vector elem) } ->  DenseMatrix Column elem 
 
 -- | 'MDenseMatrix' 
 data MDenseMatrix :: *  ->Orientation  -> * -> *  where 
-    RowMajorMutableDenseMatrix :: {-# UNPACK #-}!Int -> {-# UNPACK #-}!Int ->{-# UNPACK #-} !Int ->
-                                 !(SM.MVector s  elem) -> MDenseMatrix s Row elem
+    RowMajorMutableDenseMatrix :: { _XdimRowDenMutMat :: {-# UNPACK #-}!Int , 
+                                    _YdimRowDenMutMat ::  {-# UNPACK #-}!Int,
+                                    _StrideRowDenMutMat :: {-# UNPACK #-} !Int,
+                                    _bufferRowDenMutMat :: !(SM.MVector s  elem) } -> MDenseMatrix s Row elem
 
-    ColMajorMutableDenseMatrix :: {-# UNPACK #-} !Int -> {-# UNPACK #-} !Int ->
-                          {-# UNPACK #-}!Int -> !(SM.MVector s elem) -> MDenseMatrix s Column elem 
+    ColMajorMutableDenseMatrix ::{  _XdimColDenMutMat :: {-# UNPACK #-} !Int ,
+                                    _YdimColDenMutMat :: {-# UNPACK #-} !Int ,
+                                    _StrideColDenMutMat:: {-# UNPACK #-}!Int,
+                                    _bufferColDenMutMat :: !(SM.MVector s elem) }-> MDenseMatrix s Column elem 
 
 -- data PaddedSymmetricMatrix
 -- data PaddedHermetianMatrix
