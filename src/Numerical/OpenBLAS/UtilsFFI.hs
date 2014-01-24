@@ -34,7 +34,7 @@ withForeignPtrPrim  fo act
   = do r <- act (unsafeForeignPtrToPtr fo)
        touchForeignPtrPrim fo
        return r
-{-# INLINE withForeignPtrPrim#-}       
+{-# INLINE withForeignPtrPrim #-}       
 
 touchForeignPtrPrim ::PrimMonad m => ForeignPtr a -> m ()
 touchForeignPtrPrim fp = unsafePrimToPrim $!  touchForeignPtr fp

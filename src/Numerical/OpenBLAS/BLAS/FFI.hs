@@ -21,7 +21,7 @@ foreign import ccall unsafe "goto_set_num_threads" goto_set_num_threads_unsafe :
 
 
 newtype CBLAS_INDEX = CBIndex CSize 
-
+        deriving (Eq,Show)
 newtype CBLAS_ORDERT = CBOInt CInt
     deriving (Eq,Show)
 data BLASOrder = BLASRowMajor | BLASColMajor 
