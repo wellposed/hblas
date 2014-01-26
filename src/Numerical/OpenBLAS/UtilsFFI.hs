@@ -3,11 +3,13 @@
 module Numerical.OpenBLAS.UtilsFFI where
 
 
-import  Data.Vector.Storable.Mutable  as  M 
+
+import   Data.Vector.Storable.Mutable  as  M 
 import Control.Monad.Primitive
 import Foreign.ForeignPtr.Safe
 import Foreign.ForeignPtr.Unsafe
 
+import Data.Vector.Storable as S 
 import Foreign.Ptr
 
 {-
@@ -41,8 +43,21 @@ touchForeignPtrPrim fp = unsafePrimToPrim $!  touchForeignPtr fp
 {-# INLINE touchForeignPtrPrim #-}
 
 
-
-
 unsafeWithPrim ::( Storable a, PrimMonad m )=> MVector (PrimState m) a -> (Ptr a -> m b) -> m b
 {-# INLINE unsafeWithPrim #-}
-unsafeWithPrim (MVector _ fp)  fun = withForeignPtrPrim fp fun 
+unsafeWithPrim (MVector _ fp)  fun = withForeignPtrPrim fp fun
+
+
+unsafeWithPrimLen  ::( Storable a, PrimMonad m )=> MVector (PrimState m) a -> ((Ptr a, Int )-> m b) -> m b
+{-# INLINE unsafeWithPrimLen #-}
+unsafeWithPrimLen (MVector n fp ) fun =  withForeignPtrPrim fp (\x -> fun (x,n))
+
+
+unsafeWithPurePrimLen  ::( Storable a, PrimMonad m )=> Vector a -> ((Ptr a, Int )-> m b) -> m b
+{-# INLINE unsafeWithPurePrimLen #-}
+unsafeWithPurePrimLen v fun =   case S.unsafeToForeignPtr0 v of 
+                    (fp,n) -> do 
+                        res <-  withForeignPtrPrim fp (\x -> fun (x,n))
+                        touchForeignPtrPrim fp 
+                        return res 
+
