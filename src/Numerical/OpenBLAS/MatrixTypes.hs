@@ -11,7 +11,7 @@
 module Numerical.OpenBLAS.MatrixTypes where
 
 import Data.Vector.Storable as S 
-import Data.Vector.Storable as SM
+import qualified Data.Vector.Storable.Mutable as SM
 import Control.Monad.Primitive  
 -- import Control.Monad.Primitive
 
@@ -52,19 +52,19 @@ data DenseMatrix :: Orientation -> * -> *  where
     ColMajorDenseMatrix ::{ _XdimColDenMat:: {-# UNPACK #-} !Int  , 
                             _YdimColDenMat :: {-# UNPACK #-} !Int ,
                             _StrideColDenMat :: {-# UNPACK #-}!Int , 
-                            _bufferColDenMat ::  !(S.Vector elem) } ->  DenseMatrix Column elem 
+                            _bufferColDenMat ::  {-# UNPACK #-}!(S.Vector elem) } ->  DenseMatrix Column elem 
 
 -- | 'MDenseMatrix' 
-data MDenseMatrix :: *  ->Orientation  -> * -> *  where 
+data MutDenseMatrix :: *  ->Orientation  -> * -> *  where 
     RowMajorMutableDenseMatrix :: { _XdimRowDenMutMat :: {-# UNPACK #-}!Int , 
                                     _YdimRowDenMutMat ::  {-# UNPACK #-}!Int,
                                     _StrideRowDenMutMat :: {-# UNPACK #-} !Int,
-                                    _bufferRowDenMutMat :: !(SM.MVector s  elem) } -> MDenseMatrix s Row elem
+                                    _bufferRowDenMutMat :: {-# UNPACK #-} !(SM.MVector s  elem) } -> MutDenseMatrix s Row elem
 
     ColMajorMutableDenseMatrix ::{  _XdimColDenMutMat :: {-# UNPACK #-} !Int ,
                                     _YdimColDenMutMat :: {-# UNPACK #-} !Int ,
                                     _StrideColDenMutMat:: {-# UNPACK #-}!Int,
-                                    _bufferColDenMutMat :: !(SM.MVector s elem) }-> MDenseMatrix s Column elem 
+                                    _bufferColDenMutMat :: !(SM.MVector s elem) }-> MutDenseMatrix s Column elem 
 
 -- data PaddedSymmetricMatrix
 -- data PaddedHermetianMatrix
@@ -76,7 +76,7 @@ data MDenseMatrix :: *  ->Orientation  -> * -> *  where
 --data TriangularMatrix
 --data BandedMatrix
 
-unsafeFreezeDenseMatrix :: (Storable elem, PrimMonad m)=> MDenseMatrix (PrimState m) or elem -> m (DenseMatrix or elem)
+unsafeFreezeDenseMatrix :: (Storable elem, PrimMonad m)=> MutDenseMatrix (PrimState m) or elem -> m (DenseMatrix or elem)
 unsafeFreezeDenseMatrix (RowMajorMutableDenseMatrix  a b c mv) = do
         v <- S.unsafeFreeze mv 
         return $! RowMajorDenseMatrix a b c v                          
@@ -85,7 +85,7 @@ unsafeFreezeDenseMatrix (ColMajorMutableDenseMatrix a b c mv)=do
         return $! ColMajorDenseMatrix a b c v 
 
 
-unsafeThawDenseMatrix :: (Storable elem, PrimMonad m)=> DenseMatrix or elem-> m (MDenseMatrix (PrimState m) or elem)  
+unsafeThawDenseMatrix :: (Storable elem, PrimMonad m)=> DenseMatrix or elem-> m (MutDenseMatrix (PrimState m) or elem)  
 unsafeThawDenseMatrix (RowMajorDenseMatrix a b c v) = do 
         mv <- S.unsafeThaw v
         return $! RowMajorMutableDenseMatrix a b c mv 
@@ -113,22 +113,26 @@ getDenseMatrixArray (ColMajorDenseMatrix _ _ _ arr) = arr
 
 
 uncheckedDenseMatrixIndex :: (S.Storable elem )=>  DenseMatrix or elem -> (Int,Int) -> elem 
-uncheckedDenseMatrixIndex (RowMajorDenseMatrix _ _ ystride arr) =  \ (x,y)-> arr S.! (x + y * ystride)
-uncheckedDenseMatrixIndex (ColMajorDenseMatrix _ _ xstride arr) = \ (x,y)-> arr S.! (y + x* xstride)
+uncheckedDenseMatrixIndex (RowMajorDenseMatrix _ _ ystride arr) =  \ (x,y)-> arr `S.unsafeIndex` (x + y * ystride)
+uncheckedDenseMatrixIndex (ColMajorDenseMatrix _ _ xstride arr) = \ (x,y)-> arr `S.unsafeIndex`  (y + x* xstride)
 
 uncheckedDenseMatrixIndexM :: (Monad m ,S.Storable elem )=>  DenseMatrix or elem -> (Int,Int) -> m elem 
-uncheckedDenseMatrixIndexM (RowMajorDenseMatrix _ _ ystride arr) =  \ (x,y)->return $! arr S.! (x + y * ystride)
-uncheckedDenseMatrixIndexM (ColMajorDenseMatrix _ _ xstride arr) = \ (x,y)->return $! arr S.! (y + x* xstride)
+uncheckedDenseMatrixIndexM (RowMajorDenseMatrix _ _ ystride arr) =  \ (x,y)-> return $! arr `S.unsafeIndex` (x + y * ystride)
+uncheckedDenseMatrixIndexM (ColMajorDenseMatrix _ _ xstride arr) = \ (x,y)-> return $! arr `S.unsafeIndex` (y + x* xstride)
+
+uncheckedMutDenseMatrixIndexM :: (PrimMonad m ,S.Storable elem )=>  MutDenseMatrix (PrimState m) or elem -> (Int,Int) -> m elem 
+uncheckedMutDenseMatrixIndexM (RowMajorMutableDenseMatrix _ _ ystride arr) =  \ (x,y)->  arr `SM.unsafeRead` (x + y * ystride)
+uncheckedMutDenseMatrixIndexM (ColMajorMutableDenseMatrix _ _ xstride arr) = \ (x,y)->   arr `SM.unsafeRead` (y + x* xstride)
 
 swap :: (a,b)->(b,a)
-swap = \ (x,y)-> (y,x)
+swap = \ (!x,!y)-> (y,x)
 {-# INLINE swap #-}
 
 
 mapDenseMatrix :: (S.Storable a, S.Storable b) =>  (a->b) -> DenseMatrix or a -> DenseMatrix or b 
 mapDenseMatrix f rm@(RowMajorDenseMatrix xdim ydim _ _) =
     RowMajorDenseMatrix xdim ydim xdim $!
-             S.generate (xdim * ydim) (\ix -> f $! uncheckedDenseMatrixIndex rm (swap $! quotRem ix xdim ) ) 
+             S.generate (xdim * ydim) (\ix -> f $! uncheckedDenseMatrixIndex rm (swap $ quotRem ix xdim ) ) 
 mapDenseMatrix f rm@(ColMajorDenseMatrix xdim ydim _ _) =     
     ColMajorDenseMatrix xdim ydim ydim $!
          S.generate (xdim * ydim ) (\ix -> f $! uncheckedDenseMatrixIndex rm ( quotRem ix ydim ) )
@@ -137,11 +141,11 @@ mapDenseMatrix f rm@(ColMajorDenseMatrix xdim ydim _ _) =
 imapDenseMatrix :: (S.Storable a, S.Storable b) =>  ((Int,Int)->a->b) -> DenseMatrix or a -> DenseMatrix or b 
 imapDenseMatrix f rm@(RowMajorDenseMatrix xdim ydim _ _) =
     RowMajorDenseMatrix xdim ydim xdim $!
-             S.generate (xdim * ydim) (\ix -> let ixtup = swap $! quotRem ix xdim in 
+             S.generate (xdim * ydim) (\ix -> let !ixtup@(!_,!_) = swap $ quotRem ix xdim in 
                                          f  ixtup $! uncheckedDenseMatrixIndex rm ixtup   ) 
 imapDenseMatrix f rm@(ColMajorDenseMatrix xdim ydim _ _) =     
     ColMajorDenseMatrix xdim ydim ydim $!
-         S.generate (xdim * ydim ) (\ix -> let  ixtup = ( quotRem ix ydim ) in 
+         S.generate (xdim * ydim ) (\ix -> let  ixtup@(!_,!_) = ( quotRem ix ydim ) in 
                                          f ixtup $! uncheckedDenseMatrixIndex rm ixtup   )
 
 -- | In Matrix format memory order enumeration of the index tuples, for good locality 2dim map

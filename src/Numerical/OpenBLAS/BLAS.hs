@@ -6,3 +6,5 @@ module Numerical.OpenBLAS.BLAS(
     ,zgemm) where
 
 import Numerical.OpenBLAS.UtilsFFI    
+import Numerical.OpenBLAS.BLAS.FFI 
+
