@@ -37,6 +37,11 @@ It is the role of a higher leve library to provide any generic operations.
 data Orientation = Row | Column 
 
 
+data Tranpose = NoTranpose | Tranpose | ConjTranpose | ConjNoTranpose
+{-
+should think long and hard before adding implicit tranposition to the internal data model
+-}
+
 type family Transpose (x :: Orientation) :: Orientation
 
 type instance Transpose Row = Column

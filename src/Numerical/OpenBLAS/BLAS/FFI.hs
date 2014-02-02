@@ -419,7 +419,7 @@ type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CIn
 
 -- |  Matrix mult for general dense matrices
 type GemmFunFFI scale el = CBLAS_ORDERT -> CBLAS_TRANSPOSET ->  CBLAS_TRANSPOSET -> CBLAS_TRANSPOSET->
-        CInt -> CInt -> CInt -> scale -> Ptr el  -> CInt -> Ptr el -> CInt -> Ptr el -> IO ()
+        CInt -> CInt -> CInt -> scale -> Ptr el  -> CInt -> Ptr el -> scale -> CInt -> Ptr el -> IO ()
 
 -- matrix mult!
 foreign import ccall unsafe "cblas_sgemm" 
