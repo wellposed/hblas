@@ -37,7 +37,7 @@ It is the role of a higher leve library to provide any generic operations.
 data Orientation = Row | Column 
 
 
-data Tranpose = NoTranpose | Tranpose | ConjTranpose | ConjNoTranpose
+data Tranpose = NoTranspose | Transpose | ConjTranspose | ConjNoTranspose
 {-
 should think long and hard before adding implicit tranposition to the internal data model
 -}
@@ -70,6 +70,8 @@ data MutDenseMatrix :: *  ->Orientation  -> * -> *  where
                                     _YdimColDenMutMat :: {-# UNPACK #-} !Int ,
                                     _StrideColDenMutMat:: {-# UNPACK #-}!Int,
                                     _bufferColDenMutMat :: !(SM.MVector s elem) }-> MutDenseMatrix s Column elem 
+
+--type MutDenseMatrixIO  or elem  = 
 
 -- data PaddedSymmetricMatrix
 -- data PaddedHermetianMatrix
