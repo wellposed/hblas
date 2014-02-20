@@ -33,11 +33,15 @@ gemmComplexity a b c = a * b * c  -- this will be wrong by some constant factor,
 -- this covers the ~6 cases for checking the dimensions for GEMM quite nicely
 isBadGemm tra trb trc ax ay bx by cx cy = isBadGemmHelper (cds tra (ax,ay)) (cds trb (bx,by) ) (cds trc (cx,cy))
     cds = coordSwapper 
-    coordSwapper NoTranpose (a,b) = (a,b)
-    coordSwapper ConjNoTranpose (a,b) = (a,b) 
-    coordSwapper Tranpose (a,b) = (b,a)
-    coordSwapper ConjTranpose (a,b) = (b,a)
-    isBadGemmHelper !(ax,ay) !(bx,by) !(cx,cy) =  (minimum [ax, ay, bx, by, cx ,cy] <= 0) || not (  cy ==  ay && cx == bx && ax == by)
+    isBadGemmHelper !(ax,ay) !(bx,by) !(cx,cy) =  (minimum [ax, ay, bx, by, cx ,cy] <= 0) 
+                                            || not (  cy ==  ay && cx == bx && ax == by)
+
+coordSwapper :: Tranpose -> (a,b)-> (b,a)
+coordSwapper NoTranpose (a,b) = (a,b)
+coordSwapper ConjNoTranpose (a,b) = (a,b) 
+coordSwapper Tranpose (a,b) = (b,a)
+coordSwapper ConjTranpose (a,b) = (b,a)
+
 
 encodeFFITranpose  x=  encodeTranpose $ encodeNiceTranpose x 
 encodeNiceTranpose x = case x of 
@@ -49,7 +53,21 @@ encodeNiceTranpose x = case x of
 --data BLAS_Tranpose = BlasNoTranspose | BlasTranpose | BlasConjTranspose | BlasConjNoTranpose 
 --data Tranpose = NoTranpose | Tranpose | ConjTranpose | ConjNoTranpose
 
-gemmAbstraction gemmSafeFFI gemmUnsafeFFI handler = go 
+
+type GemmFun el orient s m = Tranpose ->Tranpose ->  el  -> MutDenseMatrix s orient el
+  ->   MutDenseMatrix s orient el-> el  ->  MutDenseMatrix s orient el -> m ()
+
+
+{-
+A key design goal of this ffi is to provide *safe* throughput guarantees 
+for a concurrent application built on top of these apis, while evading
+any overheads for providing such safety. Accordingly, on inputs sizes
+
+-}
+
+gemmAbstraction:: (Storable elem, PrimMonad m) =>  
+    GemmFunFFI scale el -> GemmFunFFI scale el -> (el -> (scale -> m a)->m a) -> forall orient . GemmFun el orient (PrimState m) m 
+gemmAbstraction gemmSafeFFI gemmUnsafeFFI constHandler = go 
   where 
     go  tra trb trc alpha beta 
         a@(RowMajorMutableDenseMatrix ax ay astride abuff) 
@@ -66,8 +84,8 @@ gemmAbstraction gemmSafeFFI gemmUnsafeFFI handler = go
         b@(ColMajorMutableDenseMatrix  bx by bstride bbuff) 
         c@(ColMajorMutableDenseMatrix  cx cy cstride cbuff)
             | isBadGemm tra trb trc ax ay bx by cx cy = error $! "bad dimension args to GEMM: ax ay bx by cx cy: " ++ show [ax, ay, bx, by, cx ,cy]
-            | flopsThreshold >= gemmComplexity cy cx ax  = -- call safe gemm
-            | otherwise = --call unsafe gemm, small enough input that ffi overhead matters 
+            | flopsThreshold >= gemmComplexity cy cx ax  = undefined -- call safe gemm
+            | otherwise = undefined  --call unsafe gemm, small enough input that ffi overhead matters 
 
 
 
