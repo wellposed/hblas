@@ -66,21 +66,34 @@ library
   build-depends:       base >=4.5 && <4.8, storable-complex >= 0.2.0 && < 0.3.0,
           vector , primitive >= 0.5 && < 0.6
   -- look, no external deps for openblas! 
-  extra-libraries: openblas pthread
+  -- extra-libraries: openblas pthread
+
+  if os(OSX)
+  --   extra-lib-dirs: /opt/local/lib/
+  --    include-dirs: /opt/local/include/
+      extra-lib-dirs: /usr/local/lib/
+      include-dirs: /usr/local/include/
+      extra-libraries:
+      frameworks: Accelerate
+
+  if os(windows)
+      extra-libraries: blas lapack
+
+  extra-libraries: blas lapack
 
   
-  if os(OSX)
+ --  if os(OSX)
         -- where macports installs libs
         --- extra-lib-dirs: /opt/local/lib/
         --- include-dirs: /opt/local/include/
         -- where homebrew installs libs
-        extra-lib-dirs: /usr/local/lib/
-        include-dirs: /usr/local/include/
+   ---      extra-lib-dirs: /usr/local/lib/
+     --   include-dirs: /usr/local/include/
 
 
         -- by default brew doesn't link openblas
-        extra-lib-dirs: /usr/local/opt/openblas/lib
-        include-dirs: /usr/local/opt/openblas/include
+        -- extra-lib-dirs: /usr/local/opt/openblas/lib
+        -- include-dirs: /usr/local/opt/openblas/include
 
   -- Directories containing source files.
   hs-source-dirs:      src
@@ -97,18 +110,7 @@ Test-Suite simple-test
 --    extra-libraries: openblas
 
     ghc-options: -Wall
-    if os(osx)
-        -- where macports installs libs
-        -- extra-lib-dirs: /opt/local/lib/
-        -- include-dirs: /opt/local/include/
-        -- where homebrew installs libs
-        extra-lib-dirs: /usr/local/lib/
-        include-dirs: /usr/local/include/
-        -- where homebrew puts OpenBLAS by default 
-        extra-lib-dirs: /usr/local/opt/openblas/lib
-        include-dirs: /usr/local/opt/openblas/include
 
- 
 
   
     

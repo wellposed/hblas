@@ -8,6 +8,7 @@ env:
     # - GHCVER=7.2.2
     - GHCVER=7.4.2
     - GHCVER=7.6.3
+    - GHCVER=7.8.1
     - GHCVER=head
   global:
     - CABALVER=1.18
@@ -25,7 +26,8 @@ before_install:
   - sudo apt-get update 
   - sudo apt-get install gfortran
   - git clone http://github.com/wellposed/wellposed-travis travis
-  - ./travis/scripts/build-openblas.sh
+  - sudo apt-get install libblas-dev liblapack-dev
+  # - ./travis/scripts/build-openblas.sh
   - source travis/scripts/set_env.sh
   - ./travis/scripts/before_install.sh
 

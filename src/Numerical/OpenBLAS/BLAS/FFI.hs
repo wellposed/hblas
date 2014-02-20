@@ -10,9 +10,9 @@ import Foreign.C.Types
 import Data.Complex 
 
 -- /*Set the number of threads on runtime.*/
-foreign import ccall unsafe "openblas_set_num_threads" openblas_set_num_threads_unsafe :: CInt -> IO ()
+--foreign import ccall unsafe "openblas_set_num_threads" openblas_set_num_threads_unsafe :: CInt -> IO ()
 
-foreign import ccall unsafe "goto_set_num_threads" goto_set_num_threads_unsafe :: CInt -> IO ()
+--foreign import ccall unsafe "goto_set_num_threads" goto_set_num_threads_unsafe :: CInt -> IO ()
 
 {- | For All of the BlAS FFI operations, 
 
