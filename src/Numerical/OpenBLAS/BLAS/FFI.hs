@@ -18,7 +18,16 @@ import Data.Complex
 
 
 -}
+{-
 
+
+typedef enum CBLAS_ORDER     {CblasRowMajor=101, CblasColMajor=102} CBLAS_ORDER;
+typedef enum CBLAS_TRANSPOSE {CblasNoTrans=111, CblasTrans=112, CblasConjTrans=113, CblasConjNoTrans=114} CBLAS_TRANSPOSE;
+typedef enum CBLAS_UPLO      {CblasUpper=121, CblasLower=122} CBLAS_UPLO;
+typedef enum CBLAS_DIAG      {CblasNonUnit=131, CblasUnit=132} CBLAS_DIAG;
+typedef enum CBLAS_SIDE      {CblasLeft=141, CblasRight=142} CBLAS_SIDE;
+
+-}
 
 newtype CBLAS_INDEX = CBIndex CSize 
         deriving (Eq,Show)
@@ -77,14 +86,14 @@ encodeSide BlasRight = CBLAS_SideT 142
 --typedef enum CBLAS_SIDE      {CblasLeft=141, CblasRight=142} CBLAS_SIDE;
 
 --dot products
-foreign import ccall unsafe "cblas_sdsdot" cblas_sdsdot_unsafe :: CInt -> CFloat -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat 
-foreign import ccall unsafe "cblas_dsdot" cblas_dsdot_unsafe :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CDouble
-foreign import ccall unsafe "cblas_sdot" cblas_sdot_unsafe :: CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO CFloat
-foreign import ccall unsafe "cblas_ddot" cblas_ddot_unsafe :: CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> IO CDouble
---CFloat  cblas_sdsdot(  CInt n,   CFloat alpha,   CFloat *x,   CInt incx,   CFloat *y,   CInt incy);
---CDouble cblas_dsdot (  CInt n,   CFloat *x,   CInt incx,   CFloat *y,   CInt incy);
---CFloat  cblas_sdot(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy);
---CDouble cblas_ddot(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy);
+foreign import ccall unsafe "cblas_sdsdot" cblas_sdsdot_unsafe :: CInt -> Float -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO Float 
+foreign import ccall unsafe "cblas_dsdot" cblas_dsdot_unsafe :: CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO Double
+foreign import ccall unsafe "cblas_sdot" cblas_sdot_unsafe :: CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO Float
+foreign import ccall unsafe "cblas_ddot" cblas_ddot_unsafe :: CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> IO Double
+--Float  cblas_sdsdot(  CInt n,   Float alpha,   Float *x,   CInt incx,   Float *y,   CInt incy);
+--Double cblas_dsdot (  CInt n,   Float *x,   CInt incx,   Float *y,   CInt incy);
+--Float  cblas_sdot(  CInt n,   Float  *x,   CInt incx,   Float  *y,   CInt incy);
+--Double cblas_ddot(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy);
 
 
 
@@ -92,125 +101,125 @@ foreign import ccall unsafe "cblas_ddot" cblas_ddot_unsafe :: CInt -> Ptr CDoubl
 not doing these right now, because requires handling return value as a complex number,
 we can only handle pointers to complex numbers right now
 -}
---openblas_complex_CFloat  cblas_cdotu(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy);
---openblas_complex_CFloat  cblas_cdotc(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy);
---openblas_complex_CDouble cblas_zdotu(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy);
---openblas_complex_CDouble cblas_zdotc(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy);
+--openblas_complex_Float  cblas_cdotu(  CInt n,   Float  *x,   CInt incx,   Float  *y,   CInt incy);
+--openblas_complex_Float  cblas_cdotc(  CInt n,   Float  *x,   CInt incx,   Float  *y,   CInt incy);
+--openblas_complex_Double cblas_zdotu(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy);
+--openblas_complex_Double cblas_zdotc(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy);
 
 
 
 
 --- not sure what to do for these complex 
---void  cblas_cdotu_sub(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy, openblas_complex_CFloat  *ret);
---void  cblas_cdotc_sub(  CInt n,   CFloat  *x,   CInt incx,   CFloat  *y,   CInt incy, openblas_complex_CFloat  *ret);
---void  cblas_zdotu_sub(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy, openblas_complex_CDouble *ret);
---void  cblas_zdotc_sub(  CInt n,   CDouble *x,   CInt incx,   CDouble *y,   CInt incy, openblas_complex_CDouble *ret);
+--void  cblas_cdotu_sub(  CInt n,   Float  *x,   CInt incx,   Float  *y,   CInt incy, openblas_complex_Float  *ret);
+--void  cblas_cdotc_sub(  CInt n,   Float  *x,   CInt incx,   Float  *y,   CInt incy, openblas_complex_Float  *ret);
+--void  cblas_zdotu_sub(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy, openblas_complex_Double *ret);
+--void  cblas_zdotc_sub(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy, openblas_complex_Double *ret);
 
 ---- absolute value
 foreign import ccall unsafe "cblas_sasum" cblas_sasum_unsafe:: 
-    CInt -> Ptr CFloat -> CInt -> IO CFloat
+    CInt -> Ptr Float -> CInt -> IO Float
 foreign import ccall unsafe "cblas_dasum" cblas_dasum_unsafe :: 
-    CInt -> Ptr CDouble -> CInt -> IO CDouble
+    CInt -> Ptr Double -> CInt -> IO Double
 foreign import ccall unsafe "cblas_scasum" cblas_casum_unsafe :: 
-    CInt -> Ptr (Complex CFloat)-> CInt -> IO CFloat
+    CInt -> Ptr (Complex Float)-> CInt -> IO Float
 foreign import ccall unsafe "cblas_dzasum" cblas_zasum_unsafe :: 
-    CInt -> Ptr (Complex CDouble) -> CInt -> IO CDouble
---CFloat  cblas_sasum (  CInt n,   CFloat  *x,   CInt incx);
---CDouble cblas_dasum (  CInt n,   CDouble *x,   CInt incx);
---CFloat  cblas_scasum(  CInt n,   CFloat  *x,   CInt incx);
---CDouble cblas_dzasum(  CInt n,   CDouble *x,   CInt incx);
+    CInt -> Ptr (Complex Double) -> CInt -> IO Double
+--Float  cblas_sasum (  CInt n,   Float  *x,   CInt incx);
+--Double cblas_dasum (  CInt n,   Double *x,   CInt incx);
+--Float  cblas_scasum(  CInt n,   Float  *x,   CInt incx);
+--Double cblas_dzasum(  CInt n,   Double *x,   CInt incx);
 
 
 foreign import ccall unsafe "cblas_snrm2" cblas_snrm2_unsafe :: 
-    CInt -> Ptr CFloat -> CInt -> IO CFloat
+    CInt -> Ptr Float -> CInt -> IO Float
 foreign import ccall unsafe "cblas_dnrm2" cblas_dnrm2_unsafe :: 
-    CInt -> Ptr CDouble -> CInt -> IO CDouble
+    CInt -> Ptr Double -> CInt -> IO Double
 foreign import ccall unsafe "cblas_scnrm2" cblas_scnrm2_unsafe :: 
-    CInt -> Ptr (Complex CFloat)-> CInt -> IO CFloat
+    CInt -> Ptr (Complex Float)-> CInt -> IO Float
 foreign import ccall unsafe "cblas_dznrm2" cblas_dznrm2_unsafe :: 
-    CInt -> Ptr (Complex CDouble) -> CInt -> IO CDouble
+    CInt -> Ptr (Complex Double) -> CInt -> IO Double
 
 
---CFloat  cblas_snrm2 (  CInt N,   CFloat  *X,   CInt incX);
---CDouble cblas_dnrm2 (  CInt N,   CDouble *X,   CInt incX);
---CFloat  cblas_scnrm2(  CInt N,   CFloat  *X,   CInt incX);
---CDouble cblas_dznrm2(  CInt N,   CDouble *X,   CInt incX);
+--Float  cblas_snrm2 (  CInt N,   Float  *X,   CInt incX);
+--Double cblas_dnrm2 (  CInt N,   Double *X,   CInt incX);
+--Float  cblas_scnrm2(  CInt N,   Float  *X,   CInt incX);
+--Double cblas_dznrm2(  CInt N,   Double *X,   CInt incX);
 
 
 
 foreign import ccall unsafe "cblas_isamax" cblas_isamax_unsafe :: 
-    CInt -> Ptr CFloat -> CInt -> IO CInt
+    CInt -> Ptr Float -> CInt -> IO CInt
 foreign import ccall unsafe "cblas_idamax" cblas_idamax_unsafe :: 
-    CInt -> Ptr CFloat -> CInt -> IO CInt
+    CInt -> Ptr Float -> CInt -> IO CInt
 foreign import ccall unsafe "cblas_icamax" cblas_icamax_unsafe :: 
-    CInt -> Ptr (Complex CFloat) -> CInt -> IO CInt
+    CInt -> Ptr (Complex Float) -> CInt -> IO CInt
 foreign import ccall unsafe "cblas_izamax" cblas_izamax_unsafe :: 
-    CInt -> Ptr (Complex CDouble) -> CInt -> IO CInt    
---CBLAS_INDEX cblas_isamax(  CInt n,   CFloat  *x,   CInt incx);
---CBLAS_INDEX cblas_idamax(  CInt n,   CDouble *x,   CInt incx);
---CBLAS_INDEX cblas_icamax(  CInt n,   CFloat  *x,   CInt incx);
---CBLAS_INDEX cblas_izamax(  CInt n,   CDouble *x,   CInt incx);
+    CInt -> Ptr (Complex Double) -> CInt -> IO CInt    
+--CBLAS_INDEX cblas_isamax(  CInt n,   Float  *x,   CInt incx);
+--CBLAS_INDEX cblas_idamax(  CInt n,   Double *x,   CInt incx);
+--CBLAS_INDEX cblas_icamax(  CInt n,   Float  *x,   CInt incx);
+--CBLAS_INDEX cblas_izamax(  CInt n,   Double *x,   CInt incx);
 
 
 
 
---void cblas_saxpy(  CInt n,   CFloat alpha,   CFloat *x,   CInt incx, CFloat *y,   CInt incy);
---void cblas_daxpy(  CInt n,   CDouble alpha,   CDouble *x,   CInt incx, CDouble *y,   CInt incy);
---void cblas_caxpy(  CInt n,   CFloat *alpha,   CFloat *x,   CInt incx, CFloat *y,   CInt incy);
---void cblas_zaxpy(  CInt n,   CDouble *alpha,   CDouble *x,   CInt incx, CDouble *y,   CInt incy);
+--void cblas_saxpy(  CInt n,   Float alpha,   Float *x,   CInt incx, Float *y,   CInt incy);
+--void cblas_daxpy(  CInt n,   Double alpha,   Double *x,   CInt incx, Double *y,   CInt incy);
+--void cblas_caxpy(  CInt n,   Float *alpha,   Float *x,   CInt incx, Float *y,   CInt incy);
+--void cblas_zaxpy(  CInt n,   Double *alpha,   Double *x,   CInt incx, Double *y,   CInt incy);
 
 
 
 foreign import ccall unsafe "cblas_scopy" cblas_scopy_unsafe :: 
-    CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO ()   
+    CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO ()   
 foreign import ccall unsafe "cblas_dcopy" cblas_dcopy_unsafe :: 
-    CInt -> Ptr CDouble-> CInt -> Ptr CDouble -> CInt -> IO ()
+    CInt -> Ptr Double-> CInt -> Ptr Double -> CInt -> IO ()
 foreign import ccall unsafe "cblas_ccopy" cblas_ccopy_unsafe :: 
-    CInt -> Ptr (Complex CFloat) -> CInt -> Ptr (Complex CFloat) -> CInt -> IO ()
+    CInt -> Ptr (Complex Float) -> CInt -> Ptr (Complex Float) -> CInt -> IO ()
 foreign import ccall unsafe "cblas_zcopy" cblas_zcopy_unsafe :: 
-    CInt -> Ptr (Complex CDouble)-> CInt -> Ptr (Complex CDouble) -> CInt -> IO ()        
+    CInt -> Ptr (Complex Double)-> CInt -> Ptr (Complex Double) -> CInt -> IO ()        
 
---void cblas_scopy(  CInt n,   CFloat *x,   CInt incx, CFloat *y,   CInt incy);
---void cblas_dcopy(  CInt n,   CDouble *x,   CInt incx, CDouble *y,   CInt incy);
---void cblas_ccopy(  CInt n,   CFloat *x,   CInt incx, CFloat *y,   CInt incy);
---void cblas_zcopy(  CInt n,   CDouble *x,   CInt incx, CDouble *y,   CInt incy);
+--void cblas_scopy(  CInt n,   Float *x,   CInt incx, Float *y,   CInt incy);
+--void cblas_dcopy(  CInt n,   Double *x,   CInt incx, Double *y,   CInt incy);
+--void cblas_ccopy(  CInt n,   Float *x,   CInt incx, Float *y,   CInt incy);
+--void cblas_zcopy(  CInt n,   Double *x,   CInt incx, Double *y,   CInt incy);
 
 
 
 foreign import ccall unsafe "cblas_scopy" cblas_sswap_unsafe :: 
-    CInt -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt -> IO ()   
+    CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO ()   
 foreign import ccall unsafe "cblas_dcopy" cblas_dswap_unsafe :: 
-    CInt -> Ptr CDouble-> CInt -> Ptr CDouble -> CInt -> IO ()
+    CInt -> Ptr Double-> CInt -> Ptr Double -> CInt -> IO ()
 foreign import ccall unsafe "cblas_ccopy" cblas_cswap_unsafe :: 
-    CInt -> Ptr (Complex CFloat) -> CInt -> Ptr (Complex CFloat) -> CInt -> IO ()
+    CInt -> Ptr (Complex Float) -> CInt -> Ptr (Complex Float) -> CInt -> IO ()
 foreign import ccall unsafe "cblas_zcopy" cblas_zswap_unsafe :: 
-    CInt -> Ptr (Complex CDouble)-> CInt -> Ptr (Complex CDouble) -> CInt -> IO () 
+    CInt -> Ptr (Complex Double)-> CInt -> Ptr (Complex Double) -> CInt -> IO () 
 
---void cblas_sswap(  CInt n, CFloat *x,   CInt incx, CFloat *y,   CInt incy);
---void cblas_dswap(  CInt n, CDouble *x,   CInt incx, CDouble *y,   CInt incy);
---void cblas_cswap(  CInt n, CFloat *x,   CInt incx, CFloat *y,   CInt incy);
---void cblas_zswap(  CInt n, CDouble *x,   CInt incx, CDouble *y,   CInt incy);
+--void cblas_sswap(  CInt n, Float *x,   CInt incx, Float *y,   CInt incy);
+--void cblas_dswap(  CInt n, Double *x,   CInt incx, Double *y,   CInt incy);
+--void cblas_cswap(  CInt n, Float *x,   CInt incx, Float *y,   CInt incy);
+--void cblas_zswap(  CInt n, Double *x,   CInt incx, Double *y,   CInt incy);
 
 
 
---void cblas_srot(  CInt N, CFloat *X,   CInt incX, CFloat *Y,   CInt incY,   CFloat c,   CFloat s);
---void cblas_drot(  CInt N, CDouble *X,   CInt incX, CDouble *Y,   CInt incY,   CDouble c,   CDouble  s);
+--void cblas_srot(  CInt N, Float *X,   CInt incX, Float *Y,   CInt incY,   Float c,   Float s);
+--void cblas_drot(  CInt N, Double *X,   CInt incX, Double *Y,   CInt incY,   Double c,   Double  s);
 
---void cblas_srotg(CFloat *a, CFloat *b, CFloat *c, CFloat *s);
---void cblas_drotg(CDouble *a, CDouble *b, CDouble *c, CDouble *s);
+--void cblas_srotg(Float *a, Float *b, Float *c, Float *s);
+--void cblas_drotg(Double *a, Double *b, Double *c, Double *s);
 
---void cblas_srotm(  CInt N, CFloat *X,   CInt incX, CFloat *Y,   CInt incY,   CFloat *P);
---void cblas_drotm(  CInt N, CDouble *X,   CInt incX, CDouble *Y,   CInt incY,   CDouble *P);
+--void cblas_srotm(  CInt N, Float *X,   CInt incX, Float *Y,   CInt incY,   Float *P);
+--void cblas_drotm(  CInt N, Double *X,   CInt incX, Double *Y,   CInt incY,   Double *P);
 
---void cblas_srotmg(CFloat *d1, CFloat *d2, CFloat *b1,   CFloat b2, CFloat *P);
---void cblas_drotmg(CDouble *d1, CDouble *d2, CDouble *b1,   CDouble b2, CDouble *P);
+--void cblas_srotmg(Float *d1, Float *d2, Float *b1,   Float b2, Float *P);
+--void cblas_drotmg(Double *d1, Double *d2, Double *b1,   Double b2, Double *P);
 
---void cblas_sscal(  CInt N,   CFloat alpha, CFloat *X,   CInt incX);
---void cblas_dscal(  CInt N,   CDouble alpha, CDouble *X,   CInt incX);
---void cblas_cscal(  CInt N,   CFloat *alpha, CFloat *X,   CInt incX);
---void cblas_zscal(  CInt N,   CDouble *alpha, CDouble *X,   CInt incX);
---void cblas_csscal(  CInt N,   CFloat alpha, CFloat *X,   CInt incX);
---void cblas_zdscal(  CInt N,   CDouble alpha, CDouble *X,   CInt incX);
+--void cblas_sscal(  CInt N,   Float alpha, Float *X,   CInt incX);
+--void cblas_dscal(  CInt N,   Double alpha, Double *X,   CInt incX);
+--void cblas_cscal(  CInt N,   Float *alpha, Float *X,   CInt incX);
+--void cblas_zscal(  CInt N,   Double *alpha, Double *X,   CInt incX);
+--void cblas_csscal(  CInt N,   Float alpha, Float *X,   CInt incX);
+--void cblas_zdscal(  CInt N,   Double alpha, Double *X,   CInt incX);
 
 
 
@@ -226,122 +235,122 @@ matrix vector product for general matrices
 -}
 
 --void cblas_sgemv(  enum CBLAS_ORDER order,    enum CBLAS_TRANSPOSE trans,    CInt m,   CInt n,
---           CFloat alpha,   CFloat  *a,   CInt lda,    CFloat  *x,   CInt incx,    CFloat beta,  CFloat  *y,   CInt incy);
+--           Float alpha,   Float  *a,   CInt lda,    Float  *x,   CInt incx,    Float beta,  Float  *y,   CInt incy);
 --void cblas_dgemv(  enum CBLAS_ORDER order,    enum CBLAS_TRANSPOSE trans,    CInt m,   CInt n,
---           CDouble alpha,   CDouble  *a,   CInt lda,    CDouble  *x,   CInt incx,    CDouble beta,  CDouble  *y,   CInt incy);
+--           Double alpha,   Double  *a,   CInt lda,    Double  *x,   CInt incx,    Double beta,  Double  *y,   CInt incy);
 --void cblas_cgemv(  enum CBLAS_ORDER order,    enum CBLAS_TRANSPOSE trans,    CInt m,   CInt n,
---           CFloat *alpha,   CFloat  *a,   CInt lda,    CFloat  *x,   CInt incx,    CFloat *beta,  CFloat  *y,   CInt incy);
+--           Float *alpha,   Float  *a,   CInt lda,    Float  *x,   CInt incx,    Float *beta,  Float  *y,   CInt incy);
 --void cblas_zgemv(  enum CBLAS_ORDER order,    enum CBLAS_TRANSPOSE trans,    CInt m,   CInt n,
---           CDouble *alpha,   CDouble  *a,   CInt lda,    CDouble  *x,   CInt incx,    CDouble *beta,  CDouble  *y,   CInt incy);
+--           Double *alpha,   Double  *a,   CInt lda,    Double  *x,   CInt incx,    Double *beta,  Double  *y,   CInt incy);
 
 
 -- perform the rank 1 operation   A := alpha*x*y' + A,
 
---void cblas_sger (  enum CBLAS_ORDER order,   CInt M,   CInt N,   CFloat   alpha,   CFloat  *X,   CInt incX,   CFloat  *Y,   CInt incY, CFloat  *A,   CInt lda);
---void cblas_dger (  enum CBLAS_ORDER order,   CInt M,   CInt N,   CDouble  alpha,   CDouble *X,   CInt incX,   CDouble *Y,   CInt incY, CDouble *A,   CInt lda);
---void cblas_cgeru(  enum CBLAS_ORDER order,   CInt M,   CInt N,   CFloat  *alpha,   CFloat  *X,   CInt incX,   CFloat  *Y,   CInt incY, CFloat  *A,   CInt lda);
---void cblas_cgerc(  enum CBLAS_ORDER order,   CInt M,   CInt N,   CFloat  *alpha,   CFloat  *X,   CInt incX,   CFloat  *Y,   CInt incY, CFloat  *A,   CInt lda);
---void cblas_zgeru(  enum CBLAS_ORDER order,   CInt M,   CInt N,   CDouble *alpha,   CDouble *X,   CInt incX,   CDouble *Y,   CInt incY, CDouble *A,   CInt lda);
---void cblas_zgerc(  enum CBLAS_ORDER order,   CInt M,   CInt N,   CDouble *alpha,   CDouble *X,   CInt incX,   CDouble *Y,   CInt incY, CDouble *A,   CInt lda);
+--void cblas_sger (  enum CBLAS_ORDER order,   CInt M,   CInt N,   Float   alpha,   Float  *X,   CInt incX,   Float  *Y,   CInt incY, Float  *A,   CInt lda);
+--void cblas_dger (  enum CBLAS_ORDER order,   CInt M,   CInt N,   Double  alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
+--void cblas_cgeru(  enum CBLAS_ORDER order,   CInt M,   CInt N,   Float  *alpha,   Float  *X,   CInt incX,   Float  *Y,   CInt incY, Float  *A,   CInt lda);
+--void cblas_cgerc(  enum CBLAS_ORDER order,   CInt M,   CInt N,   Float  *alpha,   Float  *X,   CInt incX,   Float  *Y,   CInt incY, Float  *A,   CInt lda);
+--void cblas_zgeru(  enum CBLAS_ORDER order,   CInt M,   CInt N,   Double *alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
+--void cblas_zgerc(  enum CBLAS_ORDER order,   CInt M,   CInt N,   Double *alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
 
 
 --STRSV - solve one of the systems of equations   A*x = b, or A'*x = b, where A is a (non)unit upper(/lower) triangular matrix
 
---void cblas_strsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
---void cblas_dtrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
---void cblas_ctrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
---void cblas_ztrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
+--void cblas_strsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_dtrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Double *A,   CInt lda, Double *X,   CInt incX);
+--void cblas_ctrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_ztrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Double *A,   CInt lda, Double *X,   CInt incX);
 
 
 
 
---void cblas_strmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
---void cblas_dtrmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
---void cblas_ctrmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
---void cblas_ztrmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
+--void cblas_strmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_dtrmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Double *A,   CInt lda, Double *X,   CInt incX);
+--void cblas_ctrmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_ztrmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Double *A,   CInt lda, Double *X,   CInt incX);
 
 
 
---void cblas_ssyr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat alpha,   CFloat *X,   CInt incX, CFloat *A,   CInt lda);
---void cblas_dsyr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble alpha,   CDouble *X,   CInt incX, CDouble *A,   CInt lda);
---void cblas_cher(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat alpha,   CFloat *X,   CInt incX, CFloat *A,   CInt lda);
---void cblas_zher(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble alpha,   CDouble *X,   CInt incX, CDouble *A,   CInt lda);
+--void cblas_ssyr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *A,   CInt lda);
+--void cblas_dsyr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *A,   CInt lda);
+--void cblas_cher(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *A,   CInt lda);
+--void cblas_zher(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *A,   CInt lda);
 
 
 
---void cblas_ssyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,  CInt N,   CFloat alpha,   CFloat *X,
---                  CInt incX,   CFloat *Y,   CInt incY, CFloat *A,   CInt lda);
---void cblas_dsyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble alpha,   CDouble *X,
---                  CInt incX,   CDouble *Y,   CInt incY, CDouble *A,   CInt lda);
---void cblas_cher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat *alpha,   CFloat *X,   CInt incX,
---                  CFloat *Y,   CInt incY, CFloat *A,   CInt lda);
---void cblas_zher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble *alpha,   CDouble *X,   CInt incX,
---                  CDouble *Y,   CInt incY, CDouble *A,   CInt lda);
+--void cblas_ssyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,  CInt N,   Float alpha,   Float *X,
+--                  CInt incX,   Float *Y,   CInt incY, Float *A,   CInt lda);
+--void cblas_dsyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,
+--                  CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
+--void cblas_cher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float *alpha,   Float *X,   CInt incX,
+--                  Float *Y,   CInt incY, Float *A,   CInt lda);
+--void cblas_zher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *X,   CInt incX,
+--                  Double *Y,   CInt incY, Double *A,   CInt lda);
 
 
 
 
 --void cblas_sgbmv(  enum CBLAS_ORDER order,   enum CBLAS_TRANSPOSE TransA,   CInt M,   CInt N,
---                   CInt KL,   CInt KU,   CFloat alpha,   CFloat *A,   CInt lda,   CFloat *X,   CInt incX,   CFloat beta, CFloat *Y,   CInt incY);
+--                   CInt KL,   CInt KU,   Float alpha,   Float *A,   CInt lda,   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
 --void cblas_dgbmv(  enum CBLAS_ORDER order,   enum CBLAS_TRANSPOSE TransA,   CInt M,   CInt N,
---                   CInt KL,   CInt KU,   CDouble alpha,   CDouble *A,   CInt lda,   CDouble *X,   CInt incX,   CDouble beta, CDouble *Y,   CInt incY);
+--                   CInt KL,   CInt KU,   Double alpha,   Double *A,   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
 --void cblas_cgbmv(  enum CBLAS_ORDER order,   enum CBLAS_TRANSPOSE TransA,   CInt M,   CInt N,
---                   CInt KL,   CInt KU,   CFloat *alpha,   CFloat *A,   CInt lda,   CFloat *X,   CInt incX,   CFloat *beta, CFloat *Y,   CInt incY);
+--                   CInt KL,   CInt KU,   Float *alpha,   Float *A,   CInt lda,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
 --void cblas_zgbmv(  enum CBLAS_ORDER order,   enum CBLAS_TRANSPOSE TransA,   CInt M,   CInt N,
---                   CInt KL,   CInt KU,   CDouble *alpha,   CDouble *A,   CInt lda,   CDouble *X,   CInt incX,   CDouble *beta, CDouble *Y,   CInt incY);
+--                   CInt KL,   CInt KU,   Double *alpha,   Double *A,   CInt lda,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);
 
 
---void cblas_ssbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,   CFloat alpha,   CFloat *A,
---                   CInt lda,   CFloat *X,   CInt incX,   CFloat beta, CFloat *Y,   CInt incY);
---void cblas_dsbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,   CDouble alpha,   CDouble *A,
---                   CInt lda,   CDouble *X,   CInt incX,   CDouble beta, CDouble *Y,   CInt incY);
+--void cblas_ssbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,   Float alpha,   Float *A,
+--                   CInt lda,   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
+--void cblas_dsbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,   Double alpha,   Double *A,
+--                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
 
 
 
 --void cblas_stbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
+--                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
 --void cblas_dtbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
+--                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
 --void cblas_ctbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
+--                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
 --void cblas_ztbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
+--                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
 
 ----------------
 --- | solves  Ax=v where A is k+1 banded triangular matrix, and x and 
 ----------------
 --void cblas_stbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
+--                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
 --void cblas_dtbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
+--                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
 --void cblas_ctbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   CFloat *A,   CInt lda, CFloat *X,   CInt incX);
+--                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
 --void cblas_ztbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   CDouble *A,   CInt lda, CDouble *X,   CInt incX);
+--                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
 
 -------------------------------------------------------------------------
 -- | matrix vector product Av, writes result into v, where A is a packed triangular nxn matrix
 -------------------------------------------------------------------------
 --void cblas_stpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CFloat *Ap, CFloat *X,   CInt incX);
+--                   CInt N,   Float *Ap, Float *X,   CInt incX);
 --void cblas_dtpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CDouble *Ap, CDouble *X,   CInt incX);
+--                   CInt N,   Double *Ap, Double *X,   CInt incX);
 --void cblas_ctpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CFloat *Ap, CFloat *X,   CInt incX);
+--                   CInt N,   Float *Ap, Float *X,   CInt incX);
 --void cblas_ztpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CDouble *Ap, CDouble *X,   CInt incX);
+--                   CInt N,   Double *Ap, Double *X,   CInt incX);
 
 --------------------------------------------------
 ---  | solve  Ax=v where A is a nxn packed triangular matrix, v vector input, writes the solution into x. 
 --------------------------------------------------
 --void cblas_stpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CFloat *Ap, CFloat *X,   CInt incX);
+--                   CInt N,   Float *Ap, Float *X,   CInt incX);
 --void cblas_dtpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CDouble *Ap, CDouble *X,   CInt incX);
+--                   CInt N,   Double *Ap, Double *X,   CInt incX);
 --void cblas_ctpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CFloat *Ap, CFloat *X,   CInt incX);
+--                   CInt N,   Float *Ap, Float *X,   CInt incX);
 --void cblas_ztpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CDouble *Ap, CDouble *X,   CInt incX);
+--                   CInt N,   Double *Ap, Double *X,   CInt incX);
 
 
 ----------------------------------
@@ -351,18 +360,18 @@ matrix vector product for general matrices
 type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CInt ->
                         Ptr el -> CInt -> el -> Ptr el -> CInt -> IO () 
 
---void cblas_ssymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat alpha,   CFloat *A,
---                   CInt lda,   CFloat *X,   CInt incX,   CFloat beta, CFloat *Y,   CInt incY);
---void cblas_dsymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble alpha,   CDouble *A,
---                   CInt lda,   CDouble *X,   CInt incX,   CDouble beta, CDouble *Y,   CInt incY);
+--void cblas_ssymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *A,
+--                   CInt lda,   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
+--void cblas_dsymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *A,
+--                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
 
 --------------------------------
 ---- | hermitian matrix vector product   x:=Av, writes result x into v
 --------------------------------
---void cblas_chemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat *alpha,   CFloat *A,
---                   CInt lda,   CFloat *X,   CInt incX,   CFloat *beta, CFloat *Y,   CInt incY);
---void cblas_zhemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble *alpha,   CDouble *A,
---                   CInt lda,   CDouble *X,   CInt incX,   CDouble *beta, CDouble *Y,   CInt incY);
+--void cblas_chemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float *alpha,   Float *A,
+--                   CInt lda,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
+--void cblas_zhemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *A,
+--                   CInt lda,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);
 
 
 
@@ -370,38 +379,38 @@ type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CIn
 --- | packed symmetric matrix * vector product  y:= alpha * Av  + beta * y
 ---------------
 
---void cblas_sspmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat alpha,   CFloat *Ap,
---                   CFloat *X,   CInt incX,   CFloat beta, CFloat *Y,   CInt incY);
---void cblas_dspmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble alpha,   CDouble *Ap,
---                   CDouble *X,   CInt incX,   CDouble beta, CDouble *Y,   CInt incY);
+--void cblas_sspmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *Ap,
+--                   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
+--void cblas_dspmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *Ap,
+--                   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
 
 
 
 
---void cblas_sspr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat alpha,   CFloat *X,   CInt incX, CFloat *Ap);
---void cblas_dspr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble alpha,   CDouble *X,   CInt incX, CDouble *Ap);
+--void cblas_sspr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *Ap);
+--void cblas_dspr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *Ap);
 
---void cblas_chpr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat alpha,   CFloat *X,   CInt incX, CFloat *A);
---void cblas_zhpr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble alpha,   CDouble *X,  CInt incX, CDouble *A);
+--void cblas_chpr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *A);
+--void cblas_zhpr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,  CInt incX, Double *A);
 
 
 
---void cblas_sspr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat alpha,   CFloat *X,   CInt incX,   CFloat *Y,   CInt incY, CFloat *A);
---void cblas_dspr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble alpha,   CDouble *X,   CInt incX,   CDouble *Y,   CInt incY, CDouble *A);
---void cblas_chpr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CFloat *alpha,   CFloat *X,   CInt incX,   CFloat *Y,   CInt incY, CFloat *Ap);
---void cblas_zhpr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CDouble *alpha,   CDouble *X,   CInt incX,   CDouble *Y,   CInt incY, CDouble *Ap);
+--void cblas_sspr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX,   Float *Y,   CInt incY, Float *A);
+--void cblas_dspr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A);
+--void cblas_chpr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float *alpha,   Float *X,   CInt incX,   Float *Y,   CInt incY, Float *Ap);
+--void cblas_zhpr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *Ap);
 
 
 --void cblas_chbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,
---           CFloat *alpha,   CFloat *A,   CInt lda,   CFloat *X,   CInt incX,   CFloat *beta, CFloat *Y,   CInt incY);
+--           Float *alpha,   Float *A,   CInt lda,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
 --void cblas_zhbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,
---           CDouble *alpha,   CDouble *A,   CInt lda,   CDouble *X,   CInt incX,   CDouble *beta, CDouble *Y,   CInt incY);
+--           Double *alpha,   Double *A,   CInt lda,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);
 
 
 --void cblas_chpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,
---           CFloat *alpha,   CFloat *Ap,   CFloat *X,   CInt incX,   CFloat *beta, CFloat *Y,   CInt incY);
+--           Float *alpha,   Float *Ap,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
 --void cblas_zhpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,
---           CDouble *alpha,   CDouble *Ap,   CDouble *X,   CInt incX,   CDouble *beta, CDouble *Y,   CInt incY);
+--           Double *alpha,   Double *Ap,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);
 
 
 {-
@@ -428,7 +437,7 @@ type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CIn
 --         const double *alpha, const double *A, const blasint lda, const double *B, const blasint ldb, const double *beta, double *C, const blasint ldc);
 
 -- |  Matrix mult for general dense matrices
-type GemmFunFFI scale el = CBLAS_ORDERT -> CBLAS_TRANSPOSET ->  CBLAS_TRANSPOSET -> CBLAS_TRANSPOSET->
+type GemmFunFFI scale el = CBLAS_ORDERT ->   CBLAS_TRANSPOSET -> CBLAS_TRANSPOSET->
         CInt -> CInt -> CInt -> {- scal A * B -} scale  -> {- Matrix A-} Ptr el  -> CInt -> {- B -}  Ptr el -> CInt-> 
             scale -> {- C -}  Ptr el -> CInt -> IO ()
 
@@ -579,13 +588,13 @@ foreign  import ccall unsafe "cblas_ztrmm"
     cblas_ztrmm_unsafe :: TrmmFunFFI (Ptr (Complex Double )) (Complex Double) 
 
 --void cblas_strmm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
---                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CFloat alpha,   CFloat *A,   CInt lda, CFloat *B,   CInt ldb);
+--                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   Float alpha,   Float *A,   CInt lda, Float *B,   CInt ldb);
 --void cblas_dtrmm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
---                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
+--                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   Double alpha,   Double *A,   CInt lda, Double *B,   CInt ldb);
 --void cblas_ctrmm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
---                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CFloat *alpha,   CFloat *A,   CInt lda, CFloat *B,   CInt ldb);
+--                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   Float *alpha,   Float *A,   CInt lda, Float *B,   CInt ldb);
 --void cblas_ztrmm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
---                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble *alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
+--                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   Double *alpha,   Double *A,   CInt lda, Double *B,   CInt ldb);
 
 ------------------------
 --  |  triangular solvers 
@@ -603,13 +612,13 @@ foreign  import ccall unsafe "cblas_ztrsm"
     cblas_ztrsm_unsafe :: TrmmFunFFI (Ptr (Complex Double )) (Complex Double) 
 
 --void cblas_strsm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
---                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CFloat alpha,   CFloat *A,   CInt lda, CFloat *B,   CInt ldb);
+--                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   Float alpha,   Float *A,   CInt lda, Float *B,   CInt ldb);
 --void cblas_dtrsm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
---                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
+--                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   Double alpha,   Double *A,   CInt lda, Double *B,   CInt ldb);
 --void cblas_ctrsm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
---                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CFloat *alpha,   CFloat *A,   CInt lda, CFloat *B,   CInt ldb);
+--                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   Float *alpha,   Float *A,   CInt lda, Float *B,   CInt ldb);
 --void cblas_ztrsm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
---                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   CDouble *alpha,   CDouble *A,   CInt lda, CDouble *B,   CInt ldb);
+--                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   Double *alpha,   Double *A,   CInt lda, Double *B,   CInt ldb);
 
 -------------------------
 -- | hermitian matrix mult
@@ -624,9 +633,9 @@ foreign  import ccall unsafe "cblas_zhemm"
     cblas_zhemm_unsafe :: HemmFunFFI  (Complex Double) 
 
 --void cblas_chemm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   CInt M,   CInt N,
---                   CFloat *alpha,   CFloat *A,   CInt lda,   CFloat *B,   CInt ldb,   CFloat *beta, CFloat *C,   CInt ldc);
+--                   Float *alpha,   Float *A,   CInt lda,   Float *B,   CInt ldb,   Float *beta, Float *C,   CInt ldc);
 --void cblas_zhemm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   CInt M,   CInt N,
---                   CDouble *alpha,   CDouble *A,   CInt lda,   CDouble *B,   CInt ldb,   CDouble *beta, CDouble *C,   CInt ldc);
+--                   Double *alpha,   Double *A,   CInt lda,   Double *B,   CInt ldb,   Double *beta, Double *C,   CInt ldc);
 
 type HerkFun scale el = CBLAS_ORDERT -> CBLAS_SIDET-> CBLAS_TRANSPOSET ->
      CInt->CInt ->  scale -> Ptr el -> CInt -> Ptr el -> CInt ->scale ->Ptr el -> CInt -> IO ()
@@ -636,9 +645,9 @@ foreign  import ccall unsafe "cblas_cherk"
 foreign  import ccall unsafe "cblas_zherk" 
     cblas_zherk_unsafe :: HerkFun  Double  (Complex Double) 
 --void cblas_cherk(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
---                   CFloat alpha,   CFloat *A,   CInt lda,   CFloat beta, CFloat *C,   CInt ldc);
+--                   Float alpha,   Float *A,   CInt lda,   Float beta, Float *C,   CInt ldc);
 --void cblas_zherk(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
---                   CDouble alpha,   CDouble *A,   CInt lda,   CDouble beta, CDouble *C,   CInt ldc);
+--                   Double alpha,   Double *A,   CInt lda,   Double beta, Double *C,   CInt ldc);
 
 type Her2kFunFFI scale el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_TRANSPOSET ->
      CInt->CInt -> Ptr el  -> Ptr el -> CInt -> Ptr el -> CInt ->scale ->Ptr el -> CInt -> IO ()
@@ -650,8 +659,8 @@ foreign  import ccall unsafe "cblas_zher2k"
 
 
 --void cblas_cher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
---                    CFloat *alpha,   CFloat *A,   CInt lda,   CFloat *B,   CInt ldb,   CFloat beta, CFloat *C,   CInt ldc);
+--                    Float *alpha,   Float *A,   CInt lda,   Float *B,   CInt ldb,   Float beta, Float *C,   CInt ldc);
 --void cblas_zher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
---                    CDouble *alpha,   CDouble *A,   CInt lda,   CDouble *B,   CInt ldb,   CDouble beta, CDouble *C,   CInt ldc);
+--                    Double *alpha,   Double *A,   CInt lda,   Double *B,   CInt ldb,   Double beta, Double *C,   CInt ldc);
 
 ----void cblas_xerbla(CInt p, char *rout, char *form, ...);
