@@ -53,6 +53,14 @@ unsafeWithPrimLen  ::( Storable a, PrimMonad m )=> MVector (PrimState m) a -> ((
 unsafeWithPrimLen (MVector n fp ) fun =  withForeignPtrPrim fp (\x -> fun (x,n))
 
 
+unsafeWithPurePrim  ::( Storable a, PrimMonad m )=> Vector a -> ((Ptr a)-> m b) -> m b
+{-# INLINE unsafeWithPurePrim #-}
+unsafeWithPurePrim v fun =   case S.unsafeToForeignPtr0 v of 
+                    (fp,_) -> do 
+                        res <-  withForeignPtrPrim fp (\x -> fun x)
+                        touchForeignPtrPrim fp 
+                        return res 
+
 unsafeWithPurePrimLen  ::( Storable a, PrimMonad m )=> Vector a -> ((Ptr a, Int )-> m b) -> m b
 {-# INLINE unsafeWithPurePrimLen #-}
 unsafeWithPurePrimLen v fun =   case S.unsafeToForeignPtr0 v of 
