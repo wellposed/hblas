@@ -2,6 +2,7 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE CPP  #-}
 {-#  LANGUAGE GADTs,ScopedTypeVariables, PolyKinds,FlexibleInstances,DeriveDataTypeable  #-}
 
 
@@ -79,7 +80,9 @@ data DenseMatrix :: Orientation -> * -> *  where
                     _YdimDenMat :: {-# UNPACK #-}!Int ,
                     _StrideDenMat :: {-# UNPACK #-} !Int , 
                     _bufferDenMat :: !(S.Vector elem) }-> DenseMatrix ornt  elem 
+#if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
     deriving (Typeable)
+#endif    
 {-
 need to handle rendering a slice differently than a direct matrix 
 -}
@@ -123,14 +126,14 @@ type IODenseMatrix = MutDenseMatrix RealWorld
 --data HermitianMatrix -- may just be a wrapper for symmetric?
 --data TriangularMatrix
 --data BandedMatrix
-
+{-#NOINLINE unsafeFreezeDenseMatrix #-}
 unsafeFreezeDenseMatrix :: (SM.Storable elem, PrimMonad m)=> MutDenseMatrix (PrimState m) or elem -> m (DenseMatrix or elem)
 unsafeFreezeDenseMatrix (MutableDenseMatrix  ornt a b c mv) = do
         v <- S.unsafeFreeze mv 
         return $! DenseMatrix ornt a b c v                          
 
 
-
+{-# NOINLINE unsafeThawDenseMatrix #-}
 unsafeThawDenseMatrix :: (SM.Storable elem, PrimMonad m)=> DenseMatrix or elem-> m (MutDenseMatrix (PrimState m) or elem)  
 unsafeThawDenseMatrix (DenseMatrix ornt a b c v) = do 
         mv <- S.unsafeThaw v
