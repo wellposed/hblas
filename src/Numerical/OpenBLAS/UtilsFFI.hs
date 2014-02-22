@@ -36,6 +36,7 @@ withRStorable_ :: (Storable a, PrimMonad m)=> a -> (Ptr a -> m ()) -> m ()
 withRStorable_ val fun = do   
     valVect <- M.replicate 1 val 
     unsafeWithPrim valVect fun 
+
     return () 
 {-# INLINE withRStorable_ #-} 
 
@@ -48,7 +49,7 @@ withForeignPtrPrim  fo act
 
 touchForeignPtrPrim ::PrimMonad m => ForeignPtr a -> m ()
 touchForeignPtrPrim fp = unsafePrimToPrim $!  touchForeignPtr fp
-{-# INLINE touchForeignPtrPrim #-}
+{-# NOINLINE touchForeignPtrPrim #-}
 
 
 unsafeWithPrim ::( Storable a, PrimMonad m )=> MVector (PrimState m) a -> (Ptr a -> m b) -> m b

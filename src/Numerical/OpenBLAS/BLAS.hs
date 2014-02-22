@@ -85,10 +85,13 @@ gemmAbstraction gemmSafeFFI gemmUnsafeFFI constHandler = go
         (MutableDenseMatrix _ bx by bstride bbuff) 
         (MutableDenseMatrix _ cx cy cstride cbuff) 
             |  isBadGemm tra trb  ax ay bx by cx cy = error $! "bad dimension args to GEMM: ax ay bx by cx cy: " ++ show [ax, ay, bx, by, cx ,cy]
-            | otherwise  = do 
-                unsafeWithPrim abuff $ \ap -> unsafeWithPrim bbuff $ \bp ->  unsafeWithPrim cbuff $ \cp  -> 
-                    constHandler alpha $  \alphaPtr ->   constHandler beta $ \betaPtr -> do 
-                        (ax,ay) <- return $ coordSwapper tra (ax,ay)
+            | otherwise  = 
+                unsafeWithPrim abuff $ \ap -> 
+                unsafeWithPrim bbuff $ \bp ->  
+                unsafeWithPrim cbuff $ \cp  -> 
+                constHandler alpha $  \alphaPtr ->   
+                constHandler beta $ \betaPtr ->  
+                    do  (ax,ay) <- return $ coordSwapper tra (ax,ay)
                         --- dont need to swap b, info is in a and c
                         --- c doesn't get implicitly transposed
                         blasOrder <- return $ encodeNiceOrder ornta -- all three are the same orientation

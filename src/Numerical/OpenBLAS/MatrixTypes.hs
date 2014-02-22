@@ -82,7 +82,8 @@ data DenseMatrix :: Orientation -> * -> *  where
                     _bufferDenMat :: !(S.Vector elem) }-> DenseMatrix ornt  elem 
 #if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
     deriving (Typeable)
-#endif    
+#endif
+
 {-
 need to handle rendering a slice differently than a direct matrix 
 -}
@@ -140,6 +141,7 @@ unsafeThawDenseMatrix (DenseMatrix ornt a b c v) = do
         return $! MutableDenseMatrix ornt a b c mv 
 
 
+--freezeDenseMatrix 
  
 
 getDenseMatrixRow :: DenseMatrix or elem -> Int
@@ -211,6 +213,13 @@ generateDenseMatrix SRow (xdim,ydim) f = DenseMatrix SRow  xdim ydim xdim $!
 generateDenseMatrix SColumn (xdim,ydim) f = DenseMatrix SColumn xdim ydim ydim $!
          S.generate (xdim * ydim ) (\ix -> let  ixtup@(!_,!_) = ( quotRem ix ydim ) in 
                                          f ixtup )    
+
+{-# NOINLINE generateMutableDenseMatrix #-}
+generateMutableDenseMatrix :: (S.Storable a,PrimMonad m)=> 
+    SOrientation x -> (Int,Int)->((Int,Int)-> a) -> m  (MutDenseMatrix (PrimState m) x a) 
+generateMutableDenseMatrix sor  dims fun = do
+     x <- unsafeThawDenseMatrix $! generateDenseMatrix sor dims fun 
+     return x 
 
 
 --- this (uncheckedMatrixSlice) will need to have its inlining quality checked
