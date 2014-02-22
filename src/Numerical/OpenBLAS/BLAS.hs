@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns , RankNTypes #-}
+{-# LANGUAGE BangPatterns , RankNTypes, GADTs #-}
 
 
 module Numerical.OpenBLAS.BLAS where
@@ -13,6 +13,7 @@ import Numerical.OpenBLAS.UtilsFFI
 import Numerical.OpenBLAS.BLAS.FFI 
 import Numerical.OpenBLAS.MatrixTypes
 import Control.Monad.Primitive
+import Data.Complex 
 import qualified Data.Vector.Storable.Mutable as SM
 
 --
@@ -35,23 +36,11 @@ coordSwapper ConjTranspose (a,b) = (b,a)
 
 
 encodeNiceOrder :: SOrientation x  -> CBLAS_ORDERT
-encodeNiceOrder sor = encodeNiceOrderHelper (DenseMatrix sor undefined undefined undefined undefined)
-    where 
-        --encodeNiceOrderHelper :: SOrientation x  -> CBLAS_ORDERT
-        encodeNiceOrderHelper (DenseMatrix SRow _ _ _ _ )= encodeOrder  BLASRowMajor
-        encodeNiceOrderHelper (DenseMatrix SColumn _ _ _ _ )= encodeOrder BLASColMajor
-{-
-
-weirdly i can't pattern match on this Singleton directly, 
-
-encodeNiceOrder :: SOrientation x  -> CBLAS_ORDERT
-encodeNiceOrder SRow = encodeOrder  BLASRowMajor
-encodeNiceOrder SColumn = encodeOrder BLASColMajor
-
--}
+encodeNiceOrder SRow= encodeOrder  BLASRowMajor
+encodeNiceOrder SColumn= encodeOrder BLASColMajor
 
 
-
+encodeFFITranpose :: Transpose -> CBLAS_TRANSPOSET
 encodeFFITranpose  x=  encodeTranpose $ encodeNiceTranpose x 
 
 encodeNiceTranpose :: Transpose -> BLAS_Transpose
@@ -83,24 +72,24 @@ any overheads for providing such safety. Accordingly, on inputs sizes
             --scale -> {- C -}  Ptr el -> CInt -> IO ()
 --type GemmFun = MutDenseMatrix or el ->  MutDenseMatrix or el ->   MutDenseMatrix or el -> m ()
 
-
+{-# NOINLINE gemmAbstraction #-}
 gemmAbstraction:: (SM.Storable el, PrimMonad m) =>  
-    GemmFunFFI scale el -> GemmFunFFI scale el -> (el -> (scale -> m a)->m a) -> forall orient . GemmFun el orient (PrimState m) m 
+    GemmFunFFI scale el -> GemmFunFFI scale el -> (el -> (scale -> m ())->m ()) -> forall orient . GemmFun el orient (PrimState m) m 
 gemmAbstraction gemmSafeFFI gemmUnsafeFFI constHandler = go 
   where 
+    shouldCallFast :: Int -> Int -> Int -> Bool                         
+    shouldCallFast cy cx ax = flopsThreshold >= gemmComplexity cy cx ax
+
     go  tra trb  alpha beta 
-        a@(MutableDenseMatrix ornta ax ay astride abuff) 
-        b@(MutableDenseMatrix orntb bx by bstride bbuff) 
-        c@(MutableDenseMatrix orntc cx cy cstride cbuff) 
+        (MutableDenseMatrix ornta ax ay astride abuff) 
+        (MutableDenseMatrix _ bx by bstride bbuff) 
+        (MutableDenseMatrix _ cx cy cstride cbuff) 
             |  isBadGemm tra trb  ax ay bx by cx cy = error $! "bad dimension args to GEMM: ax ay bx by cx cy: " ++ show [ax, ay, bx, by, cx ,cy]
             | otherwise  = do 
-                ap<- unsafeWithPrim abuff
-                bp <- unsafeWithPrim bbuff
-                cp <- unsafeWithPrim cbuff 
-                constHandler alpha $  \alphaPtr -> do 
-                    constHandler beta $ \betaPtr -> do 
+                unsafeWithPrim abuff $ \ap -> unsafeWithPrim bbuff $ \bp ->  unsafeWithPrim cbuff $ \cp  -> 
+                    constHandler alpha $  \alphaPtr ->   constHandler beta $ \betaPtr -> do 
                         (ax,ay) <- return $ coordSwapper tra (ax,ay)
-                        (bx,by) <- return $ coordSwapper trb (bx,by)
+                        --- dont need to swap b, info is in a and c
                         --- c doesn't get implicitly transposed
                         blasOrder <- return $ encodeNiceOrder ornta -- all three are the same orientation
                         rawTra <- return $  encodeFFITranpose tra 
@@ -109,9 +98,27 @@ gemmAbstraction gemmSafeFFI gemmUnsafeFFI constHandler = go
                         unsafePrimToPrim $!  (if shouldCallFast cy cx ax then gemmUnsafeFFI  else gemmSafeFFI ) 
                             blasOrder rawTra rawTrb (fromIntegral cy) (fromIntegral cx) (fromIntegral ax) 
                                 alphaPtr ap  (fromIntegral astride) bp (fromIntegral bstride) betaPtr  cp (fromIntegral cstride)
-                        return () 
 
-   
-    shouldCallFast :: Int -> Int -> Int -> Bool                         
-    shouldCallFast cy cx ax = flopsThreshold >= gemmComplexity cy cx ax
+sgemm :: PrimMonad m=> 
+     Transpose ->Transpose ->  Float -> Float  -> MutDenseMatrix (PrimState m) orient Float
+  ->   MutDenseMatrix (PrimState m) orient Float  ->  MutDenseMatrix (PrimState m) orient Float -> m ()
+sgemm = gemmAbstraction cblas_sgemm_unsafe cblas_sgemm_safe (\x f -> f x )                                 
+                        
 
+dgemm :: PrimMonad m=> 
+     Transpose ->Transpose ->  Double -> Double -> MutDenseMatrix (PrimState m) orient Double
+  ->   MutDenseMatrix (PrimState m) orient Double   ->  MutDenseMatrix (PrimState m) orient Double -> m ()
+dgemm = gemmAbstraction cblas_dgemm_unsafe cblas_dgemm_safe (\x f -> f x )    
+ 
+
+cgemm :: PrimMonad m=>  Transpose ->Transpose ->  (Complex Float) -> (Complex Float)  -> 
+        MutDenseMatrix (PrimState m) orient (Complex Float)  ->   
+        MutDenseMatrix (PrimState m) orient (Complex Float)  ->  
+        MutDenseMatrix (PrimState m) orient (Complex Float) -> m ()
+cgemm = gemmAbstraction cblas_cgemm_unsafe cblas_cgemm_safe withRStorable_                                
+
+zgemm :: PrimMonad m=>  Transpose ->Transpose ->  (Complex Double) -> (Complex Double )  -> 
+        MutDenseMatrix (PrimState m) orient (Complex Double )  ->   
+        MutDenseMatrix (PrimState m) orient (Complex Double)  ->  
+        MutDenseMatrix (PrimState m) orient (Complex Double) -> m ()
+zgemm = gemmAbstraction cblas_zgemm_unsafe cblas_zgemm_safe withRStorable_  

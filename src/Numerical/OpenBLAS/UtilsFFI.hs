@@ -9,6 +9,7 @@ import Control.Monad.Primitive
 import Foreign.ForeignPtr.Safe
 import Foreign.ForeignPtr.Unsafe
 
+import Foreign.Storable.Complex
 import Data.Vector.Storable as S 
 import Foreign.Ptr
 
@@ -30,6 +31,13 @@ withRStorable val fun = do
     valVect <- M.replicate 1 val 
     unsafeWithPrim valVect fun 
 {-# INLINE withRStorable #-} 
+
+withRStorable_ :: (Storable a, PrimMonad m)=> a -> (Ptr a -> m ()) -> m ()
+withRStorable_ val fun = do   
+    valVect <- M.replicate 1 val 
+    unsafeWithPrim valVect fun 
+    return () 
+{-# INLINE withRStorable_ #-} 
 
 withForeignPtrPrim :: PrimMonad m => ForeignPtr a -> (Ptr a -> m b) -> m b
 withForeignPtrPrim  fo act
