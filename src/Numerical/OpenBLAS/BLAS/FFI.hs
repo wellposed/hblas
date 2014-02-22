@@ -42,13 +42,13 @@ encodeOrder BLASColMajor = CBOInt 102
 
 newtype CBLAS_TRANSPOSET = CBLAS_TransposeT{ unCBLAS_TransposeT :: CInt } deriving (Eq, Show)
 
-data BLAS_Tranpose = BlasNoTranspose | BlasTranpose | BlasConjTranspose | BlasConjNoTranpose 
+data BLAS_Transpose = BlasNoTranspose | BlasTranspose | BlasConjTranspose | BlasConjNoTranspose 
 
-encodeTranpose :: BLAS_Tranpose -> CBLAS_TRANSPOSET
+encodeTranpose :: BLAS_Transpose -> CBLAS_TRANSPOSET
 encodeTranpose  BlasNoTranspose = CBLAS_TransposeT 111
-encodeTranpose  BlasTranpose = CBLAS_TransposeT 112
+encodeTranpose  BlasTranspose = CBLAS_TransposeT 112
 encodeTranpose  BlasConjTranspose =  CBLAS_TransposeT 113
-encodeTranpose  BlasConjNoTranpose = CBLAS_TransposeT 114
+encodeTranpose  BlasConjNoTranspose = CBLAS_TransposeT 114
 
 newtype CBLAS_UPLOT = CBlasUPLO CInt 
     deriving (Eq,Show)

@@ -42,23 +42,25 @@ data instance Sing ( x :: Orientation) where
     SRow :: Sing Row 
     SColumn :: Sing Column 
 
-sTranpose ::  (x~ Transpose y, y~Transpose x ) =>Sing (x :: Orientation) -> Sing (y :: Orientation) 
+sTranpose ::  (x~ TransposeF y, y~TransposeF x ) =>SOrientation x -> SOrientation y 
 sTranpose SColumn = SRow
 sTranpose SRow = SColumn
 
-data Tranpose = NoTranspose | Transpose | ConjTranspose | ConjNoTranspose
+type SOrientation x = Sing (x :: Orientation)
+
+data Transpose = NoTranspose | Transpose | ConjTranspose | ConjNoTranspose
 {-
 should think long and hard before adding implicit tranposition to the internal data model
 -}
 
-type family Transpose (x :: Orientation) :: Orientation
+type family TransposeF (x :: Orientation) :: Orientation
 
-type instance Transpose Row = Column
-type instance Transpose Column = Row 
+type instance TransposeF Row = Column
+type instance TransposeF Column = Row 
 
 -- | 'DenseMatrix' is for dense row or column major matrices
 data DenseMatrix :: Orientation -> * -> *  where 
-    DenseMatrix ::{ _OrientationMat :: Sing ornt ,
+    DenseMatrix ::{ _OrientationMat :: SOrientation ornt ,
                     _XdimDenMat :: {-# UNPACK #-}!Int, 
                     _YdimDenMat :: {-# UNPACK #-}!Int ,
                     _StrideDenMat :: {-# UNPACK #-} !Int , 
@@ -66,7 +68,7 @@ data DenseMatrix :: Orientation -> * -> *  where
 
 -- | 'MDenseMatrix' 
 data MutDenseMatrix :: *  ->Orientation  -> * -> *  where 
-    MutableDenseMatrix :: { _OrientationMutMat :: Sing ornt ,
+    MutableDenseMatrix :: { _OrientationMutMat :: SOrientation ornt ,
                             _XdimDenMutMat :: {-# UNPACK #-}!Int , 
                             _YdimDenMutMat ::  {-# UNPACK #-}!Int,
                             _StrideDenMutMat :: {-# UNPACK #-} !Int,
@@ -115,7 +117,7 @@ getDenseMatrixLeadingDimStride (DenseMatrix _  _ _ stride _ ) = stride
 getDenseMatrixArray :: DenseMatrix or elem -> S.Vector elem 
 getDenseMatrixArray (DenseMatrix _ _ _ _ arr) = arr
 
-getDenseMatrixOrientation :: DenseMatrix or elem -> Sing or 
+getDenseMatrixOrientation :: DenseMatrix or elem -> SOrientation or 
 getDenseMatrixOrientation m = _OrientationMat m 
 
 
@@ -147,14 +149,9 @@ mapDenseMatrix f rm@(DenseMatrix SColumn xdim ydim _ _) =
 
 
 imapDenseMatrix :: (S.Storable a, S.Storable b) =>  ((Int,Int)->a->b) -> DenseMatrix or a -> DenseMatrix or b 
-imapDenseMatrix f rm@(DenseMatrix SRow xdim ydim _ _) =
-    DenseMatrix SRow  xdim ydim xdim $!
-             S.generate (xdim * ydim) (\ix -> let !ixtup@(!_,!_) = swap $ quotRem ix xdim in 
-                                         f  ixtup $! uncheckedDenseMatrixIndex rm ixtup   ) 
-imapDenseMatrix f rm@(DenseMatrix SColumn xdim ydim _ _) =     
-    DenseMatrix SColumn xdim ydim ydim $!
-         S.generate (xdim * ydim ) (\ix -> let  ixtup@(!_,!_) = ( quotRem ix ydim ) in 
-                                         f ixtup $! uncheckedDenseMatrixIndex rm ixtup   )
+imapDenseMatrix f rm@(DenseMatrix sornt xdim ydim _ _) = 
+        generateDenseMatrix sornt (xdim,ydim)  (\ix -> f ix  $! uncheckedDenseMatrixIndex rm ix )
+
 
 -- | In Matrix format memory order enumeration of the index tuples, for good locality 2dim map
 uncheckedDenseMatrixNextTuple :: DenseMatrix or elem -> (Int,Int) -> Maybe (Int,Int)
@@ -165,6 +162,15 @@ uncheckedDenseMatrixNextTuple (DenseMatrix SColumn xdim ydim _ _ ) =
                                                         --- dont need the swap for column major
 
 
+
+
+generateDenseMatrix :: (S.Storable a)=> SOrientation x -> (Int,Int)->((Int,Int)-> a) -> DenseMatrix x a 
+generateDenseMatrix SRow (xdim,ydim) f = DenseMatrix SRow  xdim ydim xdim $!
+             S.generate (xdim * ydim) (\ix -> let !ixtup@(!_,!_) = swap $ quotRem ix xdim in 
+                                         f  ixtup ) 
+generateDenseMatrix SColumn (xdim,ydim) f = DenseMatrix SColumn xdim ydim ydim $!
+         S.generate (xdim * ydim ) (\ix -> let  ixtup@(!_,!_) = ( quotRem ix ydim ) in 
+                                         f ixtup )    
 
 
 --- this (uncheckedMatrixSlice) will need to have its inlining quality checked
@@ -191,7 +197,7 @@ uncheckedDenseMatrixSlice (DenseMatrix SColumn _ ydim xstride arr)  (xstart,ysta
 -- | tranposeMatrix does a shallow transpose that swaps the format and the x y params, but changes nothing
 -- in the memory layout. 
 -- Most applications where transpose is used in a computation need a deep, copying, tranpose operation
-transposeDenseMatrix :: (inor ~ (Transpose outor) ,   outor ~ (Transpose inor)  ) =>   DenseMatrix inor elem -> DenseMatrix outor elem 
+transposeDenseMatrix :: (inor ~ (TransposeF outor) ,   outor ~ (TransposeF inor)  ) =>   DenseMatrix inor elem -> DenseMatrix outor elem 
 transposeDenseMatrix (DenseMatrix orient x y stride arr)= (DenseMatrix (sTranpose orient) y x stride arr)
 
 
