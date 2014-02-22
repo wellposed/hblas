@@ -20,6 +20,7 @@ main = do
   putStrLn $ show theRestMat
 --DenseMatrix SRow  5 5 5(fromList [11.0,11.0,11.0,11.0,11.0,11.0,11.0,11.0,11.0,11.0,51.0,51.0,51.0,51.0,51.0,51.0,51.0,51.0,51.0,51.0,251.0,251.0,251.0,251.0,251.0])
 -- THAT IS WRONG 
+--Need to figure what whats going on here 
 
   putStrLn $ show res 
   putStrLn "it works!"
