@@ -52,12 +52,12 @@ source-repository head
 
 
 -- Constraint on the version of Cabal needed to build this package.
-flag lib-Werror
-  default: False
-  manual: True
-flag lib-Wall 
-  default: False
-  manual: True
+-- flag lib-Werror
+--   default: False
+--   manual: True
+-- flag lib-Wall 
+--   default: False
+--   manual: True
 
 
 library
@@ -72,10 +72,10 @@ library
   
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
-  if flag(lib-Werror)
-    ghc-options: -Werror
-  if flag(lib-Wall)
-    ghc-options: -Wall      
+  --- if flag(lib-Werror)
+  ---   ghc-options: -Werror
+  --- if flag(lib-Wall)
+  ---   ghc-options: -Wall      
    --    -Wall  no wall for now
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.5 && <4.8, storable-complex >= 0.2.0 && < 0.3.0,
