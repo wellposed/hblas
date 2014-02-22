@@ -86,6 +86,7 @@ gemmAbstraction gemmSafeFFI gemmUnsafeFFI constHandler = go
         (MutableDenseMatrix _ cx cy cstride cbuff) 
             |  isBadGemm tra trb  ax ay bx by cx cy = error $! "bad dimension args to GEMM: ax ay bx by cx cy: " ++ show [ax, ay, bx, by, cx ,cy]
             | otherwise  = 
+                {-  FIXME : Add Sharing check that also errors out for now-}
                 unsafeWithPrim abuff $ \ap -> 
                 unsafeWithPrim bbuff $ \bp ->  
                 unsafeWithPrim cbuff $ \cp  -> 
