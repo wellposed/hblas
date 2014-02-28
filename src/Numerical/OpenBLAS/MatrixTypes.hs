@@ -15,7 +15,7 @@ module Numerical.OpenBLAS.MatrixTypes where
 import qualified Data.Vector.Storable as S 
 import qualified Data.Vector.Storable.Mutable as SM
 import Control.Monad.Primitive  
-import Data.Singletons
+--import Data.Singletons
 import Control.Monad.ST.Safe 
 import Data.Typeable 
 -- import Control.Monad.Primitive
@@ -39,28 +39,63 @@ It is the role of a higher leve library to provide any generic operations.
 
 -}    
 
+{-
+what I really want is this, but its not possible till
+datakinds works on types that aren't kind *,
+
+
+data Eff :: * -> * where
+    Pure :: Eff () 
+    Mut :: s -> Eff s 
+ 
+data EVector  :: * -> * -> * where 
+    PureVector :: S.Vector el  -> EVector Pure el 
+    MutVector :: SM.MVector s el -> EVector (Mut s) el  
+
+-}
+
+data Eff s where
+    Pure :: Eff s 
+    Mut :: s -> Eff s 
+
+data EVector s el  where 
+    PureVector :: S.Vector el  -> EVector Pure el 
+    MutVector :: SM.MVector s e -> EVector (Mut s) el 
+
+
+
+--data Eff = Pure | Mut 
+
+--data EVector  :: Eff -> * -> * -> * where 
+--    PureVector :: S.Vector el  -> EVector Pure () el 
+--    MutVector :: SM.MVector s el -> EVector Mut s  el      
+
+
 data Orientation = Row | Column 
     deriving (Eq,Show,Typeable)
 
-data instance Sing ( x :: Orientation) where
-    SRow :: Sing Row 
-    SColumn :: Sing Column 
+data SOrientation :: Orientation -> * where
+    SRow :: SOrientation Row 
+    SColumn :: SOrientation Column 
+#if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
+    deriving (Typeable)
+#endif    
 
-instance Show (Sing Row) where
-    show _ = "SRow"
-instance Show (Sing Column) where
-    show _ ="SColumn"
+instance Show (SOrientation Row) where
+     show !a = "SRow"
+instance Show (SOrientation Column) where
+     show !a = "SColumn"         
+instance Eq (SOrientation Row) where
+    (==) !a !b = True 
+instance Eq (SOrientation Column) where
+    (==) !a !b = True 
 
-instance Eq (Sing Row) where
-    (==) _ _ = True 
-instance Eq (Sing Column) where
-    (==) _ _ = True 
 
 sTranpose ::  (x~ TransposeF y, y~TransposeF x ) =>SOrientation x -> SOrientation y 
 sTranpose SColumn = SRow
 sTranpose SRow = SColumn
 
-type SOrientation x = Sing (x :: Orientation)
+
 
 data Transpose = NoTranspose | Transpose | ConjTranspose | ConjNoTranspose
     deriving(Typeable,Eq,Show)

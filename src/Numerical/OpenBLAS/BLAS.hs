@@ -73,9 +73,9 @@ any overheads for providing such safety. Accordingly, on inputs sizes
 --type GemmFun = MutDenseMatrix or el ->  MutDenseMatrix or el ->   MutDenseMatrix or el -> m ()
 
 {-# NOINLINE gemmAbstraction #-}
-gemmAbstraction:: (SM.Storable el, PrimMonad m) =>  
+gemmAbstraction:: (SM.Storable el, PrimMonad m) =>  String -> 
     GemmFunFFI scale el -> GemmFunFFI scale el -> (el -> (scale -> m ())->m ()) -> forall orient . GemmFun el orient (PrimState m) m 
-gemmAbstraction gemmSafeFFI gemmUnsafeFFI constHandler = go 
+gemmAbstraction gemmName gemmSafeFFI gemmUnsafeFFI constHandler = go 
   where 
     shouldCallFast :: Int -> Int -> Int -> Bool                         
     shouldCallFast cy cx ax = flopsThreshold >= gemmComplexity cy cx ax
@@ -85,6 +85,8 @@ gemmAbstraction gemmSafeFFI gemmUnsafeFFI constHandler = go
         (MutableDenseMatrix _ bx by bstride bbuff) 
         (MutableDenseMatrix _ cx cy cstride cbuff) 
             |  isBadGemm tra trb  ax ay bx by cx cy = error $! "bad dimension args to GEMM: ax ay bx by cx cy: " ++ show [ax, ay, bx, by, cx ,cy]
+            | SM.overlaps abuff cbuff || SM.overlaps bbuff cbuff = 
+                    error $ "the read and write inputs for: " ++ gemmName ++ " overlap. This is a programmer error. Please fix." 
             | otherwise  = 
                 {-  FIXME : Add Sharing check that also errors out for now-}
                 unsafeWithPrim abuff $ \ap -> 
@@ -103,26 +105,34 @@ gemmAbstraction gemmSafeFFI gemmUnsafeFFI constHandler = go
                             blasOrder rawTra rawTrb (fromIntegral cy) (fromIntegral cx) (fromIntegral ax) 
                                 alphaPtr ap  (fromIntegral astride) bp (fromIntegral bstride) betaPtr  cp (fromIntegral cstride)
 
+
+{-pureGemm :: PrimMonad m=>
+(Transpose ->Transpose ->  el -> el  -> MutDenseMatrix (PrimState m) orient el
+      ->   MutDenseMatrix (PrimState m) orient el  ->  
+                                    MutDenseMatrix (PrimState m) orient el -> m ())->
+  Transpose ->Transpose ->  el -> el  -> DenseMatrix  orient el
+  ->   DenseMatrix  orient el  ->  DenseMatrix  orient el  -}
+
 sgemm :: PrimMonad m=> 
      Transpose ->Transpose ->  Float -> Float  -> MutDenseMatrix (PrimState m) orient Float
   ->   MutDenseMatrix (PrimState m) orient Float  ->  MutDenseMatrix (PrimState m) orient Float -> m ()
-sgemm = gemmAbstraction cblas_sgemm_unsafe cblas_sgemm_safe (\x f -> f x )                                 
+sgemm =  gemmAbstraction "sgemm" cblas_sgemm_unsafe cblas_sgemm_safe (\x f -> f x )                                 
                         
 
 dgemm :: PrimMonad m=> 
      Transpose ->Transpose ->  Double -> Double -> MutDenseMatrix (PrimState m) orient Double
   ->   MutDenseMatrix (PrimState m) orient Double   ->  MutDenseMatrix (PrimState m) orient Double -> m ()
-dgemm = gemmAbstraction cblas_dgemm_unsafe cblas_dgemm_safe (\x f -> f x )    
+dgemm = gemmAbstraction "dgemm" cblas_dgemm_unsafe cblas_dgemm_safe (\x f -> f x )    
  
 
 cgemm :: PrimMonad m=>  Transpose ->Transpose ->  (Complex Float) -> (Complex Float)  -> 
         MutDenseMatrix (PrimState m) orient (Complex Float)  ->   
         MutDenseMatrix (PrimState m) orient (Complex Float)  ->  
         MutDenseMatrix (PrimState m) orient (Complex Float) -> m ()
-cgemm = gemmAbstraction cblas_cgemm_unsafe cblas_cgemm_safe withRStorable_                                
+cgemm = gemmAbstraction "cgemm" cblas_cgemm_unsafe cblas_cgemm_safe withRStorable_                                
 
 zgemm :: PrimMonad m=>  Transpose ->Transpose ->  (Complex Double) -> (Complex Double )  -> 
         MutDenseMatrix (PrimState m) orient (Complex Double )  ->   
         MutDenseMatrix (PrimState m) orient (Complex Double)  ->  
         MutDenseMatrix (PrimState m) orient (Complex Double) -> m ()
-zgemm = gemmAbstraction cblas_zgemm_unsafe cblas_zgemm_safe withRStorable_  
+zgemm = gemmAbstraction "zgemm" cblas_zgemm_unsafe cblas_zgemm_safe withRStorable_  
