@@ -63,10 +63,10 @@ source-repository head
 library
 
   -- Modules exported by the library.
-  exposed-modules:      Numerical.OpenBLAS.BLAS.FFI,
-      Numerical.OpenBLAS.MatrixTypes,
-      Numerical.OpenBLAS.UtilsFFI
-      Numerical.OpenBLAS.BLAS
+  exposed-modules:      Numerical.HBLAS.BLAS.FFI,
+      Numerical.HBLAS.MatrixTypes,
+      Numerical.HBLAS.UtilsFFI
+      Numerical.HBLAS.BLAS
   -- Modules included in this library but not exported.
   -- other-modules:       
   

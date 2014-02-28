@@ -10,7 +10,7 @@
 
 
 
-module Numerical.OpenBLAS.MatrixTypes where
+module Numerical.HBLAS.MatrixTypes where
 
 import qualified Data.Vector.Storable as S 
 import qualified Data.Vector.Storable.Mutable as SM
@@ -54,13 +54,13 @@ data EVector  :: * -> * -> * where
 
 -}
 
-data Eff s where
-    Pure :: Eff s 
-    Mut :: s -> Eff s 
+--data Eff s where
+--    Pure :: Eff s 
+--    Mut :: s -> Eff s 
 
-data EVector s el  where 
-    PureVector :: S.Vector el  -> EVector Pure el 
-    MutVector :: SM.MVector s e -> EVector (Mut s) el 
+--data EVector s el  where 
+--    PureVector :: S.Vector el  -> EVector Pure el 
+--    MutVector :: SM.MVector s e -> EVector (Mut s) el 
 
 
 

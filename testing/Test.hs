@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables, DataKinds, CPP #-}
-import Numerical.OpenBLAS.BLAS.FFI
-import Numerical.OpenBLAS.BLAS
-import Numerical.OpenBLAS.MatrixTypes 
+import Numerical.HBLAS.BLAS.FFI
+import Numerical.HBLAS.BLAS
+import Numerical.HBLAS.MatrixTypes 
 import Data.Vector.Storable.Mutable as M 
 import qualified Data.Vector.Storable as S 
 

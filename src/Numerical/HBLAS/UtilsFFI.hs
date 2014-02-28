@@ -1,6 +1,6 @@
 {-# LANGUAGE Trustworthy #-}
 {- VERY TRUST WORTHY :) -}
-module Numerical.OpenBLAS.UtilsFFI where
+module Numerical.HBLAS.UtilsFFI where
 
 
 

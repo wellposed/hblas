@@ -1,7 +1,7 @@
 {-# LANGUAGE BangPatterns , RankNTypes, GADTs #-}
 
 
-module Numerical.OpenBLAS.BLAS where
+module Numerical.HBLAS.BLAS where
 --(
 --    dgemm
 --    ,sgemm
@@ -9,9 +9,9 @@ module Numerical.OpenBLAS.BLAS where
 --    ,zgemm) 
 
 
-import Numerical.OpenBLAS.UtilsFFI    
-import Numerical.OpenBLAS.BLAS.FFI 
-import Numerical.OpenBLAS.MatrixTypes
+import Numerical.HBLAS.UtilsFFI    
+import Numerical.HBLAS.BLAS.FFI 
+import Numerical.HBLAS.MatrixTypes
 import Control.Monad.Primitive
 import Data.Complex 
 import qualified Data.Vector.Storable.Mutable as SM

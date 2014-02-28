@@ -1,6 +1,6 @@
 
 
-module Numerical.Lapack.FFI where
+module Numerical.HBLAS.Lapack.FFI where
 
 
 --simple drivers for linear equation solvers
