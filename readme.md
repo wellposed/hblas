@@ -26,9 +26,11 @@ high performance linear algebra routines.
 
 ## how to install
 * On OS X systems, things will just work.
-* On linux and bsd systems, the equivalent 
-
+* On linux and bsd systems, the equivalent of 
 ```
+sudo apt-get install libblas liblapack
+```
+is all you should have to do before hand
 
 ## getting involved
 patches, bug reports, tests,  and other contributions welcome.

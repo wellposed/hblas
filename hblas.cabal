@@ -84,17 +84,16 @@ library
   -- extra-libraries: openblas pthread
 
   if os(OSX)
-  --   extra-lib-dirs: /opt/local/lib/
-  --    include-dirs: /opt/local/include/
-      extra-lib-dirs: /usr/local/lib/
-      include-dirs: /usr/local/include/
-      extra-libraries:
+
       frameworks: Accelerate
+      -- probably dont need these extra lib dirs
+      -- extra-libraries: cblas clapack
 
   if os(windows)
       extra-libraries: blas lapack
 
-  extra-libraries: blas lapack
+  if !os(windows)&& !os(OSX)
+    extra-libraries: blas lapack
 
   
  --  if os(OSX)
@@ -121,7 +120,7 @@ Test-Suite simple-test
     main-is:             testing/Test.hs
     build-depends:       base, vector 
     default-language:    Haskell2010
-    build-depends:       hopenblas  == 0.1.0.0
+    build-depends:       hblas
 --    extra-libraries: openblas
 
 
