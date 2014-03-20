@@ -54,8 +54,8 @@ encodeNiceTranpose x = case x of
 --data Tranpose = NoTranpose | Tranpose | ConjTranpose | ConjNoTranpose
 
 
-type GemmFun el orient s m = Transpose ->Transpose ->  el -> el  -> MutDenseMatrix s orient el
-  ->   MutDenseMatrix s orient el  ->  MutDenseMatrix s orient el -> m ()
+type GemmFun el orient s m = Transpose ->Transpose ->  el -> el  -> MDenseMatrix s orient el
+  ->   MDenseMatrix s orient el  ->  MDenseMatrix s orient el -> m ()
 
 
 {-
@@ -114,25 +114,25 @@ gemmAbstraction gemmName gemmSafeFFI gemmUnsafeFFI constHandler = go
   ->   DenseMatrix  orient el  ->  DenseMatrix  orient el  -}
 
 sgemm :: PrimMonad m=> 
-     Transpose ->Transpose ->  Float -> Float  -> MutDenseMatrix (PrimState m) orient Float
-  ->   MutDenseMatrix (PrimState m) orient Float  ->  MutDenseMatrix (PrimState m) orient Float -> m ()
+     Transpose ->Transpose ->  Float -> Float  -> MDenseMatrix (PrimState m) orient Float
+  ->   MDenseMatrix (PrimState m) orient Float  ->  MDenseMatrix (PrimState m) orient Float -> m ()
 sgemm =  gemmAbstraction "sgemm" cblas_sgemm_unsafe cblas_sgemm_safe (\x f -> f x )                                 
                         
 
 dgemm :: PrimMonad m=> 
-     Transpose ->Transpose ->  Double -> Double -> MutDenseMatrix (PrimState m) orient Double
-  ->   MutDenseMatrix (PrimState m) orient Double   ->  MutDenseMatrix (PrimState m) orient Double -> m ()
+     Transpose ->Transpose ->  Double -> Double -> MDenseMatrix (PrimState m) orient Double
+  ->   MDenseMatrix (PrimState m) orient Double   ->  MDenseMatrix (PrimState m) orient Double -> m ()
 dgemm = gemmAbstraction "dgemm" cblas_dgemm_unsafe cblas_dgemm_safe (\x f -> f x )    
  
 
 cgemm :: PrimMonad m=>  Transpose ->Transpose ->  (Complex Float) -> (Complex Float)  -> 
-        MutDenseMatrix (PrimState m) orient (Complex Float)  ->   
-        MutDenseMatrix (PrimState m) orient (Complex Float)  ->  
-        MutDenseMatrix (PrimState m) orient (Complex Float) -> m ()
+        MDenseMatrix (PrimState m) orient (Complex Float)  ->   
+        MDenseMatrix (PrimState m) orient (Complex Float)  ->  
+        MDenseMatrix (PrimState m) orient (Complex Float) -> m ()
 cgemm = gemmAbstraction "cgemm" cblas_cgemm_unsafe cblas_cgemm_safe withRStorable_                                
 
 zgemm :: PrimMonad m=>  Transpose ->Transpose ->  (Complex Double) -> (Complex Double )  -> 
-        MutDenseMatrix (PrimState m) orient (Complex Double )  ->   
-        MutDenseMatrix (PrimState m) orient (Complex Double)  ->  
-        MutDenseMatrix (PrimState m) orient (Complex Double) -> m ()
+        MDenseMatrix (PrimState m) orient (Complex Double )  ->   
+        MDenseMatrix (PrimState m) orient (Complex Double)  ->  
+        MDenseMatrix (PrimState m) orient (Complex Double) -> m ()
 zgemm = gemmAbstraction "zgemm" cblas_zgemm_unsafe cblas_zgemm_safe withRStorable_  
