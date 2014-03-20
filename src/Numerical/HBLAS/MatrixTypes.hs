@@ -108,7 +108,26 @@ type family TransposeF (x :: Orientation) :: Orientation
 type instance TransposeF Row = Column
 type instance TransposeF Column = Row 
 
+data Variant = Direct | Implicit
 
+data SVariant :: Variant -> * where 
+    SImplicit :: {_frontPadding ::{-UNPACK-} !Int, _endPadding:: {-#UNPACK#-} !Int } -> SVariant Implicit 
+    SDirect :: SVariant Direct 
+
+data DenseVector :: Variant -> * -> * where
+    DenseVector :: { _VariantDenseVect ::  !(SVariant varnt)
+                    ,_LogicalDimDenseVector :: {-#UNPACK#-}!Int 
+                    ,_StrideDenseVector :: {-#UNPACK#-} ! Int 
+                    ,bufferDenseVector :: !(S.Vector elem) 
+                      } -> DenseVector varnt elem 
+
+data MDenseVector :: * -> Variant -> * -> * where
+    MutableDenseVector :: { _VariantMutDenseVect ::  !(SVariant varnt)
+                        ,_LogicalDimMutDenseVector :: {-#UNPACK#-}!Int 
+                        ,_StrideMutDenseVector :: {-#UNPACK#-} ! Int 
+                        ,bufferMutDenseVector :: !(S.MVector  s elem) 
+                          } -> MDenseVector s varnt elem 
+                      
 
 -- | 'DenseMatrix' is for dense row or column major matrices
 data DenseMatrix :: Orientation -> * -> *  where 
@@ -116,7 +135,7 @@ data DenseMatrix :: Orientation -> * -> *  where
                     _XdimDenMat :: {-# UNPACK #-}!Int, 
                     _YdimDenMat :: {-# UNPACK #-}!Int ,
                     _StrideDenMat :: {-# UNPACK #-} !Int , 
-                    _bufferDenMat :: !(S.Vector elem) }-> DenseMatrix ornt  elem 
+                    _bufferDenMat :: {-#UNPACK#-}!(S.Vector elem) }-> DenseMatrix ornt  elem 
 #if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
     deriving (Typeable)
 #endif
@@ -135,12 +154,12 @@ instance (Show el,SM.Storable el )=> Show (DenseMatrix Column el) where
              | otherwise = show $ mapDenseMatrix id mat                         
 
 -- | 'MDenseMatrix' 
-data MutDenseMatrix :: *  ->Orientation  -> * -> *  where 
+data MDenseMatrix :: *  ->Orientation  -> * -> *  where 
     MutableDenseMatrix :: { _OrientationMutMat :: SOrientation ornt ,
                             _XdimDenMutMat :: {-# UNPACK #-}!Int , 
                             _YdimDenMutMat ::  {-# UNPACK #-}!Int,
                             _StrideDenMutMat :: {-# UNPACK #-} !Int,
-                            _bufferDenMutMat :: {-# UNPACK #-} !(SM.MVector s  elem) } -> MutDenseMatrix s ornt elem
+                            _bufferDenMutMat :: {-# UNPACK #-} !(SM.MVector s  elem) } -> MDenseMatrix s ornt elem
 
 --instance (Show el,SM.Storable el, PrimMonad m )=> Show (DenseMatrix (PrimState m) Row el) where
 --    show mat@(DenseMatrix SRow xdim ydim stride buffer)
@@ -152,7 +171,7 @@ data MutDenseMatrix :: *  ->Orientation  -> * -> *  where
 --             |  stride == xdim = "DenseMatrix SColumn " ++ " " ++show xdim ++ " " ++ show ydim ++ " " ++ show stride ++ "(" ++ show buffer ++ ")"
 --             | otherwise = show $ mapDenseMatrix id mat    
 
-type IODenseMatrix = MutDenseMatrix RealWorld 
+type IODenseMatrix = MDenseMatrix RealWorld 
 --type MutDenseMatrixIO  or elem  = 
 
 -- data PaddedSymmetricMatrix
@@ -165,14 +184,14 @@ type IODenseMatrix = MutDenseMatrix RealWorld
 --data TriangularMatrix
 --data BandedMatrix
 {-#NOINLINE unsafeFreezeDenseMatrix #-}
-unsafeFreezeDenseMatrix :: (SM.Storable elem, PrimMonad m)=> MutDenseMatrix (PrimState m) or elem -> m (DenseMatrix or elem)
+unsafeFreezeDenseMatrix :: (SM.Storable elem, PrimMonad m)=> MDenseMatrix (PrimState m) or elem -> m (DenseMatrix or elem)
 unsafeFreezeDenseMatrix (MutableDenseMatrix  ornt a b c mv) = do
         v <- S.unsafeFreeze mv 
         return $! DenseMatrix ornt a b c v                          
 
 
 {-# NOINLINE unsafeThawDenseMatrix #-}
-unsafeThawDenseMatrix :: (SM.Storable elem, PrimMonad m)=> DenseMatrix or elem-> m (MutDenseMatrix (PrimState m) or elem)  
+unsafeThawDenseMatrix :: (SM.Storable elem, PrimMonad m)=> DenseMatrix or elem-> m (MDenseMatrix (PrimState m) or elem)  
 unsafeThawDenseMatrix (DenseMatrix ornt a b c v) = do 
         mv <- S.unsafeThaw v
         return $! MutableDenseMatrix ornt a b c mv 
@@ -209,9 +228,9 @@ uncheckedDenseMatrixIndexM :: (Monad m ,S.Storable elem )=>  DenseMatrix or elem
 uncheckedDenseMatrixIndexM (DenseMatrix SRow _ _ ystride arr) =  \ (x,y)-> return $! arr `S.unsafeIndex` (x + y * ystride)
 uncheckedDenseMatrixIndexM (DenseMatrix SColumn _ _ xstride arr) = \ (x,y)-> return $! arr `S.unsafeIndex` (y + x* xstride)
 
-uncheckedMutDenseMatrixIndexM :: (PrimMonad m ,S.Storable elem )=>  MutDenseMatrix (PrimState m) or elem -> (Int,Int) -> m elem 
-uncheckedMutDenseMatrixIndexM (MutableDenseMatrix SRow _ _ ystride arr) =  \ (x,y)->  arr `SM.unsafeRead` (x + y * ystride)
-uncheckedMutDenseMatrixIndexM (MutableDenseMatrix SColumn _ _ xstride arr) = \ (x,y)->   arr `SM.unsafeRead` (y + x* xstride)
+uncheckedMutableDenseMatrixIndexM :: (PrimMonad m ,S.Storable elem )=>  MDenseMatrix (PrimState m) or elem -> (Int,Int) -> m elem 
+uncheckedMutableDenseMatrixIndexM (MutableDenseMatrix SRow _ _ ystride arr) =  \ (x,y)->  arr `SM.unsafeRead` (x + y * ystride)
+uncheckedMutableDenseMatrixIndexM (MutableDenseMatrix SColumn _ _ xstride arr) = \ (x,y)->   arr `SM.unsafeRead` (y + x* xstride)
 
 swap :: (a,b)->(b,a)
 swap = \ (!x,!y)-> (y,x)
@@ -254,7 +273,7 @@ generateDenseMatrix SColumn (xdim,ydim) f = DenseMatrix SColumn xdim ydim ydim $
 -- | mutable version of generateDenseMatrix
 {-# NOINLINE generateMutableDenseMatrix #-}
 generateMutableDenseMatrix :: (S.Storable a,PrimMonad m)=> 
-    SOrientation x -> (Int,Int)->((Int,Int)-> a) -> m  (MutDenseMatrix (PrimState m) x a) 
+    SOrientation x -> (Int,Int)->((Int,Int)-> a) -> m  (MDenseMatrix (PrimState m) x a) 
 generateMutableDenseMatrix sor  dims fun = do
      x <- unsafeThawDenseMatrix $! generateDenseMatrix sor dims fun 
      return x 
