@@ -246,6 +246,9 @@ matrix vector product for general matrices
 
 -- perform the rank 1 operation   A := alpha*x*y' + A,
 
+type GerFunFFI el = CBLAS_ORDERT -> CInt -> CInt -> el -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+
+
 foreign import ccall unsafe "cblas_sger" cblas_sger_unsafe ::
     CBLAS_ORDERT -> CInt -> CInt -> Float -> Ptr Float -> CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO ()
 foreign import ccall unsafe "cblas_dger" cblas_dger_unsafe ::

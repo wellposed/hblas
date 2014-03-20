@@ -139,3 +139,56 @@ zgemm :: PrimMonad m=>  Transpose ->Transpose ->  (Complex Double) -> (Complex D
         MutDenseMatrix (PrimState m) orient (Complex Double)  ->  
         MutDenseMatrix (PrimState m) orient (Complex Double) -> m ()
 zgemm = gemmAbstraction "zgemm" cblas_zgemm_unsafe cblas_zgemm_safe withRStorable_  
+
+
+
+sger ::( PrimMonad s) =>
+Float -> Mvector (PrimState s) Float -> MVector (PrimState s) Float 
+  ->  MutDenseMatrix (PrimState m) orient Float -> m ()
+sger alpha x y A = cblas_sger_safe <ORDERT> (length x) (length y) alpha x xstride y ystride A (length y)
+	where
+		xstride = 1
+		ystride = 1
+
+
+{-# NOINLINE gemmAbstraction #-}
+gerAbstraction:: (SM.Storable el, PrimMonad m) =>  String -> 
+    GerFunFFI scale el -> GerFunFFI scale el -> (el -> (scale -> m ())->m ()) -> forall orient . GemmFun el orient (PrimState m) m 
+gerAbstraction gerName gerSafeFFI gerUnsafeFFI constHandler = go 
+  where 
+    shouldCallFast :: Int -> Int -> Int -> Bool                         
+    shouldCallFast cy cx ax = flopsThreshold >= gemmComplexity cy cx ax
+	isBadGer lx ly ax ay =
+		lx != ax && ly != ay
+	
+    go alfa x y a
+            | isBadGer (length x) (length y) sizeAX sizeAY = error $! "bad dimension args to GER: len(x) len(y) len(a) len(len(a): " ++ show [lengthX lengthY sizeAX sizeAY]
+						where 
+							sizeAX = length x --TODO
+							sizeAY = length y --TODO
+            | SM.overlaps x y || SM.overlaps x a || SM.overlaps y a  = 
+                    error $ "the read and write inputs for: " ++ gerName ++ " overlap. This is a programmer error. Please fix." 
+            | otherwise  = 
+				cblas_sger_safe ordert (length x) (length y) alpha x xstride y ystride A (length y)
+					where
+						xstride = 1
+						ystride = 1
+						ordert = CBOInt ( CInt 101 ) --error $ "I don't know where to extrapolate order from."
+				--I'm having trouble understanding all of this error checking :|`
+                {-  FIXME : Add Sharing check that also errors out for now
+                unsafeWithPrim abuff $ \ap -> 
+                unsafeWithPrim bbuff $ \bp ->  
+                unsafeWithPrim cbuff $ \cp  -> 
+                constHandler alpha $  \alphaPtr ->   
+                constHandler beta $ \betaPtr ->  
+                    do  (ax,ay) <- return $ coordSwapper tra (ax,ay)
+                        --- dont need to swap b, info is in a and c
+                        --- c doesn't get implicitly transposed
+                        blasOrder <- return $ encodeNiceOrder ornta -- all three are the same orientation
+                        rawTra <- return $  encodeFFITranpose tra 
+                        rawTrb <- return $   encodeFFITranpose trb
+                                 -- example of why i want to switch to singletones
+                        unsafePrimToPrim $!  (if shouldCallFast cy cx ax then gemmUnsafeFFI  else gemmSafeFFI ) 
+                            blasOrder rawTra rawTrb (fromIntegral cy) (fromIntegral cx) (fromIntegral ax) 
+                                alphaPtr ap  (fromIntegral astride) bp (fromIntegral bstride) betaPtr  cp (fromIntegral cstride)		
+				-}
