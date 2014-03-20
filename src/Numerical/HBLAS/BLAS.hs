@@ -62,6 +62,9 @@ type GemmFun el orient s m = Transpose ->Transpose ->  el -> el  -> MutDenseMatr
 A key design goal of this ffi is to provide *safe* throughput guarantees 
 for a concurrent application built on top of these apis, while evading
 any overheads for providing such safety. Accordingly, on inputs sizes
+smaller then flopsThreshold we will call the unsafe function which brings 
+no overhead or protection, otherwise we will call the safe function, which
+introduces overhead ( not relevant for large inputs ), but adds protection.
 
 -}
 
