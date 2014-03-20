@@ -24,7 +24,15 @@ but rather should be used by a higher level numerical array library to provide
 high performance linear algebra routines. 
 
 
-## how to install
+## how to install (using openblas)
+By default, hblas will assume you have OpenBLAS built and installed, including
+the LAPACKE interfaces for LAPACK, somewhere in your standard library path.
+
+* On OSX systems, 
+
+
+
+
 * On OS X systems, things will just work.
 * On linux and bsd systems, the equivalent of 
 ```
@@ -34,3 +42,6 @@ is all you should have to do before hand
 
 ## getting involved
 patches, bug reports, tests,  and other contributions welcome.
+
+Want to add a new routine, check out the ones listed in the [lapack section](http://software.intel.com/sites/products/documentation/hpc/mkl/mklman/index.htm) of the Intel MKL manual to get some human
+readable documentation.

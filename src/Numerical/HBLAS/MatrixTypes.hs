@@ -108,6 +108,8 @@ type family TransposeF (x :: Orientation) :: Orientation
 type instance TransposeF Row = Column
 type instance TransposeF Column = Row 
 
+
+
 -- | 'DenseMatrix' is for dense row or column major matrices
 data DenseMatrix :: Orientation -> * -> *  where 
     DenseMatrix ::{ _OrientationMat :: SOrientation ornt ,
@@ -215,7 +217,7 @@ swap :: (a,b)->(b,a)
 swap = \ (!x,!y)-> (y,x)
 {-# INLINE swap #-}
 
-
+-- | `map f matrix`
 mapDenseMatrix :: (S.Storable a, S.Storable b) =>  (a->b) -> DenseMatrix or a -> DenseMatrix or b 
 mapDenseMatrix f rm@(DenseMatrix SRow xdim ydim _ _) =
     DenseMatrix SRow xdim ydim xdim $!
@@ -240,7 +242,7 @@ uncheckedDenseMatrixNextTuple (DenseMatrix SColumn xdim ydim _ _ ) =
 
 
 
-
+-- | generateDenseMatrix Row (k,k) \(i,j)-> if i == j then 1.0 else 0.0 would generate a KxK identity matrix
 generateDenseMatrix :: (S.Storable a)=> SOrientation x -> (Int,Int)->((Int,Int)-> a) -> DenseMatrix x a 
 generateDenseMatrix SRow (xdim,ydim) f = DenseMatrix SRow  xdim ydim xdim $!
              S.generate (xdim * ydim) (\ix -> let !ixtup@(!_,!_) = swap $ quotRem ix xdim in 
@@ -249,6 +251,7 @@ generateDenseMatrix SColumn (xdim,ydim) f = DenseMatrix SColumn xdim ydim ydim $
          S.generate (xdim * ydim ) (\ix -> let  ixtup@(!_,!_) = ( quotRem ix ydim ) in 
                                          f ixtup )    
 
+-- | mutable version of generateDenseMatrix
 {-# NOINLINE generateMutableDenseMatrix #-}
 generateMutableDenseMatrix :: (S.Storable a,PrimMonad m)=> 
     SOrientation x -> (Int,Int)->((Int,Int)-> a) -> m  (MutDenseMatrix (PrimState m) x a) 

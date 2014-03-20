@@ -10,13 +10,13 @@ name:                hblas
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.1.0.0
+version:             0.1.0.1
 
 -- A short (one-line) description of the package.
 synopsis:            BLAS and Lapack bindings for OpenBLAS
 
 -- A longer description of the package.
-description:   User friendly, simple bindings to BLAS and Lapack, favoring OpenBLAS as the substrate.
+description:   User friendly, simple bindings to BLAS and Lapack. Easy to extend and use. 
 
 -- The license under which the package is released.
 license:             BSD3
@@ -40,17 +40,20 @@ build-type:          Custom
 
 
 extra-source-files:  
-  readme.md 
+  readme.md,
+  changelog.md 
 
 
 source-repository head
   type: git
-  location: git://github.com/wellposed/hOpenBLAS.git
+  location: http://github.com/wellposed/hblas.git
   
 -- Extra files to be distributed with the package, such as examples or a 
 -- README.
 
-
+flag OpenBLAS
+  default: False 
+  manual: True 
 -- Constraint on the version of Cabal needed to build this package.
 -- flag lib-Werror
 --   default: False
@@ -80,48 +83,41 @@ library
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.5 && <4.8, storable-complex >= 0.2.0 && < 0.3.0,
           vector , primitive >= 0.5 && < 0.6
-  -- look, no external deps for openblas! 
-  -- extra-libraries: openblas pthread
 
-  if os(OSX)
 
+  if flag(OpenBLAS)
+    extra-libraries: openblas pthread
+
+  if flag(OpenBLAS)&& os(OSX)
+    extra-lib-dirs: /usr/local/lib 
+
+  if os(OSX)&&!flag(OpenBLAS)
       frameworks: Accelerate
-      -- probably dont need these extra lib dirs
-      -- extra-libraries: cblas clapack
+      -- extra-libraries: cblas lapack
 
-  if os(windows)
+  if os(windows) && !flag(OpenBLAS)
       extra-libraries: blas lapack
 
-  if !os(windows)&& !os(OSX)
+  if !os(windows)&& !os(OSX) && !flag(OpenBLAS)
     extra-libraries: blas lapack
 
   
- --  if os(OSX)
-        -- where macports installs libs
-        --- extra-lib-dirs: /opt/local/lib/
-        --- include-dirs: /opt/local/include/
-        -- where homebrew installs libs
-   ---      extra-lib-dirs: /usr/local/lib/
-     --   include-dirs: /usr/local/include/
-
-
-        -- by default brew doesn't link openblas
-        -- extra-lib-dirs: /usr/local/opt/openblas/lib
-        -- include-dirs: /usr/local/opt/openblas/include
 
   -- Directories containing source files.
   hs-source-dirs:      src
   
   -- Base language which the package is written in.
   default-language:    Haskell2010
-  -- ld-options: OpenBLAS/libopenblas.a  
+  
+
+
 Test-Suite simple-test
     type:                exitcode-stdio-1.0
     main-is:             testing/Test.hs
     build-depends:       base, vector 
     default-language:    Haskell2010
     build-depends:       hblas
---    extra-libraries: openblas
+
 
 
 

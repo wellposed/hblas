@@ -29,6 +29,7 @@ before_install:
   - sudo apt-get install libblas-dev liblapack-dev
   # - ./travis/scripts/build-openblas.sh
   - source travis/scripts/set_env.sh
+  - export CABAL_FLAGS="-f-OpenBlas"
   - ./travis/scripts/before_install.sh
 
 install: ./travis/scripts/install.sh
