@@ -186,13 +186,13 @@ foreign import ccall unsafe "cblas_zcopy" cblas_zcopy_unsafe ::
 
 
 
-foreign import ccall unsafe "cblas_scopy" cblas_sswap_unsafe :: 
+foreign import ccall unsafe "cblas_sswap" cblas_sswap_unsafe :: 
     CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO ()   
-foreign import ccall unsafe "cblas_dcopy" cblas_dswap_unsafe :: 
+foreign import ccall unsafe "cblas_dswap" cblas_dswap_unsafe :: 
     CInt -> Ptr Double-> CInt -> Ptr Double -> CInt -> IO ()
-foreign import ccall unsafe "cblas_ccopy" cblas_cswap_unsafe :: 
+foreign import ccall unsafe "cblas_cswap" cblas_cswap_unsafe :: 
     CInt -> Ptr (Complex Float) -> CInt -> Ptr (Complex Float) -> CInt -> IO ()
-foreign import ccall unsafe "cblas_zcopy" cblas_zswap_unsafe :: 
+foreign import ccall unsafe "cblas_zswap" cblas_zswap_unsafe :: 
     CInt -> Ptr (Complex Double)-> CInt -> Ptr (Complex Double) -> CInt -> IO () 
 
 --void cblas_sswap(  CInt n, Float *x,   CInt incx, Float *y,   CInt incy);
