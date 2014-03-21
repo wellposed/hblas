@@ -3,10 +3,12 @@
 module Numerical.HBLAS.BLAS.Internal(
     GemmFun
     ,GemvFun
+    ,GerFun
     ,TrsvFun 
 
     ,gemmAbstraction
     ,gemvAbstraction
+    ,gerAbstraction
     ,trsvAbstraction
     ) where
 
@@ -24,6 +26,8 @@ type GemmFun el orient s m = Transpose ->Transpose ->  el -> el  -> MDenseMatrix
 type GemvFun el orient s m = Transpose -> el -> el
   -> MDenseMatrix s orient el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
 
+type GerFun el orient s m =
+    el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
 
 type TrsvFun el orient s m =
       MatUpLo -> Transpose -> MatDiag
@@ -182,6 +186,35 @@ gemvAbstraction gemvName gemvSafeFFI gemvUnsafeFFI constHandler = gemv
                          (fromIntegral bstride) betaPtr cp (fromIntegral cstride)
 
 
+{-# NOINLINE gerAbstraction #-}
+gerAbstraction :: (SM.Storable el, PrimMonad m)
+               => String
+               -> GerFunFFI el
+               -> GerFunFFI el
+               -> forall orient . GerFun el orient (PrimState m) m
+gerAbstraction gerName gerSafeFFI gerUnsafeFFI = ger
+    where
+      shouldCallFast :: Int -> Int -> Bool
+      shouldCallFast m n = flopsThreshold >= (fromIntegral m :: Int64)
+                                           * (fromIntegral n :: Int64)
+
+      isBadGer :: Int -> Int -> Int -> Int -> Bool
+      isBadGer dx dy ax ay = ax < 0 || ay < 0 || dx < ax || dy < ay
+
+      ger alpha (MutableDenseVector _ xdim xstride xbuff)
+                (MutableDenseVector _ ydim ystride ybuff)
+                (MutableDenseMatrix ornta ax ay astride abuff)
+        | isBadGer xdim ydim ax ay =
+            error $! "bad dimension args to GER: xdim ydim ax ay" ++ show [xdim, ydim, ax, ay]
+        | SM.overlaps xbuff abuff || SM.overlaps ybuff abuff =
+            error $! "The read and write inputs for: " ++ gerName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise =
+            unsafeWithPrim xbuff $ \xp ->
+            unsafeWithPrim ybuff $ \yp ->
+            unsafeWithPrim abuff $ \ap ->
+                unsafePrimToPrim $! (if shouldCallFast ax ay then gerUnsafeFFI else gerSafeFFI)
+                    (encodeNiceOrder ornta) (fromIntegral ax) (fromIntegral ay) alpha xp
+                    (fromIntegral xstride) yp (fromIntegral ystride) ap (fromIntegral astride)
 
 {-# NOINLINE trsvAbstraction #-}
 trsvAbstraction :: (SM.Storable el, PrimMonad m)

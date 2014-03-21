@@ -68,6 +68,9 @@ module Numerical.HBLAS.BLAS(
         ,cgemv
         ,zgemv
 
+        ,sger
+        ,dger
+
         ,strsv
         ,dtrsv
         ,ctrsv
@@ -121,3 +124,9 @@ ctrsv = trsvAbstraction "ctrsv" cblas_ctrsv_safe cblas_ctrsv_unsafe
 
 ztrsv :: PrimMonad m => TrsvFun (Complex Double) orient (PrimState m) m
 ztrsv = trsvAbstraction "ztrsv" cblas_ztrsv_safe cblas_ztrsv_unsafe
+
+sger :: PrimMonad m => GerFun Float orient (PrimState m) m
+sger = gerAbstraction "sger" cblas_sger_safe cblas_sger_unsafe
+
+dger :: PrimMonad m => GerFun Double orient (PrimState m) m
+dger = gerAbstraction "dger" cblas_dger_safe cblas_dger_unsafe

@@ -66,6 +66,26 @@ matmatTest1ZGEMV = do
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res 
     resList @?= [2.0,2.0]
 
+----
+----
+
+matmatTest1SGER :: IO ()
+matmatTest1SGER = do
+  res <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,2) (\_ -> 1.0)
+  x <- Matrix.generateMutableDenseVector 2 (\_ -> 2.0)
+  y <- Matrix.generateMutableDenseVector 2 (\_ -> 3.0)
+  BLAS.sger 2.0 x y res
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+  resList @?= [13.0,13.0,13.0,13.0]
+
+matmatTest1DGER :: IO ()
+matmatTest1DGER = do
+  res <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,2) (\_ -> 1.0)
+  x <- Matrix.generateMutableDenseVector 2 (\_ -> 2.0)
+  y <- Matrix.generateMutableDenseVector 2 (\_ -> 3.0)
+  BLAS.sger 2.0 x y res
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+  resList @?= [13.0,13.0,13.0,13.0]
 
 ----
 ----
@@ -120,6 +140,8 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV
     ,testCase "ctrsv on 2x2 upper 1s" matmatTest1CTRSV
     ,testCase "ztrsv on 2x2 upper 1s" matmatTest1ZTRSV
-
+---- ger tests
+    ,testCase "sger on 2x2 all 1s" matmatTest1SGER
+    ,testCase "dger on 2x2 all 1s" matmatTest1DGER
     ]
     
