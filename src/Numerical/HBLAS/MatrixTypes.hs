@@ -96,11 +96,26 @@ sTranpose SColumn = SRow
 sTranpose SRow = SColumn
 
 
-
+--- | May Blas and Lapack routines allow you to implicitly tranpose your argumments
 data Transpose = NoTranspose | Transpose | ConjTranspose | ConjNoTranspose
     deriving(Typeable,Eq,Show)
+
+-- | For Symmetric, Hermetian or Triangular matrices, which part is modeled.
+---  Applies to both Padded and Packed variants
+data MatrixHalf = UpperTri | LowerTri
+    deriving(Typeable,Eq,Show)
+-- | Many triangular matrix routines expect to know if the matrix is 
+-- all 1 on the diagonal or not. Likewise, Many Factorizations routines
+-- can be assumed to return unit triangular matrices
+
+data TriangleSort=  UnitDiagonal | NonUnitDiagonal
+    deriving(Typeable,Eq,Show)
+-- | For certain Square matrix product, do you want to Compute A*B or B*A
+-- only used as an argument 
+data EquationSide = LeftSide | RightSide    
+    deriving(Typeable,Eq,Show)
 {-
-should think long and hard before adding implicit tranposition to the internal data model
+should think long and hard before adding implicit transposition to the internal data model
 -}
 
 type family TransposeF (x :: Orientation) :: Orientation
@@ -109,6 +124,7 @@ type instance TransposeF Row = Column
 type instance TransposeF Column = Row 
 
 data Variant = Direct | Implicit
+    deriving(Typeable,Eq,Show)
 
 data SVariant :: Variant -> * where 
     SImplicit :: {_frontPadding ::{-UNPACK-} !Int, _endPadding:: {-#UNPACK#-} !Int } -> SVariant Implicit 
@@ -120,6 +136,9 @@ data DenseVector :: Variant -> * -> * where
                     ,_StrideDenseVector :: {-#UNPACK#-} ! Int 
                     ,bufferDenseVector :: !(S.Vector elem) 
                       } -> DenseVector varnt elem 
+#if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
+  deriving (Typeable)
+#endif                      
 
 data MDenseVector :: * -> Variant -> * -> * where
     MutableDenseVector :: { _VariantMutDenseVect ::  !(SVariant varnt)
@@ -127,7 +146,9 @@ data MDenseVector :: * -> Variant -> * -> * where
                         ,_StrideMutDenseVector :: {-#UNPACK#-} ! Int 
                         ,bufferMutDenseVector :: !(S.MVector  s elem) 
                           } -> MDenseVector s varnt elem 
-                      
+#if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
+    deriving (Typeable)
+#endif                      
 
 -- | 'DenseMatrix' is for dense row or column major matrices
 data DenseMatrix :: Orientation -> * -> *  where 
@@ -139,6 +160,8 @@ data DenseMatrix :: Orientation -> * -> *  where
 #if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
     deriving (Typeable)
 #endif
+
+
 
 {-
 need to handle rendering a slice differently than a direct matrix 
