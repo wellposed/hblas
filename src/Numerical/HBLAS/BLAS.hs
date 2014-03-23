@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns , RankNTypes, GADTs #-}
+{-# LANGUAGE BangPatterns , RankNTypes, GADTs, DataKinds #-}
 
 
 module Numerical.HBLAS.BLAS where
@@ -57,7 +57,8 @@ encodeNiceTranspose x = case x of
 type GemmFun el orient s m = Transpose ->Transpose ->  el -> el  -> MDenseMatrix s orient el
   ->   MDenseMatrix s orient el  ->  MDenseMatrix s orient el -> m ()
 
-
+type GemvFun el orient s m = Transpose -> el -> el
+  -> MDenseMatrix s orient el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
 {-
 A key design goal of this ffi is to provide *safe* throughput guarantees 
 for a concurrent application built on top of these apis, while evading
@@ -136,3 +137,52 @@ zgemm :: PrimMonad m=>  Transpose ->Transpose ->  (Complex Double) -> (Complex D
         MDenseMatrix (PrimState m) orient (Complex Double)  ->  
         MDenseMatrix (PrimState m) orient (Complex Double) -> m ()
 zgemm = gemmAbstraction "zgemm" cblas_zgemm_unsafe cblas_zgemm_safe withRStorable_  
+
+
+{-# NOINLINE gemvAbstraction #-}
+gemvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> GemvFunFFI scale el
+                -> GemvFunFFI scale el
+                -> (el -> (scale -> m ())-> m ())
+                -> forall orient . GemvFun el orient (PrimState m) m
+gemvAbstraction gemvName gemvSafeFFI gemvUnsafeFFI constHandler = gemv
+  where
+    shouldCallFast :: Int -> Int -> Int -> Bool
+    shouldCallFast a b c = flopsThreshold >= a * b * c
+   
+    isBadGemv :: Transpose -> Int -> Int -> Int -> Int -> Bool  
+    isBadGemv tr ax ay xdim ydim = ax < 0 || ay < 0 || xdim < ax || ydim < ay
+
+    gemv tr alpha beta
+      (MutableDenseMatrix ornta ax ay astride abuff)
+      (MutableDenseVector _ xdim xstride xbuff)
+      (MutableDenseVector _ ydim ystride ybuff)
+        | isBadGemv tr ax ay xdim ydim =error ""
+            error $! "Bad dimension args to GEMV: ax ay xdim ydim: " ++ show [ax, ay, xdim, ydim]
+        | SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
+            error $! "The read and write inputs for: " ++ gemvName ++ " overlap. This is a programmer error. Please fix." 
+        | otherwise = call
+            where
+              (nx,ny) = coordSwapper tr (ax,ay)
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     unsafeWithPrim ybuff $ \yp ->
+                     constHandler alpha $ \alphaPtr ->
+                     constHandler beta  $ \betaPtr  ->
+                       unsafePrimToPrim $! (if shouldCallFast nx ny xdim then gemvUnsafeFFI else gemvSafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFITranspose tr)
+                         (fromIntegral nx) (fromIntegral ny) alphaPtr ap (fromIntegral astride) xp 
+                         (fromIntegral xstride) betaPtr yp (fromIntegral ystride)
+
+sgemv :: PrimMonad m => GemvFun Float orient (PrimState m) m
+sgemv = gemvAbstraction "sgemv" cblas_sgemv_safe cblas_sgemv_unsafe (flip ($))
+
+dgemv :: PrimMonad m => GemvFun Double orient (PrimState m) m
+dgemv = gemvAbstraction "dgemv" cblas_dgemv_safe cblas_dgemv_unsafe (flip ($))
+
+cgemv :: PrimMonad m => GemvFun (Complex Float) orient (PrimState m) m
+cgemv = gemvAbstraction "cgemv" cblas_cgemv_safe cblas_cgemv_unsafe withRStorable_
+
+zgemv :: PrimMonad m => GemvFun (Complex Double) orient (PrimState m) m
+zgemv = gemvAbstraction "zgemv" cblas_zgemv_safe cblas_zgemv_unsafe withRStorable_
