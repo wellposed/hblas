@@ -44,11 +44,11 @@ newtype CBLAS_TRANSPOSET = CBLAS_TransposeT{ unCBLAS_TransposeT :: CInt } derivi
 
 data BLAS_Transpose = BlasNoTranspose | BlasTranspose | BlasConjTranspose | BlasConjNoTranspose 
 
-encodeTranpose :: BLAS_Transpose -> CBLAS_TRANSPOSET
-encodeTranpose  BlasNoTranspose = CBLAS_TransposeT 111
-encodeTranpose  BlasTranspose = CBLAS_TransposeT 112
-encodeTranpose  BlasConjTranspose =  CBLAS_TransposeT 113
-encodeTranpose  BlasConjNoTranspose = CBLAS_TransposeT 114
+encodeTranspose :: BLAS_Transpose -> CBLAS_TRANSPOSET
+encodeTranspose  BlasNoTranspose = CBLAS_TransposeT 111
+encodeTranspose  BlasTranspose = CBLAS_TransposeT 112
+encodeTranspose  BlasConjTranspose =  CBLAS_TransposeT 113
+encodeTranspose  BlasConjNoTranspose = CBLAS_TransposeT 114
 
 newtype CBLAS_UPLOT = CBlasUPLO CInt 
     deriving (Eq,Show)

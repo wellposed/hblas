@@ -40,18 +40,18 @@ encodeNiceOrder SRow= encodeOrder  BLASRowMajor
 encodeNiceOrder SColumn= encodeOrder BLASColMajor
 
 
-encodeFFITranpose :: Transpose -> CBLAS_TRANSPOSET
-encodeFFITranpose  x=  encodeTranpose $ encodeNiceTranpose x 
+encodeFFITranspose :: Transpose -> CBLAS_TRANSPOSET
+encodeFFITranspose  x=  encodeTranspose $ encodeNiceTranspose x 
 
-encodeNiceTranpose :: Transpose -> BLAS_Transpose
-encodeNiceTranpose x = case x of 
+encodeNiceTranspose :: Transpose -> BLAS_Transpose
+encodeNiceTranspose x = case x of 
         NoTranspose -> BlasNoTranspose
         Transpose -> BlasTranspose
         ConjTranspose -> BlasConjTranspose
         ConjNoTranspose -> BlasConjNoTranspose
 
---data BLAS_Tranpose = BlasNoTranspose | BlasTranpose | BlasConjTranspose | BlasConjNoTranpose 
---data Tranpose = NoTranpose | Tranpose | ConjTranpose | ConjNoTranpose
+--data BLAS_Transpose = BlasNoTranspose | BlasTranspose | BlasConjTranspose | BlasConjNoTranspose 
+--data Transpose = NoTranspose | Transpose | ConjTranspose | ConjNoTranspose
 
 
 type GemmFun el orient s m = Transpose ->Transpose ->  el -> el  -> MDenseMatrix s orient el
@@ -98,8 +98,8 @@ gemmAbstraction gemmName gemmSafeFFI gemmUnsafeFFI constHandler = go
                         --- dont need to swap b, info is in a and c
                         --- c doesn't get implicitly transposed
                         blasOrder <- return $ encodeNiceOrder ornta -- all three are the same orientation
-                        rawTra <- return $  encodeFFITranpose tra 
-                        rawTrb <- return $   encodeFFITranpose trb
+                        rawTra <- return $  encodeFFITranspose tra 
+                        rawTrb <- return $   encodeFFITranspose trb
                                  -- example of why i want to switch to singletones
                         unsafePrimToPrim $!  (if shouldCallFast cy cx ax then gemmUnsafeFFI  else gemmSafeFFI ) 
                             blasOrder rawTra rawTrb (fromIntegral cy) (fromIntegral cx) (fromIntegral ax) 
