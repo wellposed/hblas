@@ -234,6 +234,30 @@ matrix vector product for general matrices
       alpha*A*x + beta*y, or y := alpha*A'*x + beta*y,
 -}
 
+type GemvFunFFI sc el =
+       CBLAS_ORDERT -> CBLAS_TRANSPOSET -> CInt -> CInt
+    -> sc -> Ptr el -> CInt -> Ptr el -> CInt -> sc -> Ptr el -> CInt -> IO ()
+
+foreign import ccall unsafe "cblas_sgemv"
+    cblas_sgemv_unsafe :: GemvFunFFI Float Float
+foreign import ccall safe   "cblas_sgemv"
+    cblas_sgemv_safe   :: GemvFunFFI Float Float
+
+foreign import ccall unsafe "cblas_dgemv"
+    cblas_dgemv_unsafe :: GemvFunFFI Double Double
+foreign import ccall safe   "cblas_dgemv"
+    cblas_dgemv_safe   :: GemvFunFFI Double Double
+
+foreign import ccall unsafe "cblas_cgemv"
+    cblas_cgemv_unsafe :: GemvFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall safe   "cblas_cgemv"
+    cblas_cgemv_safe   :: GemvFunFFI (Ptr (Complex Float)) (Complex Float)
+
+foreign import ccall unsafe "cblas_zgemv"
+    cblas_zgemv_unsafe :: GemvFunFFI (Ptr (Complex Double)) (Complex Double)
+foreign import ccall safe   "cblas_zgemv"
+    cblas_zgemv_safe   :: GemvFunFFI (Ptr (Complex Double)) (Complex Double)
+
 --void cblas_sgemv(  enum CBLAS_ORDER order,    enum CBLAS_TRANSPOSE trans,    CInt m,   CInt n,
 --           Float alpha,   Float  *a,   CInt lda,    Float  *x,   CInt incx,    Float beta,  Float  *y,   CInt incy);
 --void cblas_dgemv(  enum CBLAS_ORDER order,    enum CBLAS_TRANSPOSE trans,    CInt m,   CInt n,
