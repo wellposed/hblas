@@ -53,12 +53,32 @@ encodeNiceTranspose x = case x of
 --data BLAS_Transpose = BlasNoTranspose | BlasTranspose | BlasConjTranspose | BlasConjNoTranspose 
 --data Transpose = NoTranspose | Transpose | ConjTranspose | ConjNoTranspose
 
+encodeFFIMatrixHalf :: MatrixHalf -> CBLAS_UPLOT
+encodeFFIMatrixHalf x = encodeUPLO $ encodeNiceUPLO x
+
+encodeNiceUPLO :: MatrixHalf -> BLASUplo
+encodeNiceUPLO x = case x of
+                     UpperTri -> BUpper
+                     LowerTri -> BLower
+
+encodeFFITriangleSort :: TriangleSort -> CBLAS_DIAGT
+encodeFFITriangleSort x = encodeDiag $ encodeNiceDIAG x
+
+encodeNiceDIAG :: TriangleSort -> BlasDiag
+encodeNiceDIAG x = case x of
+                     UnitDiagonal    -> BlasUnit
+                     NonUnitDiagonal -> BlasNonUnit
 
 type GemmFun el orient s m = Transpose ->Transpose ->  el -> el  -> MDenseMatrix s orient el
   ->   MDenseMatrix s orient el  ->  MDenseMatrix s orient el -> m ()
 
 type GemvFun el orient s m = Transpose -> el -> el
   -> MDenseMatrix s orient el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
+
+type TrsvFun el orient s m =
+     MatrixHalf -> Transpose -> TriangleSort
+  -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
+
 {-
 A key design goal of this ffi is to provide *safe* throughput guarantees 
 for a concurrent application built on top of these apis, while evading
@@ -186,3 +206,42 @@ cgemv = gemvAbstraction "cgemv" cblas_cgemv_safe cblas_cgemv_unsafe withRStorabl
 
 zgemv :: PrimMonad m => GemvFun (Complex Double) orient (PrimState m) m
 zgemv = gemvAbstraction "zgemv" cblas_zgemv_safe cblas_zgemv_unsafe withRStorable_
+
+{-# NOINLINE trsvAbstraction #-}
+trsvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> TrsvFunFFI el -> TrsvFunFFI el
+                -> forall orient . TrsvFun el orient (PrimState m) m
+trsvAbstraction trsvName trsvSafeFFI trsvUnsafeFFI = trsv
+  where
+    shouldCallFast :: Int -> Bool
+    shouldCallFast n = flopsThreshold >= n^2
+
+    isBadTrsv :: Int -> Int -> Int -> Bool
+    isBadTrsv nx ny vdim = nx < 0 || nx /= ny || nx /= vdim
+
+    trsv uplo tra diag
+      (MutableDenseMatrix ornt x y mstride mbuff)
+      (MutableDenseVector _ vdim vstride vbuff)
+        | isBadTrsv x y vdim =
+            error $! "Bad dimension args to TRSV: x y vdim: " ++ show [x,y,vdim]
+        | SM.overlaps vbuff mbuff =
+            error $! "The read and write inputs for: " ++ trsvName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = unsafeWithPrim mbuff $ \mp ->
+                      unsafeWithPrim vbuff $ \vp ->
+                        unsafePrimToPrim $! (if shouldCallFast x then trsvUnsafeFFI else trsvSafeFFI)
+                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo) (encodeFFITranspose tra)
+                          (encodeFFITriangleSort diag) (fromIntegral x) mp (fromIntegral mstride) vp
+                          (fromIntegral vstride)
+
+strsv :: PrimMonad m => TrsvFun Float orient (PrimState m) m
+strsv = trsvAbstraction "strsv" cblas_strsv_safe cblas_strsv_unsafe
+
+dtrsv :: PrimMonad m => TrsvFun Double orient (PrimState m) m
+dtrsv = trsvAbstraction "dtrsv" cblas_dtrsv_safe cblas_dtrsv_unsafe
+
+ctrsv :: PrimMonad m => TrsvFun (Complex Float) orient (PrimState m) m
+ctrsv = trsvAbstraction "ctrsv" cblas_ctrsv_safe cblas_ctrsv_unsafe
+
+ztrsv :: PrimMonad m => TrsvFun (Complex Double) orient (PrimState m) m
+ztrsv = trsvAbstraction "ztrsv" cblas_ztrsv_safe cblas_ztrsv_unsafe
