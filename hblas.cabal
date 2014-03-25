@@ -127,8 +127,8 @@ Test-suite test
         ,tasty-hunit
         --, tasty-hspec
         , QuickCheck   
-    hs-source-dirs: tests
-    main-is: test.hs
+    --hs-source-dirs: 
+    main-is: testing/Test.hs
 
 
 
