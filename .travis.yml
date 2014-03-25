@@ -58,4 +58,4 @@ notifications:
       - "irc.freenode.org#wellposed"
     skip_join: true
     template:
-      - "\x0313 hOpenBLAS \x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
+      - "\x0313 hBLAS \x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"

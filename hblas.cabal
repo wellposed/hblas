@@ -125,9 +125,8 @@ Test-suite test
         ,tasty >= 0.8 &&  < 0.9
         , tasty-quickcheck >= 0.8.0.3 && < 0.9
         ,tasty-hunit
-        , tasty-hspec
-        , Quickcheck   
-        --,numerical-core
+        --, tasty-hspec
+        , QuickCheck   
     hs-source-dirs: tests
     main-is: test.hs
 
