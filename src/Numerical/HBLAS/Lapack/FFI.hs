@@ -33,10 +33,15 @@ void LAPACK_dgesvx( char* fact, char* trans, lapack_int* n, lapack_int* nrhs,
 {-
     fortran FFI conventions!
 -}
-type Fun_FFI_GESVX el = Ptr Fact_C -> Ptr Trans_C -> Ptr Size_C -> Ptr Stride_C -> 
-    Ptr el -> Ptr Stride_C -> Ptr Double -> Ptr Stride_C ->
+
+type Stride_C =
+type Fun_FFI_GESVX el = Ptr Fact_C  {- fact -}-> Ptr Trans_C {- trans -} 
+    -> Ptr Int32  {-n -}-> Ptr Int32 {- NRHS -}-> 
+    Ptr el {- a -} -> Ptr Stride_C {- lda -} -> Ptr Double {- af -} -> Ptr Stride_C  {- ldf-}->
     Ptr Int32 -> Ptr Equilib_C {- equed -} -> Ptr el {- r -} -> Ptr el  ->
     Ptr el {- b -} -> Ptr Stride_C {- ld b   -} -> Ptr el {- x -} -> Ptr Stride_C {- ldx -}-> 
+    Ptr el {-rcond -}-> Ptr el {- ferr-} -> Ptr el {-berr-} -> Ptr el {-work-}->
+    Ptr Int32 {-iwork -}-> Ptr Int32 {-info  -}
 
 {-
 
@@ -59,7 +64,7 @@ Xgesvx  is the s -sing
 
 -}
 
-foreign import ccall  LAPACKE_sgesvx_work ,CInt -> CChar -> CChar -> CInt -> CInt -> Ptr CFloat  -> CInt -> Ptr CFloat  -> CInt -> Ptr CInt -> CString -> Ptr CFloat  -> Ptr CFloat  -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt   -> Ptr CFloat -> Ptr CFloat -> Ptr CFloat -> Ptr CFloat -> Ptr CInt -> IO CInt
+foreign import ccall  "sgesvx_"  sgesvx :: Fun_FFI_GESVX Float 
 foreign import ccall LAPACKE_dgesvx_work , CInt -> CChar -> CChar -> CInt -> CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> Ptr CInt -> CString -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> Ptr CInt -> IO CInt
 foreign import ccall "LAPACKE_cgesvx_work" CInt -> CChar -> CChar -> CInt -> CInt -> Ptr CFloat  -> CInt -> Ptr CFloat  -> CInt -> Ptr CInt -> CString -> Ptr CFloat  -> Ptr CFloat  -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt   -> Ptr CFloat -> Ptr CFloat -> Ptr CFloat -> Ptr CFloat -> Ptr CFloat -> IO CInt
 foreign import ccall "LAPACKE_zgesvx_work" CInt -> CChar -> CChar -> CInt -> CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> Ptr CInt -> CString -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> IO CInt
