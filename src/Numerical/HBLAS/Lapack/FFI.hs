@@ -65,7 +65,6 @@ Xgesvx  is the s -sing
 -}
 
 foreign import ccall  "sgesvx_"  sgesvx :: Fun_FFI_GESVX Float 
-foreign import ccall LAPACKE_dgesvx_work , CInt -> CChar -> CChar -> CInt -> CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> Ptr CInt -> CString -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> Ptr CInt -> IO CInt
-foreign import ccall "LAPACKE_cgesvx_work" CInt -> CChar -> CChar -> CInt -> CInt -> Ptr CFloat  -> CInt -> Ptr CFloat  -> CInt -> Ptr CInt -> CString -> Ptr CFloat  -> Ptr CFloat  -> Ptr CFloat -> CInt -> Ptr CFloat -> CInt   -> Ptr CFloat -> Ptr CFloat -> Ptr CFloat -> Ptr CFloat -> Ptr CFloat -> IO CInt
-foreign import ccall "LAPACKE_zgesvx_work" CInt -> CChar -> CChar -> CInt -> CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> Ptr CInt -> CString -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> CInt -> Ptr CDouble -> CInt -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> Ptr CDouble -> IO CInt
-
+foreign import ccall  "dgesvx_"  dgesvx :: Fun_FFI_GESVX Double
+foreign import ccall  "cgesvx_"  cgesvx :: Fun_FFI_GESVX (Complex Float)
+foreign import ccall  "zgesvx_"  zgesvx :: Fun_FFI_GESVX (Complex Double)
