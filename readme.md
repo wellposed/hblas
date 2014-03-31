@@ -28,10 +28,6 @@ high performance linear algebra routines.
 By default, hblas will assume you have OpenBLAS built and installed, including
 the LAPACKE interfaces for LAPACK, somewhere in your standard library path.
 
-* On OSX systems, 
-
-
-
 
 * On OS X systems, things will just work.
 * On linux and bsd systems, the equivalent of 
@@ -45,3 +41,8 @@ patches, bug reports, tests,  and other contributions welcome.
 
 Want to add a new routine, check out the ones listed in the [lapack section](http://software.intel.com/sites/products/documentation/hpc/mkl/mklman/index.htm) of the Intel MKL manual to get some human
 readable documentation.
+
+
+# I have > 32bit size arrays, help!
+Congrats, you have ``big compute on big data'', contact [Carter](http://www.wellposed.com)
+and we'll try to help you out. 
