@@ -1,4 +1,4 @@
-[![Wellposed](http://wellposed.com/assets/mini.png)](http://www.wellposed.com)® 
+[![Wellposed](http://wellposed.com/assets/mini.png)](http://www.wellposed.com)™ 
 
 # About hblas
 
