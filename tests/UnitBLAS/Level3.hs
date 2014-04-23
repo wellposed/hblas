@@ -1,4 +1,33 @@
-{-# LANGUAGE ScopedTypeVariables, DataKinds, CPP #-}
+-- {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE DataKinds, GADTs, TypeFamilies #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FunctionalDependencies #-}
+
+module UnitBLAS.Level3(unitTestLevel3BLAS) where 
+
+import Test.HUnit
+--import Numerical.Array.Shape as S 
+import Prelude as P
+import Test.Tasty
+import Test.Tasty.HUnit
+
+
+
+unitTestLevel3BLAS = testGroup "BlAS Level 3 tests " []
+
+--unitTestShape = testGroup "Shape Unit tests"
+--    [ testCase "foldl on shape" $ ( S.foldl (+) 0 (1:* 2:* 3 :* Nil )  @?=  ( P.foldl   (+) 0  [1,2,3])  )
+--    , testCase "foldr on shape" $ ( S.foldr (+) 0 (1:* 2:* 3 :* Nil )  @?=  ( P.foldr  (+) 0  [1,2,3])  )
+--    , testCase "scanr1 on shape" (S.scanr1 (+) 0 (1:* 1 :* 1:* Nil )   @?=  (3:* 2:* 1 :* Nil ) )
+--    , testCase "scanl1 on shape" (S.scanl1 (+) 0 (1:* 1 :* 1:* Nil )   @?=  (1:* 2:* 3:* Nil ) )
+--    ]
+
+{-
+turn the following into the first level 2 test
+
+-- {-# LANGUAGE ScopedTypeVariables, DataKinds, CPP #- }
 import Numerical.HBLAS.BLAS.FFI
 import Numerical.HBLAS.BLAS
 import Numerical.HBLAS.MatrixTypes 
@@ -10,7 +39,6 @@ main = do
   -- Just test that the symbol resolves
   --openblas_set_num_threads_unsafe 7  
   v  :: IOVector Double <- M.replicate 10 1.0
-  res <- unsafeWith v (\ptr-> cblas_ddot_unsafe 10 ptr 1   ptr 1) 
 #if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ <= 704)
   --this makes 7.4 panic! 
   (leftMat :: IODenseMatrix Row Float) <-  generateMutableDenseMatrix SRow (5,5) (\_ -> 1.0 ::Float )
@@ -27,4 +55,9 @@ main = do
 
   putStrLn $ show res 
   putStrLn "it works!"
-  
+
+
+
+
+
+-}
