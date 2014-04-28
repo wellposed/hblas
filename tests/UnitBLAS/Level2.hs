@@ -86,7 +86,7 @@ matmatTest1DTRSV = do
                 (\(i,j) -> if i >= j then (1.0::Double) else 0 )
     
     res  <- Matrix.generateMutableDenseVector  2 (\i -> if i == 0 then 3 else 1)
-    BLAS.strsv MatUpper NoTranspose MatUnit left res
+    BLAS.dtrsv MatUpper NoTranspose MatUnit left res
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res 
     resList @?= [2,1]
 
@@ -96,17 +96,16 @@ matmatTest1CTRSV = do
                 (\(i,j) -> if i >= j then (1.0::(Complex Float)) else 0 )
     
     res  <- Matrix.generateMutableDenseVector  2 (\i -> if i == 0 then 3 else 1)
-    BLAS.strsv MatUpper NoTranspose MatUnit left res
+    BLAS.ctrsv MatUpper NoTranspose MatUnit left res
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res 
     resList @?= [2,1]
 
 matmatTest1ZTRSV:: IO ()
 matmatTest1ZTRSV = do 
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) 
-            (\(i,j) -> if i >= j then (1.0::(Complex Doubl e)) else 0 )
-    
+                (\(i,j) -> if i >= j then (1.0::(Complex Double )) else 0 )
     res  <- Matrix.generateMutableDenseVector  2 (\i -> if i == 0 then 3 else 1)
-    BLAS.strsv MatUpper NoTranspose MatUnit left res
+    BLAS.ztrsv MatUpper NoTranspose MatUnit left res
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res 
     resList @?= [2,1]
 
@@ -115,7 +114,7 @@ unitTestLevel2BLAS = testGroup "BlAS Level 2 tests " [
     ,testCase "dgemv  on 2x2 all 1s " matmatTest1DGEMV
     ,testCase "cgemv  on 2x2 all 1s" matmatTest1CGEMV
     ,testCase "zgemv on 2x2 all 1s" matmatTest1ZGEMV
-    
+
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV
     ,testCase "ctrsv on 2x2 upper 1s" matmatTest1CTRSV
