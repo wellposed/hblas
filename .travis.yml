@@ -2,7 +2,6 @@ language: haskell
 
 
 env:
- - GHCVER=7.4.2
  - GHCVER=7.6.3
  - GHCVER=7.8.2
  - GHCVER=head
@@ -10,7 +9,6 @@ env:
 matrix:
   allow_failures:
    - env: GHCVER=head
-   - env: GHCVER=7.4.2 # somehow my code makes ghc panic
 
 
 
