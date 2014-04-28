@@ -7,20 +7,7 @@
 
 
 
-
-
-
-module Numerical.HBLAS.MatrixTypes where
-
-import qualified Data.Vector.Storable as S 
-import qualified Data.Vector.Storable.Mutable as SM
-import Control.Monad.Primitive  
---import Data.Singletons
-import Control.Monad.ST.Safe 
-import Data.Typeable 
--- import Control.Monad.Primitive
-
-{-| PSA, the matrix data types used in the hOpenBLAS binding
+{-| PSA, the matrix data types used in the hBLAS binding
 should not be regarded as being general purpose matrices.
 
 They are designed to exactly express only the matrices which are 
@@ -35,9 +22,26 @@ but support will be added for other formats that BLAS and LAPACK provide operati
 A guiding rule of thumb for this package is that there are no generic abstractions
 provided, merely machinery to ensure all uses of BLAS and LAPACK operations
 can be used in their full generality in a human friendly type safe fashion.
-It is the role of a higher leve library to provide any generic operations.
+It is the role of a higher level library to provide any generic operations.
 
--}    
+One such higher level lib you can interface with easily is Numerical.
+There is a work in progress binding to help this in the numerical-hblas package
+(which may not be public yet at the time of this writing)
+
+-}   
+
+
+module Numerical.HBLAS.MatrixTypes where
+
+import qualified Data.Vector.Storable as S 
+import qualified Data.Vector.Storable.Mutable as SM
+import Control.Monad.Primitive  
+--import Data.Singletons
+import Control.Monad.ST.Safe 
+import Data.Typeable 
+-- import Control.Monad.Primitive
+
+ 
 
 {-
 what I really want is this, but its not possible till
@@ -125,9 +129,18 @@ type family TransposeF (x :: Orientation) :: Orientation
 type instance TransposeF Row = Column
 type instance TransposeF Column = Row 
 
+
+
+
+
 data Variant = Direct | Implicit
     deriving(Typeable,Eq,Show)
-
+-- | 'Variant' and 'SVariant' are a bit odd looking,
+-- They crop up when needing to talk about eg the row vectors of a 
+-- packed triangular row major matrix wrt both their logical size and manifest sizes
+-- this notion only makes sense in the 1dim case. 
+-- If you don't understand this parameter, just use 'SDirect' and 'Direct'
+-- as they will generally be the correct choice for most users. 
 data SVariant :: Variant -> * where 
     SImplicit :: {_frontPadding ::{-UNPACK-} !Int, _endPadding:: {-#UNPACK#-} !Int } -> SVariant Implicit 
     SDirect :: SVariant Direct 
