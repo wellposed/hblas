@@ -107,14 +107,22 @@ foreign import ccall unsafe "dsyev_" dsyev_ffi_unsafe :: SYEV_FUN_FFI Double
 --lapack_int LAPACKE_<?>gesv( int matrix_order, lapack_int n, lapack_int nrhs, <datatype>* a, lapack_int lda, lapack_int* ipiv, <datatype>* b, lapack_int ldb );
 --call sgesv( n, nrhs, a, lda, ipiv, b, ldb, info )
 
-type GESV_FUN_FFI elem = Ptr Int32 -> Ptr Int32 -> Ptr elem -> Ptr Int32 -> Ptr Int32 {- permutation vector -}
-                        -> Ptr elem -> Ptr Stride_C -> Ptr Info 
--- basic Linear system solves
+type GESV_FUN_FFI elem = Ptr Int32  {- n -} -> Ptr Int32 {- nrhs -} -> Ptr elem {- a -}
+            -> Ptr Int32 {-  lda -} -> Ptr Int32 {- permutation vector -}
+            -> Ptr elem  {- b -} -> Ptr Int32 {- ldb -} -> Ptr Info -> IO ()
+-- | basic Linear system solvers. they act inplace 
 foreign import ccall  "sgesv_"  sgesv_ffi  ::GESV_FUN_FFI Float 
 foreign import ccall  "dgesv_"  dgesv_ffi :: GESV_FUN_FFI Double
 foreign import ccall  "cgesv_"  cgesv_ffi :: GESV_FUN_FFI (Complex Float)
 foreign import ccall  "zgesv_"  zgesv_ffi :: GESV_FUN_FFI (Complex Double)
 
+-- / not sure if linear solvers ever are run in < 1 microsecond size instances in practice
+foreign import ccall unsafe "sgesv_"  sgesv_ffi_unsafe  ::GESV_FUN_FFI Float 
+foreign import ccall unsafe "dgesv_"  dgesv_ffi_unsafe :: GESV_FUN_FFI Double
+foreign import ccall unsafe "cgesv_"  cgesv_ffi_unsafe :: GESV_FUN_FFI (Complex Float)
+foreign import ccall unsafe "zgesv_"  zgesv_ffi_unsafe :: GESV_FUN_FFI (Complex Double)
+
+{- only provide  -}
 
 
 

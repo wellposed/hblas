@@ -110,11 +110,12 @@ matmatTest1ZTRSV = do
     resList @?= [2,1]
 
 unitTestLevel2BLAS = testGroup "BlAS Level 2 tests " [
+----- gemv tests 
     testCase "sgemv on 2x2 all 1s"    matmatTest1SGEMV
     ,testCase "dgemv  on 2x2 all 1s " matmatTest1DGEMV
     ,testCase "cgemv  on 2x2 all 1s" matmatTest1CGEMV
     ,testCase "zgemv on 2x2 all 1s" matmatTest1ZGEMV
-
+----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV
     ,testCase "ctrsv on 2x2 upper 1s" matmatTest1CTRSV
