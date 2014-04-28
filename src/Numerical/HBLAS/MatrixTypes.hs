@@ -102,14 +102,16 @@ data Transpose = NoTranspose | Transpose | ConjTranspose | ConjNoTranspose
 
 -- | For Symmetric, Hermetian or Triangular matrices, which part is modeled.
 ---  Applies to both Padded and Packed variants
-data MatrixHalf = UpperTri | LowerTri
+data MatUpLo = MatUpper | MatLower 
     deriving(Typeable,Eq,Show)
--- | Many triangular matrix routines expect to know if the matrix is 
--- all 1 on the diagonal or not. Likewise, Many Factorizations routines
--- can be assumed to return unit triangular matrices
 
-data TriangleSort=  UnitDiagonal | NonUnitDiagonal
+
+-- | Many triangular matrix routines expect to know if the matrix is 
+-- all 1  (unit ) on the diagonal or not. Likewise, Many Factorizations routines
+-- can be assumed to return unit triangular matrices
+data MatDiag=  MatUnit | MatNonUnit
     deriving(Typeable,Eq,Show)
+
 -- | For certain Square matrix product, do you want to Compute A*B or B*A
 -- only used as an argument 
 data EquationSide = LeftSide | RightSide    
