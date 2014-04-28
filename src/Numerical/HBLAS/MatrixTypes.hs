@@ -136,7 +136,7 @@ data DenseVector :: Variant -> * -> * where
     DenseVector :: { _VariantDenseVect ::  !(SVariant varnt)
                     ,_LogicalDimDenseVector :: {-#UNPACK#-}!Int 
                     ,_StrideDenseVector :: {-#UNPACK#-} ! Int 
-                    ,bufferDenseVector :: !(S.Vector elem) 
+                    ,_bufferDenseVector :: !(S.Vector elem) 
                       } -> DenseVector varnt elem 
 #if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
   deriving (Typeable)
@@ -163,7 +163,16 @@ data DenseMatrix :: Orientation -> * -> *  where
     deriving (Typeable)
 #endif
 
-
+-- | this should never be used in real code, ever ever, but its handy for testing
+-- but seriously never use this in real code, it doesn't do what you think
+-- because in the case of a matrix slice, the underlying buffer will have 
+-- additional elements aside from the ones you expect! 
+-- never use this in real code please. :) 
+mutableVectorToList :: (PrimMonad m, S.Storable a) => S.MVector (PrimState m) a -> m [a]
+mutableVectorToList mv =  do
+        v <- S.unsafeFreeze mv 
+        return (S.toList v )
+{-# NOINLINE mutableVectorToList #-}
 
 {-
 need to handle rendering a slice differently than a direct matrix 
