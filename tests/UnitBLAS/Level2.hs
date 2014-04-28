@@ -21,4 +21,4 @@ import Test.Tasty.HUnit
 --    ]
 
 
-unitTestLevel3BLAS = testGroup "BlAS Level 2 tests " []
+unitTestLevel2BLAS = testGroup "BlAS Level 2 tests " []
