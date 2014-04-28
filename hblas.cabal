@@ -67,12 +67,12 @@ library
 
   -- Modules exported by the library.
   exposed-modules:      Numerical.HBLAS.BLAS.FFI
-      Numerical.HBLAS.MatrixTypes
-      Numerical.HBLAS.UtilsFFI
-      Numerical.HBLAS.BLAS
-      Numerical.HBLAS.Lapack
-      Numerical.HBLAS.Lapack.FFI 
-
+    Numerical.HBLAS.MatrixTypes
+    Numerical.HBLAS.UtilsFFI
+    Numerical.HBLAS.BLAS
+    Numerical.HBLAS.Lapack
+    Numerical.HBLAS.Lapack.FFI 
+    Numerical.HBLAS.Constants
   -- Modules included in this library but not exported.
   -- other-modules:       
   

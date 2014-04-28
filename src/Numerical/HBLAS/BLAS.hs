@@ -8,17 +8,21 @@ module Numerical.HBLAS.BLAS where
 --    ,cgemm
 --    ,zgemm) 
 
-
+import Numerical.HBLAS.Constants
 import Numerical.HBLAS.UtilsFFI    
 import Numerical.HBLAS.BLAS.FFI 
 import Numerical.HBLAS.MatrixTypes
 import Control.Monad.Primitive
 import Data.Complex 
 import qualified Data.Vector.Storable.Mutable as SM
+import Numerical.HBLAS.Constants
+import Data.Int 
 
---
-flopsThreshold = 10000
-gemmComplexity a b c = a * b * c  -- this will be wrong by some constant factor, albeit a small one
+gemmComplexity :: Integral a => a -> a -> a -> Int64
+gemmComplexity a b c = fromIntegral a * fromIntegral b *fromIntegral c  -- this will be wrong by some constant factor, albeit a small one
+
+gemvComplexity :: Integral a => a -> a -> Int64
+gemvComplexity a b = fromIntegral a * fromIntegral b 
 
 
 -- this covers the ~6 cases for checking the dimensions for GEMM quite nicely
@@ -33,6 +37,15 @@ coordSwapper NoTranspose (a,b) = (a,b)
 coordSwapper ConjNoTranspose (a,b) = (a,b) 
 coordSwapper Transpose (a,b) = (b,a)
 coordSwapper ConjTranspose (a,b) = (b,a)
+
+-- / checks if the size of a matrices rows matches input vector size 
+-- and the  column count matchesresult vector size
+isBadGemv :: Transpose -> Int -> Int -> Int -> Int -> Bool  
+isBadGemv tr ax ay bdim cdim = isBadGemvHelper (cds tr (ax,ay))
+    where 
+    cds = coordSwapper
+    isBadGemvHelper (realX,realY)  =  
+            minimum [realY,realX,bdim,cdim] <= 0 ||  not (realX == bdim && realY == cdim )
 
 
 encodeNiceOrder :: SOrientation x  -> CBLAS_ORDERT
@@ -175,32 +188,27 @@ gemvAbstraction :: (SM.Storable el, PrimMonad m)
                 -> forall orient . GemvFun el orient (PrimState m) m
 gemvAbstraction gemvName gemvSafeFFI gemvUnsafeFFI constHandler = gemv
   where
-    shouldCallFast :: Int -> Int -> Int -> Bool
-    shouldCallFast a b c = flopsThreshold >= a * b * c
-   
-    isBadGemv :: Transpose -> Int -> Int -> Int -> Int -> Bool  
-    isBadGemv tr ax ay xdim ydim = ax < 0 || ay < 0 || xdim < ax || ydim < ay
-
+    shouldCallFast :: Int -> Int  -> Bool
+    shouldCallFast a b = flopsThreshold >= gemvComplexity a b 
     gemv tr alpha beta
       (MutableDenseMatrix ornta ax ay astride abuff)
-      (MutableDenseVector _ xdim xstride xbuff)
-      (MutableDenseVector _ ydim ystride ybuff)
-        | isBadGemv tr ax ay xdim ydim =error ""
-            error $! "Bad dimension args to GEMV: ax ay xdim ydim: " ++ show [ax, ay, xdim, ydim]
-        | SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
+      (MutableDenseVector _ bdim bstride bbuff)
+      (MutableDenseVector _ cdim cstride cbuff)
+        | isBadGemv tr ax ay bdim cdim =  error $! "Bad dimension args to GEMV: ax ay xdim ydim: " ++ show [ax, ay, bdim, cdim]
+        | SM.overlaps abuff cbuff || SM.overlaps bbuff cbuff =
             error $! "The read and write inputs for: " ++ gemvName ++ " overlap. This is a programmer error. Please fix." 
         | otherwise = call
             where
-              (nx,ny) = coordSwapper tr (ax,ay)
+              (newx,newy) = coordSwapper tr (ax,ay)
               call = unsafeWithPrim abuff $ \ap ->
-                     unsafeWithPrim xbuff $ \xp ->
-                     unsafeWithPrim ybuff $ \yp ->
+                     unsafeWithPrim bbuff $ \bp ->
+                     unsafeWithPrim cbuff $ \cp ->
                      constHandler alpha $ \alphaPtr ->
                      constHandler beta  $ \betaPtr  ->
-                       unsafePrimToPrim $! (if shouldCallFast nx ny xdim then gemvUnsafeFFI else gemvSafeFFI)
+                       unsafePrimToPrim $! (if shouldCallFast newx newy  then gemvUnsafeFFI else gemvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFITranspose tr)
-                         (fromIntegral nx) (fromIntegral ny) alphaPtr ap (fromIntegral astride) xp 
-                         (fromIntegral xstride) betaPtr yp (fromIntegral ystride)
+                         (fromIntegral newx) (fromIntegral newy) alphaPtr ap (fromIntegral astride) bp 
+                         (fromIntegral bstride) betaPtr cp (fromIntegral cstride)
 
 sgemv :: PrimMonad m => GemvFun Float orient (PrimState m) m
 sgemv = gemvAbstraction "sgemv" cblas_sgemv_safe cblas_sgemv_unsafe (flip ($))
@@ -222,7 +230,7 @@ trsvAbstraction :: (SM.Storable el, PrimMonad m)
 trsvAbstraction trsvName trsvSafeFFI trsvUnsafeFFI = trsv
   where
     shouldCallFast :: Int -> Bool
-    shouldCallFast n = flopsThreshold >= n^2
+    shouldCallFast n = flopsThreshold >= (fromIntegral n)^2
 
     isBadTrsv :: Int -> Int -> Int -> Bool
     isBadTrsv nx ny vdim = nx < 0 || nx /= ny || nx /= vdim
