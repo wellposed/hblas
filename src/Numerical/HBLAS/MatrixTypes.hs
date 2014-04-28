@@ -159,7 +159,7 @@ data MDenseVector :: * -> Variant -> * -> * where
     MutableDenseVector :: { _VariantMutDenseVect ::  !(SVariant varnt)
                         ,_LogicalDimMutDenseVector :: {-#UNPACK#-}!Int 
                         ,_StrideMutDenseVector :: {-#UNPACK#-} ! Int 
-                        ,bufferMutDenseVector :: !(S.MVector  s elem) 
+                        ,_bufferMutDenseVector :: !(S.MVector  s elem) 
                           } -> MDenseVector s varnt elem 
 #if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
     deriving (Typeable)
@@ -317,6 +317,9 @@ generateDenseMatrix SColumn (xdim,ydim) f = DenseMatrix SColumn xdim ydim ydim $
          S.generate (xdim * ydim ) (\ix -> let  ixtup@(!_,!_) = ( quotRem ix ydim ) in 
                                          f ixtup )    
 
+
+
+
 -- | mutable version of generateDenseMatrix
 {-# NOINLINE generateMutableDenseMatrix #-}
 generateMutableDenseMatrix :: (S.Storable a,PrimMonad m)=> 
@@ -325,6 +328,12 @@ generateMutableDenseMatrix sor  dims fun = do
      x <- unsafeThawDenseMatrix $! generateDenseMatrix sor dims fun 
      return x 
 
+{-#NOINLINE generateMutableDenseVector#-}
+generateMutableDenseVector :: (S.Storable a,PrimMonad m) => Int -> (Int -> a) ->
+     m (MDenseVector (PrimState m ) Direct a)
+generateMutableDenseVector size init = do
+    mv <- S.unsafeThaw $ S.generate size init 
+    return $! MutableDenseVector SDirect size 1 mv 
 
 --- this (uncheckedMatrixSlice) will need to have its inlining quality checked
 

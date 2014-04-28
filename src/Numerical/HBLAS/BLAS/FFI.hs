@@ -280,6 +280,32 @@ foreign import ccall safe   "cblas_zgemv"
 
 --STRSV - solve one of the systems of equations   A*x = b, or A'*x = b, where A is a (non)unit upper(/lower) triangular matrix
 
+--STRSV - solve one of the systems of equations   A*x = b, or A'*x = b, where A is a (non)unit upper(/lower) triangular matrix
+
+type TrsvFunFFI el =
+       CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT
+    -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+
+foreign import ccall unsafe "cblas_strsv"
+  cblas_strsv_unsafe :: TrsvFunFFI Float
+foreign import ccall safe   "cblas_strsv"
+  cblas_strsv_safe   :: TrsvFunFFI Float
+
+foreign import ccall unsafe "cblas_dtrsv"
+  cblas_dtrsv_unsafe :: TrsvFunFFI Double
+foreign import ccall safe   "cblas_dtrsv"
+  cblas_dtrsv_safe   :: TrsvFunFFI Double
+
+foreign import ccall unsafe "cblas_ctrsv"
+  cblas_ctrsv_unsafe :: TrsvFunFFI (Complex Float)
+foreign import ccall safe   "cblas_ctrsv"
+  cblas_ctrsv_safe   :: TrsvFunFFI (Complex Float)
+
+foreign import ccall unsafe "cblas_ztrsv"
+  cblas_ztrsv_unsafe :: TrsvFunFFI (Complex Double)
+foreign import ccall safe   "cblas_ztrsv"
+  cblas_ztrsv_safe   :: TrsvFunFFI (Complex Double)
+
 --void cblas_strsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Float *A,   CInt lda, Float *X,   CInt incX);
 --void cblas_dtrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Double *A,   CInt lda, Double *X,   CInt incX);
 --void cblas_ctrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Float *A,   CInt lda, Float *X,   CInt incX);
@@ -624,6 +650,12 @@ foreign  import ccall unsafe "cblas_ztrmm"
 --  |  triangular solvers 
 -----------------------
 
+
+-- 
+--TRSM solves  op(A)*X = alpha*B or  X*op(A) = alpha*B 
+--op(A) is one of op(A) = A, or op(A) = A', or op(A) = conjg(A').
+-- A is a unit, or non-unit, upper or lower triangular matrix 
+---- 
 type TrsmFunFFI scale el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT -> 
      CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas_strsm" 
