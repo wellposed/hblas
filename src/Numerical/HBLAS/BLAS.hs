@@ -5,7 +5,7 @@ yet type safe BLAS API.
 
 When in doubt about the semantics of an operation,
 consult your system's BLAS api documentation, or just read the documentation
-for the Intel MKL BLAS distribution 
+for
 <https://software.intel.com/sites/products/documentation/hpc/mkl/mklman/index.htm the Intel MKL BLAS distribution>
 
 A few basic notes about how to invoke BLAS routines.

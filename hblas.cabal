@@ -10,13 +10,40 @@ name:                hblas
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.3.0.0
+version:             0.3.0.1
 
 -- A short (one-line) description of the package.
 synopsis:            Human friendly BLAS and Lapack bindings for Haskell.
 
 -- A longer description of the package.
-description:   User friendly, simple bindings to BLAS and Lapack. Easy to extend and use. 
+description:   
+    User friendly, simple bindings to BLAS and Lapack. Easy to extend and use. 
+    .
+    HBLAS assumes you have BLAS and LAPACK installed. Users on OSX already
+    have a BLAS and LAPACK installed for them. Users on LINUX and similar 
+    platforms will need to do the system equivalent of @sudo apt-get install libblas liblapack@.
+    .
+    HBLAS  is not intended to be a library for end user array operations, 
+    but rather an easy adaptor for calling BLAS and LAPACK routines in their 
+    full generality from your end-user haskell linear algebra / array library 
+    of choice.
+    .
+    HBLAS roughly mirrors the naming conventions and datatype names of  the standard
+    BLAS and LAPACK libraries. Those of you who are familiar with these conventions
+    and moderately comfortable with haskell will feel right at home.
+    .
+    If you are not familiar with the the operations and conventions of BLAS and
+    Lapack, please read the 
+    <https://software.intel.com/sites/products/documentation/hpc/mkl/mklman/index.htm Intel MKL BLAS and LAPACK documention>, 
+    you'll learn a lot about what BLAS and LAPACK can do.
+    .
+    HBLAS doesn't provide every BLAS and LAPACK operation currently, but 
+    is designed so that adding support for new operations is quite easy!
+
+
+
+homepage:      http://github.com/wellposed/hblas/
+bug-reports:   http://github.com/wellposed/hblas/issues
 
 -- The license under which the package is released.
 license:             BSD3

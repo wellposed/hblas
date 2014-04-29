@@ -24,10 +24,8 @@ but rather should be used by a higher level numerical array library to provide
 high performance linear algebra routines. 
 
 
-## how to install (using openblas)
-By default, hblas will assume you have OpenBLAS built and installed, including
-the LAPACKE interfaces for LAPACK, somewhere in your standard library path.
-
+## how to install 
+By default, hblas will assume you have BLAS and LAPACK built and installed,
 
 * On OS X systems, things will just work.
 * On linux and bsd systems, the equivalent of 
