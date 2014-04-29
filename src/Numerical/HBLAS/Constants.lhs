@@ -1,5 +1,5 @@
 \begin{code}
-module Numerical.HBLAS.Constants where 
+module Numerical.HBLAS.Constants(flopsThreshold) where 
 import Data.Int 
 
 flopsThreshold :: Int64

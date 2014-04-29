@@ -36,10 +36,9 @@ module Numerical.HBLAS.MatrixTypes where
 import qualified Data.Vector.Storable as S 
 import qualified Data.Vector.Storable.Mutable as SM
 import Control.Monad.Primitive  
---import Data.Singletons
-import Control.Monad.ST.Safe 
+
 import Data.Typeable 
--- import Control.Monad.Primitive
+
 
  
 
@@ -86,13 +85,13 @@ data SOrientation :: Orientation -> * where
 #endif    
 
 instance Show (SOrientation Row) where
-     show !a = "SRow"
+     show _ = "SRow"
 instance Show (SOrientation Column) where
-     show !a = "SColumn"         
+     show _ = "SColumn"         
 instance Eq (SOrientation Row) where
-    (==) !a !b = True 
+    (==) _ _ = True 
 instance Eq (SOrientation Column) where
-    (==) !a !b = True 
+    (==) _ _ = True 
 
 
 sTranpose ::  (x~ TransposeF y, y~TransposeF x ) =>SOrientation x -> SOrientation y 

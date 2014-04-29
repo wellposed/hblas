@@ -9,7 +9,7 @@ import Control.Monad.Primitive
 import Foreign.ForeignPtr.Safe
 import Foreign.ForeignPtr.Unsafe
 
-import Foreign.Storable.Complex
+import Foreign.Storable.Complex()
 import Data.Vector.Storable as S 
 import Foreign.Ptr
 

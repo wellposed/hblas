@@ -70,6 +70,7 @@ library
     Numerical.HBLAS.MatrixTypes
     Numerical.HBLAS.UtilsFFI
     Numerical.HBLAS.BLAS
+    Numerical.HBLAS.BLAS.Internal 
     Numerical.HBLAS.Lapack
     Numerical.HBLAS.Lapack.FFI 
     Numerical.HBLAS.Constants
@@ -111,7 +112,7 @@ library
   
   -- Base language which the package is written in.
   default-language:    Haskell2010
-  
+  ghc-options: -Wall -fno-warn-name-shadowing
 
 
 
