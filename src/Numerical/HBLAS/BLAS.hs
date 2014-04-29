@@ -38,24 +38,40 @@ are values of type 'Transpose' that respectively act on the matrices @left@ and 
 * the generalized matrix computation thusly formed can be viewed as being 
 @result = alpha * trLeft(left) * trRight(right) + beta * result@
 
+
+the *gemv operations are akin to the *gemm operations, but with @right@ and @result@
+being vectors rather than matrices.
+
+
+the *trsv operations solve for @x@ in the equation @A x = y@ given @A@ and @y@. 
+The 'MatUpLo' argument determines if the matrix should be treated as upper or 
+lower triangular and 'MatDiag' determines if the triangular solver should treat 
+the diagonal of the matrix as being all 1's or not.  A general pattern of invocation
+would be @'strsv' matuplo  tranposeMatA  matdiag  matrixA  xVector@.
+A key detail to note is that the input vector is ALSO the result vector,
+ie 'strsv' and friends updates the vector place.
+
 -}
 
 module Numerical.HBLAS.BLAS(
-        dgemm
+        GemvFun
+        ,GemmFun 
+        ,TrsvFun  
+               
+        ,dgemm
         ,sgemm
         ,cgemm
         ,zgemm
-        ,GemmFun
+
         ,sgemv 
         ,dgemv
         ,cgemv 
         ,zgemv 
-        ,GemvFun
+
         ,strsv
         ,dtrsv
         ,ctrsv
         ,ztrsv 
-        ,TrsvFun  
             ) where 
 
 
