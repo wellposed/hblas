@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-
 module GemmExample where
 
 import Foreign.Storable
@@ -10,7 +8,7 @@ import Numerical.HBLAS.MatrixTypes
 constMatrix :: Storable a
             => Int
             -> a
-            -> IO (IODenseMatrix 'Row a)
+            -> IO (IODenseMatrix Row a)
 constMatrix n k = generateMutableDenseMatrix SRow (n,n) (const k)
 
 example_sgemm :: IO ()
