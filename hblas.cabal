@@ -163,4 +163,4 @@ Test-suite unit-testsuite
 
    -- `cabal test` won't link on Linux otherwise.
    if os(linux)
-     extra-libraries: cblas lapack
+     extra-libraries: blas lapack
