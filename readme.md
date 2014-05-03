@@ -66,7 +66,7 @@ import Numerical.HBLAS.BLAS
 import Numerical.HBLAS.MatrixTypes
 
 -- Generate the constant mutable square matrix of the given type and dimensions.
-constMatrix :: Storable a => Int -> a -> IO (IODenseMatrix 'Row a)
+constMatrix :: Storable a => Int -> a -> IO (IODenseMatrix Row a)
 constMatrix n k = generateMutableDenseMatrix SRow (n,n) (const k)
 
 example_dgemm :: IO ()
