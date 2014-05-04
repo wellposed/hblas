@@ -51,11 +51,11 @@ $ cabal test
 ```
 
 ## Linking
-If you get an error like `undefined reference to `cblas_sdsdot'` when building or running an HBLAS program,
+If you get an error like `undefined reference to 'cblas_sdsdot'` when building or running an HBLAS program,
 you might be on a system that builds BLAS and CBLAS separately, such as Arch Linux.
 
-In which case, be sure to install CBLAS, and also `cabal configure`/ `cabal install` HBLAS
-with the `-fCBLAS` flag.
+In which case, be sure to install CBLAS and invoke `cabal install hblas -fCBLAS`
+to make sure `hblas` links to CBLAS properly.
 
 ## Usage
 
