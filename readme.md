@@ -1,25 +1,25 @@
-[![Wellposed](http://www.wellposed.com/mini.png)](http://www.wellposed.com)™ 
+[![Wellposed](http://www.wellposed.com/mini.png)](http://www.wellposed.com)™
 
 # About hblas
 
-hblas is an open source component of the [Wellposed](http://www.wellposed.com)® mathematical software suite. 
+hblas is an open source component of the [Wellposed](http://www.wellposed.com)® mathematical software suite.
 
-Members of the numerical haskell open source community can be found on irc at  `#numerical-haskell` on freenode, 
-and via the [numericalhaskell mailing list](https://groups.google.com/forum/#!forum/numericalhaskell). 
+Members of the numerical haskell open source community can be found on irc at  `#numerical-haskell` on freenode,
+and via the [numericalhaskell mailing list](https://groups.google.com/forum/#!forum/numericalhaskell).
 
 [![Build Status](https://secure.travis-ci.org/wellposed/hblas.png?branch=master)](http://travis-ci.org/wellposed/hblas)
 
-hblas is a self contained full (well, not quite yet) BLAS and LAPACK binding that provides the 
-full BLAS and LAPACKE APIs in a simple, unopinionated, Haskell wrapper. 
+hblas is a self contained full (well, not quite yet) BLAS and LAPACK binding that provides the
+full BLAS and LAPACKE APIs in a simple, unopinionated, Haskell wrapper.
 
-This library is *NOT* meant to be used by end users, it is designed to be 
+This library is *NOT* meant to be used by end users, it is designed to be
 an unopinionated, simple, portable, easy to install BLAS/LAPACK substrate for higher level numerical
 computing libraries to build upon. Morever, this library is strictly a wrapper,
 and simply makes using the functionality of BLAS and LAPACK more accessible.
 
 This library is *NOT* meant to be used a standalone array library (except in desperation),
-but rather should be used by a higher level numerical array library to provide 
-high performance linear algebra routines. 
+but rather should be used by a higher level numerical array library to provide
+high performance linear algebra routines.
 
 ## Install
 
@@ -33,7 +33,7 @@ On OS X systems, things will just work.
 $ cabal install
 ```
 
-### Linux 
+### Linux
 
 On linux and bsd systems, you will need to manually install the BLAS and LAPACK libraries beforehand.
 
@@ -50,11 +50,12 @@ To run the test suite execute:
 $ cabal test
 ```
 
-To run the interactive shell linked against the BLAS library run:
+## Linking
+If you get an error like `undefined reference to `cblas_sdsdot'` when building or running an HBLAS program,
+you might be on a system that builds BLAS and CBLAS separately, such as Arch Linux.
 
-```bash
-cabal repl --ghc-options=-lcblas
-```
+In which case, be sure to install CBLAS, and also `cabal configure`/ `cabal install` HBLAS
+with the `-fCBLAS` flag.
 
 ## Usage
 
@@ -93,4 +94,4 @@ readable documentation.
 *I have > 32bit size arrays, help!*
 
 Congrats, you have ``big compute on big data'', contact [Carter](http://www.wellposed.com)
-and we'll try to help you out. 
+and we'll try to help you out.

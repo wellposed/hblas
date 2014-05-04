@@ -167,5 +167,4 @@ Test-suite unit-testsuite
        --,hspec       >= 1.9    &&  < 1.10
    hs-source-dirs: tests
    main-is: MainUnit.hs
-   if flag(CBLAS)
-      extra-libraries: cblas
+
