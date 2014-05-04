@@ -1,7 +1,7 @@
 {-# LANGUAGE BangPatterns , RankNTypes, GADTs, DataKinds #-}
 
 {- | The 'Numerical.HBLAS.BLAS' module provides a fully general
-yet type safe BLAS API. 
+yet type safe BLAS API.
 
 When in doubt about the semantics of an operation,
 consult your system's BLAS api documentation, or just read the documentation
@@ -10,15 +10,15 @@ for
 
 A few basic notes about how to invoke BLAS routines.
 
-Many BLAS operations take one or more arguments of type 'Transpose'. 
+Many BLAS operations take one or more arguments of type 'Transpose'.
 'Tranpose' has the following different constructors, which tell BLAS
 routines what transformation to implicitly apply to an input matrix @mat@ with dimension @n x m@.
 
-*  'NoTranspose' leaves the matrix @mat@ as is. 
+*  'NoTranspose' leaves the matrix @mat@ as is.
 
 * 'Transpose' treats the @mat@ as being implicitly transposed, with dimension
     @m x n@. Entry @mat(i,j)@ being treated as actually being the entry
-    @mat(j,i)@. For Real matrices this is also the matrix adjoint operation. 
+    @mat(j,i)@. For Real matrices this is also the matrix adjoint operation.
     ie @Tranpose(mat)(i,j)=mat(j,i)@
 
 *  'ConjNoTranspose' will implicitly conjugate @mat@, which is a no op for Real ('Float' or 'Double') matrices, but for
@@ -35,7 +35,7 @@ The *gemm operations  work as follows (using 'sgemm' as an example):
 * @'sgemm trLeft trRight alpha beta left right result'@, where @trLeft@ and @trRight@
 are values of type 'Transpose' that respectively act on the matrices @left@ and @right@.
 
-* the generalized matrix computation thusly formed can be viewed as being 
+* the generalized matrix computation thusly formed can be viewed as being
 @result = alpha * trLeft(left) * trRight(right) + beta * result@
 
 
@@ -43,9 +43,9 @@ the *gemv operations are akin to the *gemm operations, but with @right@ and @res
 being vectors rather than matrices.
 
 
-the *trsv operations solve for @x@ in the equation @A x = y@ given @A@ and @y@. 
-The 'MatUpLo' argument determines if the matrix should be treated as upper or 
-lower triangular and 'MatDiag' determines if the triangular solver should treat 
+the *trsv operations solve for @x@ in the equation @A x = y@ given @A@ and @y@.
+The 'MatUpLo' argument determines if the matrix should be treated as upper or
+lower triangular and 'MatDiag' determines if the triangular solver should treat
 the diagonal of the matrix as being all 1's or not.  A general pattern of invocation
 would be @'strsv' matuplo  tranposeMatA  matdiag  matrixA  xVector@.
 A key detail to note is that the input vector is ALSO the result vector,
@@ -55,32 +55,32 @@ ie 'strsv' and friends updates the vector place.
 
 module Numerical.HBLAS.BLAS(
         GemvFun
-        ,GemmFun 
-        ,TrsvFun  
-               
+        ,GemmFun
+        ,TrsvFun
+
         ,dgemm
         ,sgemm
         ,cgemm
         ,zgemm
 
-        ,sgemv 
+        ,sgemv
         ,dgemv
-        ,cgemv 
-        ,zgemv 
+        ,cgemv
+        ,zgemv
 
         ,strsv
         ,dtrsv
         ,ctrsv
-        ,ztrsv 
-            ) where 
+        ,ztrsv
+            ) where
 
 
-import Numerical.HBLAS.UtilsFFI    
-import Numerical.HBLAS.BLAS.FFI 
-import Numerical.HBLAS.BLAS.Internal 
+import Numerical.HBLAS.UtilsFFI
+import Numerical.HBLAS.BLAS.FFI
+import Numerical.HBLAS.BLAS.Internal
 import Numerical.HBLAS.MatrixTypes
 import Control.Monad.Primitive
-import Data.Complex 
+import Data.Complex
 
 
 
@@ -93,24 +93,24 @@ type GemvFun el orient s m = Transpose -> el -> el
 
 type TrsvFun el orient s m =
       MatUpLo -> Transpose -> MatDiag
-   -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()  
+   -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
 
 
 
 
-sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m 
-sgemm =  gemmAbstraction "sgemm"  cblas_sgemm_safe cblas_sgemm_unsafe (\x f -> f x )                                 
-                        
+sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m
+sgemm =  gemmAbstraction "sgemm"  cblas_sgemm_safe cblas_sgemm_unsafe (\x f -> f x )
 
-dgemm :: PrimMonad m=>  GemmFun  Double orient  (PrimState m) m 
-dgemm = gemmAbstraction "dgemm"  cblas_dgemm_safe cblas_dgemm_unsafe  (\x f -> f x )    
- 
 
-cgemm :: PrimMonad m=>  GemmFun (Complex Float) orient  (PrimState m) m 
-cgemm = gemmAbstraction "cgemm" cblas_cgemm_safe cblas_cgemm_unsafe  withRStorable_                                
+dgemm :: PrimMonad m=>  GemmFun  Double orient  (PrimState m) m
+dgemm = gemmAbstraction "dgemm"  cblas_dgemm_safe cblas_dgemm_unsafe  (\x f -> f x )
 
-zgemm :: PrimMonad m=>  GemmFun (Complex Double) orient  (PrimState m) m 
-zgemm = gemmAbstraction "zgemm"  cblas_zgemm_safe cblas_zgemm_unsafe withRStorable_  
+
+cgemm :: PrimMonad m=>  GemmFun (Complex Float) orient  (PrimState m) m
+cgemm = gemmAbstraction "cgemm" cblas_cgemm_safe cblas_cgemm_unsafe  withRStorable_
+
+zgemm :: PrimMonad m=>  GemmFun (Complex Double) orient  (PrimState m) m
+zgemm = gemmAbstraction "zgemm"  cblas_zgemm_safe cblas_zgemm_unsafe withRStorable_
 
 
 sgemv :: PrimMonad m => GemvFun Float orient (PrimState m) m
