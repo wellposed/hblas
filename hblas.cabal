@@ -160,7 +160,3 @@ Test-suite unit-testsuite
        --,hspec       >= 1.9    &&  < 1.10
    hs-source-dirs: tests 
    main-is: MainUnit.hs
-
-   -- `cabal test` won't link on Linux otherwise.
-   if os(linux)
-     extra-libraries: blas lapack
