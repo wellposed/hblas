@@ -1,3 +1,7 @@
 /OpenBLAS/
 .cabal-sandbox
 cabal.sandbox.config
+*.sw[po]
+*.o
+*.so
+dist/

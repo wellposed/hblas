@@ -77,6 +77,9 @@ data EVector  :: * -> * -> * where
 data Orientation = Row | Column 
     deriving (Eq,Show,Typeable)
 
+type Row = 'Row
+type Column = 'Column
+
 data SOrientation :: Orientation -> * where
     SRow :: SOrientation Row 
     SColumn :: SOrientation Column 

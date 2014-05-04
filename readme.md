@@ -7,9 +7,7 @@ hblas is an open source component of the [Wellposed](http://www.wellposed.com)®
 Members of the numerical haskell open source community can be found on irc at  `#numerical-haskell` on freenode, 
 and via the [numericalhaskell mailing list](https://groups.google.com/forum/#!forum/numericalhaskell). 
 
-
 [![Build Status](https://secure.travis-ci.org/wellposed/hblas.png?branch=master)](http://travis-ci.org/wellposed/hblas)
-
 
 hblas is a self contained full (well, not quite yet) BLAS and LAPACK binding that provides the 
 full BLAS and LAPACKE APIs in a simple, unopinionated, Haskell wrapper. 
@@ -23,24 +21,76 @@ This library is *NOT* meant to be used a standalone array library (except in des
 but rather should be used by a higher level numerical array library to provide 
 high performance linear algebra routines. 
 
+## Install
 
-## how to install 
-By default, hblas will assume you have BLAS and LAPACK built and installed,
+By default, hblas will assume you have BLAS and LAPACK built and installed.
 
-* On OS X systems, things will just work.
-* On linux and bsd systems, the equivalent of 
+### OSX
+
+On OS X systems, things will just work.
+
+```bash
+$ cabal install
 ```
-sudo apt-get install libblas liblapack
+
+### Linux 
+
+On linux and bsd systems, you will need to manually install the BLAS and LAPACK libraries beforehand.
+
+```bash
+$ sudo apt-get install libblas liblapack
+$ cabal install
 ```
-is all you should have to do before hand
 
-## getting involved
-patches, bug reports, tests,  and other contributions welcome.
+## Testing
 
-Want to add a new routine, check out the ones listed in the [lapack section](http://software.intel.com/sites/products/documentation/hpc/mkl/mklman/index.htm) of the Intel MKL manual to get some human
+To run the test suite execute:
+
+```bash
+$ cabal test
+```
+
+To run the interactive shell linked against the BLAS library run:
+
+```bash
+cabal repl --ghc-options=-lcblas
+```
+
+## Usage
+
+API is subject to change.
+
+```haskell
+import Foreign.Storable
+import Numerical.HBLAS.BLAS
+import Numerical.HBLAS.MatrixTypes
+
+-- Generate the constant mutable square matrix of the given type and dimensions.
+constMatrix :: Storable a => Int -> a -> IO (IODenseMatrix Row a)
+constMatrix n k = generateMutableDenseMatrix SRow (n,n) (const k)
+
+example_dgemm :: IO ()
+example_dgemm = do
+    left  <- constMatrix 2 (2 :: Double)
+    right <- constMatrix 2 (3 :: Double)
+    out   <- constMatrix 2 (0 :: Double)
+
+    dgemm NoTranspose NoTranspose 1.0 1.0 left right res
+
+    resulting <- mutableVectorToList $ _bufferDenMutMat out
+    print resulting
+```
+
+## Getting Involved
+
+Patches, bug reports, tests, and other contributions welcome.
+
+If you want to add a new routine, check out the ones listed in the [lapack section](http://software.intel.com/sites/products/documentation/hpc/mkl/mklman/index.htm) of the Intel MKL manual to get some human
 readable documentation.
 
+## Commercial Support
 
-# I have > 32bit size arrays, help!
+*I have > 32bit size arrays, help!*
+
 Congrats, you have ``big compute on big data'', contact [Carter](http://www.wellposed.com)
 and we'll try to help you out. 
