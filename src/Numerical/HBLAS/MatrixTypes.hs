@@ -199,7 +199,7 @@ instance (Show el,SM.Storable el )=> Show (DenseMatrix Row el) where
 
 instance (Show el,SM.Storable el )=> Show (DenseMatrix Column el) where
     show mat@(DenseMatrix SColumn xdim ydim stride buffer)
-             |  stride == xdim = "DenseMatrix SColumn " ++ " " ++show xdim ++ " " ++ show ydim ++ " " ++ show stride ++ "(" ++ show buffer ++ ")"
+             |  stride == ydim = "DenseMatrix SColumn " ++ " " ++show xdim ++ " " ++ show ydim ++ " " ++ show stride ++ "(" ++ show buffer ++ ")"
              | otherwise = show $ mapDenseMatrix id mat
 
 -- | 'MDenseMatrix'
