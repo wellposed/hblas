@@ -109,7 +109,7 @@ matmatTest1ZTRSV = do
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res 
     resList @?= [2,1]
 
-unitTestLevel2BLAS = testGroup "BlAS Level 2 tests " [
+unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ----- gemv tests 
     testCase "sgemv on 2x2 all 1s"    matmatTest1SGEMV
     ,testCase "dgemv  on 2x2 all 1s " matmatTest1DGEMV
