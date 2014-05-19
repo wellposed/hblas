@@ -5,6 +5,8 @@ import   UnitBLAS.Level1
 import   UnitBLAS.Level2
 import   UnitBLAS.Level3
 
+import   UnitMatrixTypes.DenseMatrix
+
 import Test.Tasty
 --import Test.Tasty.SmallCheck as SC
 --import Test.Tasty.QuickCheck as QC
@@ -16,8 +18,12 @@ import Data.Ord
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "BLAS Unit Tests"    [unitTestLevel1BLAS, unitTestLevel2BLAS, unitTestLevel3BLAS] -- [unitTestShape] -- , unitTestLayout ]
+tests = testGroup "All tests" [blasTests, matrixTypesTest]
 
+blasTests :: TestTree
+blasTests = testGroup "BLAS Unit Tests"    [unitTestLevel1BLAS, unitTestLevel2BLAS, unitTestLevel3BLAS] -- [unitTestShape] -- , unitTestLayout ]
+
+matrixTypesTest = testGroup "Matrix types tests" [unitTestDenseMatrix]
 
 --unitTests = testGroup "Unit tests"
 --  [ testCase "List comparison (different length)" $
