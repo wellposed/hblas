@@ -39,6 +39,42 @@ matmatTest1DGEMM = do
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
     resList @?= [2.0,2.0,2.0,2.0]
 
+matmatTest2DGEMM:: IO ()
+matmatTest2DGEMM = do 
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (3,2) (\_ -> (1.0))
+    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (5,3) (\_ -> (1.0 ))
+    res  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (5,2) (\_ -> (0.0 ))
+    BLAS.dgemm Matrix.NoTranspose Matrix.NoTranspose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 10 3
+
+matmatTest3DGEMM:: IO ()
+matmatTest3DGEMM = do 
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,3) (\_ -> (1.0))
+    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (5,3) (\_ -> (1.0 ))
+    res  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (5,2) (\_ -> (0.0 ))
+    BLAS.dgemm Matrix.Transpose Matrix.NoTranspose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 10 3
+
+matmatTest4DGEMM:: IO ()
+matmatTest4DGEMM = do 
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (3,2) (\_ -> (1.0))
+    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (3,5) (\_ -> (1.0 ))
+    res  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (5,2) (\_ -> (0.0 ))
+    BLAS.dgemm Matrix.NoTranspose Matrix.Transpose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 10 3
+
+matmatTest5DGEMM:: IO ()
+matmatTest5DGEMM = do 
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,3) (\_ -> (1.0))
+    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (3,5) (\_ -> (1.0 ))
+    res  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (5,2) (\_ -> (0.0 ))
+    BLAS.dgemm Matrix.Transpose Matrix.Transpose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 10 3
+
 matmatTest1CGEMM:: IO ()
 matmatTest1CGEMM = do 
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (1.0))
@@ -60,6 +96,10 @@ matmatTest1ZGEMM = do
 unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
     testCase "sgemm on 2x2 all 1s"    matmatTest1SGEMM
     ,testCase "dgemm on 2x2 all 1s " matmatTest1DGEMM 
+    ,testCase "dgemm on 3x2 and 5x3 all 1s " matmatTest2DGEMM 
+    ,testCase "dgemm on 2x3^T and 5x3 all 1s " matmatTest3DGEMM 
+    ,testCase "dgemm on 3x2 and 3x5^T all 1s " matmatTest4DGEMM 
+    ,testCase "dgemm on 2x3^T and 3x5^T all 1s " matmatTest5DGEMM 
     ,testCase "cgemm on 2x2 all 1s" matmatTest1CGEMM
     ,testCase "zgemm on 2x2 all 1s" matmatTest1ZGEMM
     ]
