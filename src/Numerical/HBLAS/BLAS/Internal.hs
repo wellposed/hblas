@@ -135,12 +135,12 @@ gemmAbstraction gemmName gemmSafeFFI gemmUnsafeFFI constHandler = go
                     do  (axNew,_) <- return $ coordSwapper tra (ax,ay)
                         --- dont need to swap b, info is in a and c
                         --- c doesn't get implicitly transposed
-                        blasOrder <- return $ encodeNiceOrder ornta -- all three are the same orientation
-                        rawTra <- return $  encodeFFITranspose tra
-                        rawTrb <- return $   encodeFFITranspose trb
+                        let blasOrder = encodeNiceOrder ornta -- all three are the same orientation
+                        let rawTra =  encodeFFITranspose tra
+                        let rawTrb = encodeFFITranspose trb
                                  -- example of why i want to switch to singletones
                         unsafePrimToPrim $!  (if shouldCallFast cy cx axNew then gemmUnsafeFFI  else gemmSafeFFI )
-                            blasOrder rawTra rawTrb (fromIntegral cy) (fromIntegral cx) (fromIntegral ax)
+                            blasOrder rawTra rawTrb (fromIntegral cy) (fromIntegral cx) (fromIntegral axNew)
                                 alphaPtr ap  (fromIntegral astride) bp (fromIntegral bstride) betaPtr  cp (fromIntegral cstride)
 
 

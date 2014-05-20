@@ -23,43 +23,132 @@ import  Numerical.HBLAS.BLAS as BLAS
 
 matmatTest1SGEMM:: IO ()
 matmatTest1SGEMM = do 
-    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (1.0::Float))
-    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (1.0 :: Float))
-    res  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (0.0 :: Float))
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const (1.0 :: Float))
+    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const (1.0 :: Float))
+    res   <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const (0.0 :: Float))
     BLAS.sgemm Matrix.NoTranspose Matrix.NoTranspose 1.0 1.0 left right res
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
     resList @?= [2,2,2,2]
 
-matmatTest1DGEMM:: IO ()
-matmatTest1DGEMM = do 
-    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (1.0))
-    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (1.0 ))
-    res  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (0.0 ))
+matmatTest1DGEMM :: Matrix.SOrientation x -> IO ()
+matmatTest1DGEMM or = do 
+    left  <- Matrix.generateMutableDenseMatrix or (2,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (2,2) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (2,2) (const 0.0)
     BLAS.dgemm Matrix.NoTranspose Matrix.NoTranspose 1.0 1.0 left right res
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
     resList @?= [2.0,2.0,2.0,2.0]
 
+matmatTest2DGEMM :: Matrix.SOrientation x -> IO ()
+matmatTest2DGEMM or = do 
+    left  <- Matrix.generateMutableDenseMatrix or (3,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (5,3) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (5,2) (const 0.0)
+    BLAS.dgemm Matrix.NoTranspose Matrix.NoTranspose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 10 3
+
+matmatTest3DGEMM :: Matrix.SOrientation x -> IO ()
+matmatTest3DGEMM or = do 
+    left  <- Matrix.generateMutableDenseMatrix or (2,3) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (5,3) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (5,2) (const 0.0)
+    BLAS.dgemm Matrix.Transpose Matrix.NoTranspose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 10 3
+
+matmatTest3aDGEMM :: Matrix.SOrientation x -> IO ()
+matmatTest3aDGEMM or = do 
+    left  <- Matrix.generateMutableDenseMatrix or (2,3) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (2,3) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (3,3) (const 0.0)
+    BLAS.dgemm Matrix.NoTranspose Matrix.Transpose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 9 2
+
+matmatTest4DGEMM :: Matrix.SOrientation x -> IO ()
+matmatTest4DGEMM or = do 
+    left  <- Matrix.generateMutableDenseMatrix or (3,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (3,5) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (5,2) (const 0.0)
+    BLAS.dgemm Matrix.NoTranspose Matrix.Transpose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 10 3
+
+matmatTest5DGEMM :: Matrix.SOrientation x -> IO ()
+matmatTest5DGEMM or = do 
+    left  <- Matrix.generateMutableDenseMatrix or  (2,3) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or  (3,5) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or  (5,2) (const 0.0)
+    BLAS.dgemm Matrix.Transpose Matrix.Transpose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 10 3
+
+matmatTest6DGEMM :: Matrix.SOrientation x -> IO ()
+matmatTest6DGEMM or = do 
+    left  <- Matrix.generateMutableDenseMatrix or (3,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (3,2) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (3,3) (const 0.0)
+    BLAS.dgemm Matrix.Transpose Matrix.NoTranspose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 9 2
+
+matmatTest7DGEMM :: Matrix.SOrientation x -> IO ()
+matmatTest7DGEMM or = do 
+    left  <- Matrix.generateMutableDenseMatrix or (2,64) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (2,64) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (2,2) (const 0.0)
+    BLAS.dgemm Matrix.Transpose Matrix.NoTranspose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 4 64
+
+matmatTest8DGEMM :: Matrix.SOrientation x -> IO ()
+matmatTest8DGEMM or = do 
+    left  <- Matrix.generateMutableDenseMatrix or (2,9) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (2,9) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (2,2) (const 0.0)
+    BLAS.dgemm Matrix.Transpose Matrix.NoTranspose 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
+    resList @?= replicate 4 9
+
 matmatTest1CGEMM:: IO ()
 matmatTest1CGEMM = do 
-    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (1.0))
-    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (1.0 ))
-    res  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (0.0 ))
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 0.0)
     BLAS.cgemm Matrix.NoTranspose Matrix.NoTranspose 1.0 1.0 left right res
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
     resList @?= [2.0,2.0,2.0,2.0]
 
 matmatTest1ZGEMM:: IO ()
 matmatTest1ZGEMM = do 
-    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (1.0))
-    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (1.0 ))
-    res  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (\_ -> (0.0 ))
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 0.0)
     BLAS.zgemm Matrix.NoTranspose Matrix.NoTranspose 1.0 1.0 left right res
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
     resList @?= [2.0,2.0,2.0,2.0]
 
 unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
     testCase "sgemm on 2x2 all 1s"    matmatTest1SGEMM
-    ,testCase "dgemm on 2x2 all 1s " matmatTest1DGEMM 
+    ,testCase "dgemm on 2x2 all 1s" $ matmatTest1DGEMM Matrix.SRow
+    ,testCase "dgemm on 3x2 and 5x3 all 1s" $ matmatTest2DGEMM Matrix.SRow
+    ,testCase "dgemm on 2x3^T and 5x3 all 1s" $ matmatTest3DGEMM Matrix.SRow
+    ,testCase "dgemm on 2x3 and 2x3^T all 1s" $ matmatTest3aDGEMM Matrix.SRow
+    ,testCase "dgemm on 3x2 and 3x5^T all 1s" $ matmatTest4DGEMM Matrix.SRow
+    ,testCase "dgemm on 2x3^T and 3x5^T all 1s" $ matmatTest5DGEMM Matrix.SRow
+    ,testCase "dgemm on 3x2^T and 3x2 all 1s" $ matmatTest6DGEMM Matrix.SRow 
+    ,testCase "dgemm on 2x64^T and 2x64 all 1s" $ matmatTest7DGEMM Matrix.SRow 
+    ,testCase "dgemm on 2x9^T and 2x9 all 1s" $ matmatTest8DGEMM Matrix.SRow 
+    ,testCase "dgemm on 2x2 all 1s (column oriented)" $ matmatTest1DGEMM Matrix.SColumn
+    ,testCase "dgemm on 3x2 and 5x3 all 1s (column oriented)" $ matmatTest2DGEMM Matrix.SColumn
+    ,testCase "dgemm on 2x3^T and 5x3 all 1s (column oriented)" $ matmatTest3DGEMM Matrix.SColumn
+    ,testCase "dgemm on 2x3 and 2x3^T all 1s (column oriented)" $ matmatTest3aDGEMM Matrix.SColumn
+    ,testCase "dgemm on 3x2 and 3x5^T all 1s (column oriented)" $ matmatTest4DGEMM Matrix.SColumn
+    ,testCase "dgemm on 2x3^T and 3x5^T all 1s (column oriented)" $ matmatTest5DGEMM Matrix.SColumn
+    ,testCase "dgemm on 3x2^T and 3x2 all 1s (column oriented)" $ matmatTest6DGEMM Matrix.SColumn
+    ,testCase "dgemm on 2x64^T and 2x64 all 1s (column oriented)" $ matmatTest7DGEMM Matrix.SColumn
+    ,testCase "dgemm on 2x9^T and 2x9 all 1s (column oriented)" $ matmatTest8DGEMM Matrix.SColumn
     ,testCase "cgemm on 2x2 all 1s" matmatTest1CGEMM
     ,testCase "zgemm on 2x2 all 1s" matmatTest1ZGEMM
     ]
@@ -87,9 +176,9 @@ unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
 --  v  :: IOVector Double <- M.replicate 10 1.0
 -- #if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ <= 704)
 --  --this makes 7.4 panic! 
---  (leftMat :: IODenseMatrix Row Float) <-  generateMutableDenseMatrix SRow (5,5) (\_ -> 1.0 ::Float )
---  (rightMat :: IODenseMatrix Row Float) <-  generateMutableDenseMatrix SRow (5,5) (\_ -> 1.0 ::Float )
---  (resMat :: IODenseMatrix Row Float) <-  generateMutableDenseMatrix SRow (5,5) (\_ -> 1.0 ::Float )
+--  (leftMat :: IODenseMatrix Row Float) <-  generateMutableDenseMatrix SRow (5,5) (const 1.0 ::Float )
+--  (rightMat :: IODenseMatrix Row Float) <-  generateMutableDenseMatrix SRow (5,5) (const 1.0 ::Float )
+--  (resMat :: IODenseMatrix Row Float) <-  generateMutableDenseMatrix SRow (5,5) (const 1.0 ::Float )
 --  sgemm NoTranspose NoTranspose 1.0 1.0 leftMat rightMat resMat
 --  --(MutableDenseMatrix _ _ _ _ buff) <- return resMat 
 --  theRestMat <- unsafeFreezeDenseMatrix resMat
