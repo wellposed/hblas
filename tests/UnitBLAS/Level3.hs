@@ -64,7 +64,7 @@ matmatTest3aDGEMM or = do
     res   <- Matrix.generateMutableDenseMatrix or (3,3) (const 0.0)
     BLAS.dgemm Matrix.NoTranspose Matrix.Transpose 1.0 1.0 left right res
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
-    resList @?= replicate 9 3
+    resList @?= replicate 9 2
 
 matmatTest4DGEMM :: Matrix.SOrientation x -> IO ()
 matmatTest4DGEMM or = do 
