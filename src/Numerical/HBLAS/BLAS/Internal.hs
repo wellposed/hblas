@@ -140,7 +140,7 @@ gemmAbstraction gemmName gemmSafeFFI gemmUnsafeFFI constHandler = go
                         let rawTrb = encodeFFITranspose trb
                                  -- example of why i want to switch to singletones
                         unsafePrimToPrim $!  (if shouldCallFast cy cx axNew then gemmUnsafeFFI  else gemmSafeFFI )
-                            blasOrder rawTra rawTrb (fromIntegral cy) (fromIntegral cx) (fromIntegral ax)
+                            blasOrder rawTra rawTrb (fromIntegral cy) (fromIntegral cx) (fromIntegral axNew)
                                 alphaPtr ap  (fromIntegral astride) bp (fromIntegral bstride) betaPtr  cp (fromIntegral cstride)
 
 
