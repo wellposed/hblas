@@ -78,22 +78,8 @@ module Numerical.HBLAS.BLAS(
 import Numerical.HBLAS.UtilsFFI
 import Numerical.HBLAS.BLAS.FFI
 import Numerical.HBLAS.BLAS.Internal
-import Numerical.HBLAS.MatrixTypes
 import Control.Monad.Primitive
 import Data.Complex
-
-
-
-type GemmFun el orient s m = Transpose ->Transpose ->  el -> el  -> MDenseMatrix s orient el
-  ->   MDenseMatrix s orient el  ->  MDenseMatrix s orient el -> m ()
-
-type GemvFun el orient s m = Transpose -> el -> el
-  -> MDenseMatrix s orient el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
-
-
-type TrsvFun el orient s m =
-      MatUpLo -> Transpose -> MatDiag
-   -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
 
 
 

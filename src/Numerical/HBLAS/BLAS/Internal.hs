@@ -1,7 +1,11 @@
 {-# LANGUAGE BangPatterns , RankNTypes, GADTs, DataKinds #-}
 
 module Numerical.HBLAS.BLAS.Internal(
-    gemmAbstraction
+    GemmFun
+    ,GemvFun
+    ,TrsvFun 
+
+    ,gemmAbstraction
     ,gemvAbstraction
     ,trsvAbstraction
     ) where
