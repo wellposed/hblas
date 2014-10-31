@@ -117,7 +117,7 @@ library
    --    -Wall  no wall for now
   -- Other library packages from which modules are imported.
   build-depends:
-        base             >= 4.6    &&  < 4.8,
+        base             >= 4.6    &&  < 4.9,
         storable-complex >= 0.2.0  &&  < 0.3.0,
         primitive        >= 0.5    &&  < 0.6,
         vector
