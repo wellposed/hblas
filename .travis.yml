@@ -2,6 +2,10 @@ language: haskell
 
 
 env:
+ - GHCVER=7.6.3 CABALVER=1.16
+ - GHCVER=7.8.3 CABALVER=1.18
+ - GHCVER=head  CABALVER=head
+
  - GHCVER=7.6.3
  - GHCVER=7.8.3
  - GHCVER=head
@@ -20,27 +24,28 @@ before_install:
  - travis_retry sudo apt-get update
  - travis_retry sudo apt-get install libblas-dev liblapack-dev
  - travis_retry sudo apt-get install cabal-install-head ghc-$GHCVER-prof ghc-$GHCVER-dyn happy
- - export PATH=/opt/ghc/$GHCVER/bin:$PATH
+ - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
+ - cabal --version
 
 install:
  - sudo /opt/ghc/$GHCVER/bin/ghc-pkg recache
  - /opt/ghc/$GHCVER/bin/ghc-pkg recache --user
- - cabal-head update
- - cabal-head install --only-dependencies --enable-tests --enable-benchmarks
+ - cabal update
+ - cabal install --only-dependencies --enable-tests --enable-benchmarks
 
 # Here starts the actual work to be performed for the package under test; any command which exits with a non-zero exit code causes the build to fail.
 script:
- - cabal-head configure --enable-tests --enable-benchmarks -v2  # -v2 provides useful information for debugging
- - cabal-head build   # this builds all libraries and executables (including tests/benchmarks)
- - cabal-head test  --show-details=always
- - cabal-head check
- - cabal-head sdist   # tests that a source-distribution can be generated
+ - cabal configure --enable-tests --enable-benchmarks -v2  # -v2 provides useful information for debugging
+ - cabal build   # this builds all libraries and executables (including tests/benchmarks)
+ - cabal test  --show-details=always
+ - cabal check
+ - cabal sdist   # tests that a source-distribution can be generated
 
 # The following scriptlet checks that the resulting source distribution can be built & installed
  - function install_from_tarball {
-   export SRC_TGZ=$(cabal-head info . | awk '{print $2 ".tar.gz";exit}') ;
+   export SRC_TGZ=$(cabal info . | awk '{print $2 ".tar.gz";exit}') ;
    if [ -f "dist/$SRC_TGZ" ]; then
-      cabal-head install "dist/$SRC_TGZ";
+      cabal install "dist/$SRC_TGZ";
    else
       echo "expected 'dist/$SRC_TGZ' not found";
       exit 1;

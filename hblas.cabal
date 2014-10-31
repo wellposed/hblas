@@ -63,7 +63,7 @@ maintainer:          carter at wellposed dot com
 cabal-version:       >=1.10
 category:            Math
 
-build-type:          Custom
+build-type:          Simple
 
 
 extra-source-files:
