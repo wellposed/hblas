@@ -56,12 +56,18 @@ ie 'strsv' and friends updates the vector place.
 module Numerical.HBLAS.BLAS(
         GemvFun
         ,GemmFun
+        ,SymmFun
         ,TrsvFun
 
         ,dgemm
         ,sgemm
         ,cgemm
         ,zgemm
+
+        ,ssymm
+        ,dsymm
+        ,csymm
+        ,zsymm
 
         ,sgemv
         ,dgemv
@@ -101,6 +107,17 @@ cgemm = gemmAbstraction "cgemm" cblas_cgemm_safe cblas_cgemm_unsafe  withRStorab
 zgemm :: PrimMonad m=>  GemmFun (Complex Double) orient  (PrimState m) m
 zgemm = gemmAbstraction "zgemm"  cblas_zgemm_safe cblas_zgemm_unsafe withRStorable_
 
+ssymm :: PrimMonad m=>  SymmFun Float orient (PrimState m) m
+ssymm = symmAbstraction "ssymm" cblas_ssymm_safe cblas_ssymm_unsafe (\x f -> f x)
+
+dsymm :: PrimMonad m=>  SymmFun Double orient (PrimState m) m
+dsymm = symmAbstraction "dsymm" cblas_dsymm_safe cblas_dsymm_unsafe (\x f -> f x)
+
+csymm :: PrimMonad m=>  SymmFun (Complex Float) orient (PrimState m) m
+csymm = symmAbstraction "csymm" cblas_csymm_safe cblas_csymm_unsafe withRStorable_
+
+zsymm :: PrimMonad m=>  SymmFun (Complex Double) orient (PrimState m) m
+zsymm = symmAbstraction "zsymm" cblas_zsymm_safe cblas_zsymm_unsafe withRStorable_
 
 sgemv :: PrimMonad m => GemvFun Float orient (PrimState m) m
 sgemv = gemvAbstraction "sgemv" cblas_sgemv_safe cblas_sgemv_unsafe (flip ($))

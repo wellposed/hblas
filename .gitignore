@@ -4,4 +4,5 @@ cabal.sandbox.config
 *.sw[po]
 *.o
 *.so
+*.hi
 dist/
