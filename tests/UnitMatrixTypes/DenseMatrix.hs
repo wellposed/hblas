@@ -1,6 +1,5 @@
 module UnitMatrixTypes.DenseMatrix(unitTestDenseMatrix) where
 
-import Test.HUnit
 import Test.Tasty
 import Test.Tasty.HUnit
 

@@ -35,14 +35,9 @@ example_dsymm = do
 
 example_csymm :: IO ()
 example_csymm = do
-    left  <- generateMutableDenseMatrix (SRow)  (2,2) (const 1.0)
+    left  <- generateMutableDenseMatrix (SRow)  (2,2) (const 1.0::Data.Complex.Complex Float)
     right <- generateMutableDenseMatrix (SRow)  (2,2) (const 1.0)
     out   <- generateMutableDenseMatrix (SRow)  (2,2) (const 0.0)
-{-
-    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
-    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
-    res   <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 0.0)
--}
     csymm LeftSide MatUpper 1.0 1.0 left right out
     resulting <- mutableVectorToList $ _bufferDenMutMat out
     print resulting

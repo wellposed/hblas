@@ -7,7 +7,6 @@
 
 module UnitBLAS.Level2(unitTestLevel2BLAS) where 
 
-import Test.HUnit
 --import Numerical.Array.Shape as S 
 import Prelude as P
 import Test.Tasty

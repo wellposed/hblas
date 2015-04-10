@@ -7,7 +7,6 @@
 
 module UnitBLAS.Level3(unitTestLevel3BLAS) where 
 
-import Test.HUnit
 --import Numerical.Array.Shape as S 
 import Prelude as P
 import Test.Tasty
@@ -129,6 +128,60 @@ matmatTest1ZGEMM = do
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res 
     resList @?= [2.0,2.0,2.0,2.0]
 
+matmatTest1SSYMM:: IO ()
+matmatTest1SSYMM = do
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const (1.0 :: Float))
+    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const (1.0 :: Float))
+    res   <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const (0.0 :: Float))
+    BLAS.ssymm Matrix.LeftSide Matrix.MatUpper 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+    resList @?= [2,2,2,2]
+
+matmatTest1DSYMM :: Matrix.SOrientation x -> Matrix.MatUpLo -> IO ()
+matmatTest1DSYMM or uplo = do
+    left  <- Matrix.generateMutableDenseMatrix or (2,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (2,2) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (2,2) (const 0.0)
+    BLAS.dsymm Matrix.LeftSide uplo 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+    resList @?= [2.0,2.0,2.0,2.0]
+
+matmatTest2DSYMM :: Matrix.SOrientation x -> Matrix.MatUpLo -> IO ()
+matmatTest2DSYMM or uplo = do
+    left  <- Matrix.generateMutableDenseMatrix or (2,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (3,2) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (3,2) (const 0.0)
+    BLAS.dsymm Matrix.LeftSide uplo 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+    resList @?= [2.0,2.0,2.0,2.0,2.0,2.0]
+
+matmatTest3DSYMM :: Matrix.SOrientation x -> Matrix.MatUpLo -> IO ()
+matmatTest3DSYMM or uplo = do
+    left  <- Matrix.generateMutableDenseMatrix or (2,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix or (2,5) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix or (2,5) (const 0.0)
+    BLAS.dsymm Matrix.RightSide uplo 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+    resList @?= replicate 10 2
+
+matmatTest1CSYMM:: IO ()
+matmatTest1CSYMM = do
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 0.0)
+    BLAS.csymm Matrix.LeftSide Matrix.MatUpper 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+    resList @?= [2.0,2.0,2.0,2.0]
+
+matmatTest1ZSYMM:: IO ()
+matmatTest1ZSYMM = do
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
+    right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
+    res   <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 0.0)
+    BLAS.zsymm Matrix.LeftSide Matrix.MatUpper 1.0 1.0 left right res
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+    resList @?= [2.0,2.0,2.0,2.0]
+
 unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
     testCase "sgemm on 2x2 all 1s"    matmatTest1SGEMM
     ,testCase "dgemm on 2x2 all 1s" $ matmatTest1DGEMM Matrix.SRow
@@ -151,6 +204,22 @@ unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
     ,testCase "dgemm on 2x9^T and 2x9 all 1s (column oriented)" $ matmatTest8DGEMM Matrix.SColumn
     ,testCase "cgemm on 2x2 all 1s" matmatTest1CGEMM
     ,testCase "zgemm on 2x2 all 1s" matmatTest1ZGEMM
+
+    ,testCase "ssymm on 2x2 upper all 1s" matmatTest1SSYMM
+    ,testCase "dsymm on 2x2 upper all 1s" $ matmatTest1DSYMM Matrix.SRow Matrix.MatUpper
+    ,testCase "dgemm on 2x2 and 3x2 upper all 1s" $ matmatTest2DSYMM Matrix.SRow Matrix.MatUpper
+    ,testCase "dgemm on 2x5 and 2x2 upper all 1s" $ matmatTest3DSYMM Matrix.SRow Matrix.MatUpper
+    ,testCase "dsymm on 2x2 lower all 1s" $ matmatTest1DSYMM Matrix.SRow Matrix.MatLower
+    ,testCase "dgemm on 2x2 and 3x2 lower all 1s" $ matmatTest2DSYMM Matrix.SRow Matrix.MatLower
+    ,testCase "dgemm on 2x5 and 2x2 lower all 1s" $ matmatTest3DSYMM Matrix.SRow Matrix.MatLower
+    ,testCase "dsymm on 2x2 upper all 1s (column oriented)" $ matmatTest1DSYMM Matrix.SColumn Matrix.MatUpper
+    ,testCase "dgemm on 2x2 and 3x2 upper all 1s (column oriented)" $ matmatTest2DSYMM Matrix.SColumn Matrix.MatUpper
+    ,testCase "dgemm on 2x5 and 2x2 upper all 1s (column oriented)" $ matmatTest3DSYMM Matrix.SColumn Matrix.MatUpper
+    ,testCase "dsymm on 2x2 lower all 1s (column oriented)" $ matmatTest1DSYMM Matrix.SColumn Matrix.MatLower
+    ,testCase "dgemm on 2x2 and 3x2 lower all 1s (column oriented)" $ matmatTest2DSYMM Matrix.SColumn Matrix.MatLower
+    ,testCase "dgemm on 2x5 and 2x2 lower all 1s (column oriented)" $ matmatTest3DSYMM Matrix.SColumn Matrix.MatLower
+    ,testCase "csymm on 2x2 all 1s" matmatTest1CSYMM
+    ,testCase "zsymm on 2x2 all 1s" matmatTest1ZSYMM
     ]
 
 ----unitTestShape = testGroup "Shape Unit tests"

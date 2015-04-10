@@ -179,7 +179,6 @@ symmAbstraction :: (SM.Storable el, PrimMonad m)
                 -> forall orient . SymmFun el orient (PrimState m) m
 symmAbstraction symmName symmSafeFFI symmUnsafeFFI constHandler = symm
   where
-    -- TODO(yjj): To confirm shouldCallFast is the product of cy cx ax
     shouldCallFast :: Int -> Int -> Int -> Bool
     shouldCallFast cy cx ax = flopsThreshold >= (fromIntegral cx :: Int64)
                                               * (fromIntegral cy :: Int64)
@@ -189,7 +188,7 @@ symmAbstraction symmName symmSafeFFI symmUnsafeFFI constHandler = symm
         (MutableDenseMatrix ornta ax ay astride abuff)
         (MutableDenseMatrix _ bx by bstride bbuff)
         (MutableDenseMatrix _ cx cy cstride cbuff)
-            | isBadSymm side ax ay bx by cx cy = error $! "bad dimension args to SYMM: ax ay bx by cx cy side: " ++ show [ax, ay, bx, by, cx ,cy] ++ show side
+            | isBadSymm side ax ay bx by cx cy = error $! "bad dimension args to SYMM: ax ay bx by cx cy side: " ++ show [ax, ay, bx, by, cx ,cy] ++ " " ++ show side
             | SM.overlaps abuff cbuff || SM.overlaps bbuff cbuff =
                     error $ "the read and write inputs for: " ++ symmName ++ " overlap. This is a programmer error. Please fix."
             | otherwise  =
