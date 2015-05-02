@@ -3,7 +3,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE CPP  #-}
-{-#  LANGUAGE GADTs,ScopedTypeVariables, PolyKinds,FlexibleInstances,DeriveDataTypeable  #-}
+{-# LANGUAGE GADTs,ScopedTypeVariables, PolyKinds,FlexibleInstances,DeriveDataTypeable  #-}
 
 
 
@@ -327,8 +327,24 @@ generateDenseMatrix SColumn (xdim,ydim) f = DenseMatrix SColumn xdim ydim ydim $
 generateMutableDenseMatrix :: (S.Storable a,PrimMonad m)=>
     SOrientation x -> (Int,Int)->((Int,Int)-> a) -> m  (MDenseMatrix (PrimState m) x a)
 generateMutableDenseMatrix sor  dims fun = do
-     x <- unsafeThawDenseMatrix $! generateDenseMatrix sor dims fun
-     return x
+    x <- unsafeThawDenseMatrix $! generateDenseMatrix sor dims fun
+    return x
+
+{-# NOINLINE generateMutableUpperTriangular #-}
+generateMutableUpperTriangular :: forall a x m . (Num a, S.Storable a, PrimMonad m)=>
+    SOrientation x -> (Int,Int)->((Int,Int)-> a) -> m  (MDenseMatrix (PrimState m) x a)
+generateMutableUpperTriangular sor dims fun = do
+    x <- unsafeThawDenseMatrix $! generateDenseMatrix sor dims trimFun
+    return x
+        where trimFun (x, y) = (if x>=y then fun (x, y) else (0 :: a))
+     
+{-# NOINLINE generateMutableLowerTriangular #-}
+generateMutableLowerTriangular :: forall a x m . (Num a, S.Storable a,PrimMonad m)=>
+    SOrientation x -> (Int,Int)->((Int,Int)-> a) -> m  (MDenseMatrix (PrimState m) x a)
+generateMutableLowerTriangular sor dims fun = do
+    x <- unsafeThawDenseMatrix $! generateDenseMatrix sor dims trimFun
+    return x
+        where trimFun (x, y) = (if x<=y then fun (x, y) else (0 :: a))
 
 {-#NOINLINE generateMutableDenseVector#-}
 generateMutableDenseVector :: (S.Storable a,PrimMonad m) => Int -> (Int -> a) ->

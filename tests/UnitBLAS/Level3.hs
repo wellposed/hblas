@@ -130,7 +130,7 @@ matmatTest1ZGEMM = do
 
 matmatTest1SSYMM:: IO ()
 matmatTest1SSYMM = do
-    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const (1.0 :: Float))
+    left  <- Matrix.generateMutableUpperTriangular (Matrix.SRow)  (2,2) (const (1.0 :: Float))
     right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const (1.0 :: Float))
     res   <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const (0.0 :: Float))
     BLAS.ssymm Matrix.LeftSide Matrix.MatUpper 1.0 1.0 left right res
@@ -139,7 +139,8 @@ matmatTest1SSYMM = do
 
 matmatTest1DSYMM :: Matrix.SOrientation x -> Matrix.MatUpLo -> IO ()
 matmatTest1DSYMM or uplo = do
-    left  <- Matrix.generateMutableDenseMatrix or (2,2) (const 1.0)
+    left  <- (if uplo == Matrix.MatUpper then Matrix.generateMutableUpperTriangular or (2,2) (const 1.0)
+                else Matrix.generateMutableLowerTriangular or (2,2) (const 1.0))
     right <- Matrix.generateMutableDenseMatrix or (2,2) (const 1.0)
     res   <- Matrix.generateMutableDenseMatrix or (2,2) (const 0.0)
     BLAS.dsymm Matrix.LeftSide uplo 1.0 1.0 left right res
@@ -148,7 +149,8 @@ matmatTest1DSYMM or uplo = do
 
 matmatTest2DSYMM :: Matrix.SOrientation x -> Matrix.MatUpLo -> IO ()
 matmatTest2DSYMM or uplo = do
-    left  <- Matrix.generateMutableDenseMatrix or (2,2) (const 1.0)
+    left  <- (if uplo == Matrix.MatUpper then Matrix.generateMutableUpperTriangular or (2,2) (const 1.0)
+                else Matrix.generateMutableLowerTriangular or (2,2) (const 1.0))
     right <- Matrix.generateMutableDenseMatrix or (3,2) (const 1.0)
     res   <- Matrix.generateMutableDenseMatrix or (3,2) (const 0.0)
     BLAS.dsymm Matrix.LeftSide uplo 1.0 1.0 left right res
@@ -157,7 +159,8 @@ matmatTest2DSYMM or uplo = do
 
 matmatTest3DSYMM :: Matrix.SOrientation x -> Matrix.MatUpLo -> IO ()
 matmatTest3DSYMM or uplo = do
-    left  <- Matrix.generateMutableDenseMatrix or (2,2) (const 1.0)
+    left  <- (if uplo == Matrix.MatUpper then Matrix.generateMutableUpperTriangular or (2,2) (const 1.0)
+                else Matrix.generateMutableLowerTriangular or (2,2) (const 1.0))
     right <- Matrix.generateMutableDenseMatrix or (2,5) (const 1.0)
     res   <- Matrix.generateMutableDenseMatrix or (2,5) (const 0.0)
     BLAS.dsymm Matrix.RightSide uplo 1.0 1.0 left right res
@@ -166,7 +169,7 @@ matmatTest3DSYMM or uplo = do
 
 matmatTest1CSYMM:: IO ()
 matmatTest1CSYMM = do
-    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
+    left  <- Matrix.generateMutableUpperTriangular (Matrix.SRow)  (2,2) (const 1.0)
     right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
     res   <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 0.0)
     BLAS.csymm Matrix.LeftSide Matrix.MatUpper 1.0 1.0 left right res
@@ -175,7 +178,7 @@ matmatTest1CSYMM = do
 
 matmatTest1ZSYMM:: IO ()
 matmatTest1ZSYMM = do
-    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
+    left  <- Matrix.generateMutableUpperTriangular (Matrix.SRow)  (2,2) (const 1.0)
     right <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 1.0)
     res   <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2) (const 0.0)
     BLAS.zsymm Matrix.LeftSide Matrix.MatUpper 1.0 1.0 left right res
