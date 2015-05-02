@@ -207,17 +207,17 @@ unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
 
     ,testCase "ssymm on 2x2 upper all 1s" matmatTest1SSYMM
     ,testCase "dsymm on 2x2 upper all 1s" $ matmatTest1DSYMM Matrix.SRow Matrix.MatUpper
-    ,testCase "dgemm on 2x2 and 3x2 upper all 1s" $ matmatTest2DSYMM Matrix.SRow Matrix.MatUpper
-    ,testCase "dgemm on 2x5 and 2x2 upper all 1s" $ matmatTest3DSYMM Matrix.SRow Matrix.MatUpper
+    ,testCase "dsymm on 2x2 and 3x2 upper all 1s" $ matmatTest2DSYMM Matrix.SRow Matrix.MatUpper
+    ,testCase "dsymm on 2x5 and 2x2 upper all 1s" $ matmatTest3DSYMM Matrix.SRow Matrix.MatUpper
     ,testCase "dsymm on 2x2 lower all 1s" $ matmatTest1DSYMM Matrix.SRow Matrix.MatLower
-    ,testCase "dgemm on 2x2 and 3x2 lower all 1s" $ matmatTest2DSYMM Matrix.SRow Matrix.MatLower
-    ,testCase "dgemm on 2x5 and 2x2 lower all 1s" $ matmatTest3DSYMM Matrix.SRow Matrix.MatLower
+    ,testCase "dsymm on 2x2 and 3x2 lower all 1s" $ matmatTest2DSYMM Matrix.SRow Matrix.MatLower
+    ,testCase "dsymm on 2x5 and 2x2 lower all 1s" $ matmatTest3DSYMM Matrix.SRow Matrix.MatLower
     ,testCase "dsymm on 2x2 upper all 1s (column oriented)" $ matmatTest1DSYMM Matrix.SColumn Matrix.MatUpper
-    ,testCase "dgemm on 2x2 and 3x2 upper all 1s (column oriented)" $ matmatTest2DSYMM Matrix.SColumn Matrix.MatUpper
-    ,testCase "dgemm on 2x5 and 2x2 upper all 1s (column oriented)" $ matmatTest3DSYMM Matrix.SColumn Matrix.MatUpper
+    ,testCase "dsymm on 2x2 and 3x2 upper all 1s (column oriented)" $ matmatTest2DSYMM Matrix.SColumn Matrix.MatUpper
+    ,testCase "dsymm on 2x5 and 2x2 upper all 1s (column oriented)" $ matmatTest3DSYMM Matrix.SColumn Matrix.MatUpper
     ,testCase "dsymm on 2x2 lower all 1s (column oriented)" $ matmatTest1DSYMM Matrix.SColumn Matrix.MatLower
-    ,testCase "dgemm on 2x2 and 3x2 lower all 1s (column oriented)" $ matmatTest2DSYMM Matrix.SColumn Matrix.MatLower
-    ,testCase "dgemm on 2x5 and 2x2 lower all 1s (column oriented)" $ matmatTest3DSYMM Matrix.SColumn Matrix.MatLower
+    ,testCase "dsymm on 2x2 and 3x2 lower all 1s (column oriented)" $ matmatTest2DSYMM Matrix.SColumn Matrix.MatLower
+    ,testCase "dsymm on 2x5 and 2x2 lower all 1s (column oriented)" $ matmatTest3DSYMM Matrix.SColumn Matrix.MatLower
     ,testCase "csymm on 2x2 all 1s" matmatTest1CSYMM
     ,testCase "zsymm on 2x2 all 1s" matmatTest1ZSYMM
     ]
