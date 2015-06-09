@@ -54,10 +54,16 @@ ie 'strsv' and friends updates the vector place.
 -}
 
 module Numerical.HBLAS.BLAS(
-        GemvFun
+        AsumFun
+        ,GemvFun
         ,GemmFun
         ,SymmFun
         ,TrsvFun
+
+        ,sasum
+        ,dasum
+        ,scasum
+        ,dzasum
 
         ,dgemm
         ,sgemm
@@ -87,11 +93,24 @@ module Numerical.HBLAS.BLAS(
 import Numerical.HBLAS.UtilsFFI
 import Numerical.HBLAS.BLAS.FFI
 import Numerical.HBLAS.BLAS.Internal
+import Numerical.HBLAS.BLAS.FFI.Level1
+import Numerical.HBLAS.BLAS.Internal.Level1
 import Control.Monad.Primitive
 import Data.Complex
 
 
+-- Level 1
+sasum :: PrimMonad m => AsumFun Float Float orient (PrimState m) m
+sasum = asumAbstraction "sasum" cblas_sasum_safe cblas_sasum_unsafe
 
+dasum :: PrimMonad m => AsumFun Double Double orient (PrimState m) m
+dasum = asumAbstraction "dasum" cblas_dasum_safe cblas_dasum_unsafe
+
+scasum :: PrimMonad m => AsumFun (Complex Float) Float orient (PrimState m) m
+scasum = asumAbstraction "scasum" cblas_scasum_safe cblas_scasum_unsafe
+
+dzasum :: PrimMonad m => AsumFun (Complex Double) Double orient (PrimState m) m
+dzasum = asumAbstraction "dzasum" cblas_dzasum_safe cblas_dzasum_unsafe
 
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m
 sgemm =  gemmAbstraction "sgemm"  cblas_sgemm_safe cblas_sgemm_unsafe (\x f -> f x )

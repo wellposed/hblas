@@ -115,19 +115,6 @@ we can only handle pointers to complex numbers right now
 --void  cblas_zdotu_sub(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy, openblas_complex_Double *ret);
 --void  cblas_zdotc_sub(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy, openblas_complex_Double *ret);
 
----- absolute value
-foreign import ccall unsafe "cblas_sasum" cblas_sasum_unsafe::
-    CInt -> Ptr Float -> CInt -> IO Float
-foreign import ccall unsafe "cblas_dasum" cblas_dasum_unsafe ::
-    CInt -> Ptr Double -> CInt -> IO Double
-foreign import ccall unsafe "cblas_scasum" cblas_casum_unsafe ::
-    CInt -> Ptr (Complex Float)-> CInt -> IO Float
-foreign import ccall unsafe "cblas_dzasum" cblas_zasum_unsafe ::
-    CInt -> Ptr (Complex Double) -> CInt -> IO Double
---Float  cblas_sasum (  CInt n,   Float  *x,   CInt incx);
---Double cblas_dasum (  CInt n,   Double *x,   CInt incx);
---Float  cblas_scasum(  CInt n,   Float  *x,   CInt incx);
---Double cblas_dzasum(  CInt n,   Double *x,   CInt incx);
 
 
 foreign import ccall unsafe "cblas_snrm2" cblas_snrm2_unsafe ::
