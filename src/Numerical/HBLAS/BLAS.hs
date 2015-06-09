@@ -107,28 +107,28 @@ import Data.Complex
 
 
 -- Level 1
-sasum :: PrimMonad m => AsumFun Float Float orient (PrimState m) m
+sasum :: PrimMonad m => AsumFun Float Float (PrimState m) m
 sasum = asumAbstraction "sasum" cblas_sasum_safe cblas_sasum_unsafe
 
-dasum :: PrimMonad m => AsumFun Double Double orient (PrimState m) m
+dasum :: PrimMonad m => AsumFun Double Double (PrimState m) m
 dasum = asumAbstraction "dasum" cblas_dasum_safe cblas_dasum_unsafe
 
-scasum :: PrimMonad m => AsumFun (Complex Float) Float orient (PrimState m) m
+scasum :: PrimMonad m => AsumFun (Complex Float) Float (PrimState m) m
 scasum = asumAbstraction "scasum" cblas_scasum_safe cblas_scasum_unsafe
 
-dzasum :: PrimMonad m => AsumFun (Complex Double) Double orient (PrimState m) m
+dzasum :: PrimMonad m => AsumFun (Complex Double) Double (PrimState m) m
 dzasum = asumAbstraction "dzasum" cblas_dzasum_safe cblas_dzasum_unsafe
 
-saxpy :: PrimMonad m => AxpyFun Float orient (PrimState m) m
+saxpy :: PrimMonad m => AxpyFun Float (PrimState m) m
 saxpy = axpyAbstraction "saxpy" cblas_saxpy_safe cblas_saxpy_unsafe (\x f -> f x)
 
-daxpy :: PrimMonad m => AxpyFun Double orient (PrimState m) m
+daxpy :: PrimMonad m => AxpyFun Double (PrimState m) m
 daxpy = axpyAbstraction "daxpy" cblas_daxpy_safe cblas_daxpy_unsafe (\x f -> f x)
 
-caxpy :: PrimMonad m => AxpyFun (Complex Float) orient (PrimState m) m
+caxpy :: PrimMonad m => AxpyFun (Complex Float) (PrimState m) m
 caxpy = axpyAbstraction "caxpy" cblas_caxpy_safe cblas_caxpy_unsafe withRStorable_
 
-zaxpy :: PrimMonad m => AxpyFun (Complex Double) orient (PrimState m) m
+zaxpy :: PrimMonad m => AxpyFun (Complex Double) (PrimState m) m
 zaxpy = axpyAbstraction "zaxpy" cblas_zaxpy_safe cblas_zaxpy_unsafe withRStorable_
 
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m
