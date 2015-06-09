@@ -55,15 +55,22 @@ ie 'strsv' and friends updates the vector place.
 
 module Numerical.HBLAS.BLAS(
         AsumFun
+        ,AxpyFun
         ,GemvFun
         ,GemmFun
         ,SymmFun
         ,TrsvFun
 
+        -- Level 1
         ,sasum
         ,dasum
         ,scasum
         ,dzasum
+
+        ,saxpy
+        ,daxpy
+        ,caxpy
+        ,zaxpy
 
         ,dgemm
         ,sgemm
@@ -111,6 +118,18 @@ scasum = asumAbstraction "scasum" cblas_scasum_safe cblas_scasum_unsafe
 
 dzasum :: PrimMonad m => AsumFun (Complex Double) Double orient (PrimState m) m
 dzasum = asumAbstraction "dzasum" cblas_dzasum_safe cblas_dzasum_unsafe
+
+saxpy :: PrimMonad m => AxpyFun Float orient (PrimState m) m
+saxpy = axpyAbstraction "saxpy" cblas_saxpy_safe cblas_saxpy_unsafe (\x f -> f x)
+
+daxpy :: PrimMonad m => AxpyFun Double orient (PrimState m) m
+daxpy = axpyAbstraction "daxpy" cblas_daxpy_safe cblas_daxpy_unsafe (\x f -> f x)
+
+caxpy :: PrimMonad m => AxpyFun (Complex Float) orient (PrimState m) m
+caxpy = axpyAbstraction "caxpy" cblas_caxpy_safe cblas_caxpy_unsafe withRStorable_
+
+zaxpy :: PrimMonad m => AxpyFun (Complex Double) orient (PrimState m) m
+zaxpy = axpyAbstraction "zaxpy" cblas_zaxpy_safe cblas_zaxpy_unsafe withRStorable_
 
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m
 sgemm =  gemmAbstraction "sgemm"  cblas_sgemm_safe cblas_sgemm_unsafe (\x f -> f x )
