@@ -59,11 +59,29 @@ vecTest2SAXPY = do
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector output
   resList @?= [3, 0, 4, 0, -5, 0, -2, 0, -5, 0, -6, 0]
 
+vecTest1DCOPY :: IO ()
+vecTest1DCOPY = do
+  input <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  output <- Matrix.generateMutableDenseVector 6 (const 0.0)
+  BLAS.dcopy 6 input 1 output 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector output
+  resList @?= [1, 2, 3, 4, 5, 6]
+
+vecTest2DCOPY :: IO ()
+vecTest2DCOPY = do
+  input <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  output <- Matrix.generateMutableDenseVector 9 (const 0.0)
+  BLAS.dcopy 3 input 2 output 3
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector output
+  resList @?= [1, 0, 0, 3, 0, 0, 5, 0, 0]
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
-                     testCase "asum on 6 with incx 1" matTest1SASUM,
-                     testCase "asum on 12 with incx 2" matTest2SASUM,
-                     testCase "axpy on 6 and 6 with both incx 1" vecTest1SAXPY,
-                     testCase "axpy on 12 and 18 with incx 2 and 3" vecTest2SAXPY
+                     testCase "sasum on 6 with incx 1" matTest1SASUM,
+                     testCase "sasum on 12 with incx 2" matTest2SASUM,
+                     testCase "saxpy on 6 and 6 with both incx 1" vecTest1SAXPY,
+                     testCase "saxpy on 12 and 18 with incx 2 and 3" vecTest2SAXPY,
+                     testCase "dcopy on 6 and 6 with both incx 1" vecTest1DCOPY,
+                     testCase "dcopy on 6 and 9 with incx 2 and 3" vecTest2DCOPY
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"

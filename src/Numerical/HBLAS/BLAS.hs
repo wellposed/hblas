@@ -72,6 +72,11 @@ module Numerical.HBLAS.BLAS(
         ,caxpy
         ,zaxpy
 
+        ,scopy
+        ,dcopy
+        ,ccopy
+        ,zcopy
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -130,6 +135,18 @@ caxpy = axpyAbstraction "caxpy" cblas_caxpy_safe cblas_caxpy_unsafe withRStorabl
 
 zaxpy :: PrimMonad m => AxpyFun (Complex Double) (PrimState m) m
 zaxpy = axpyAbstraction "zaxpy" cblas_zaxpy_safe cblas_zaxpy_unsafe withRStorable_
+
+scopy :: PrimMonad m => CopyFun Float (PrimState m) m
+scopy = copyAbstraction "scopy" cblas_scopy_safe cblas_scopy_unsafe
+
+dcopy :: PrimMonad m => CopyFun Double (PrimState m) m
+dcopy = copyAbstraction "dcopy" cblas_dcopy_safe cblas_dcopy_unsafe
+
+ccopy :: PrimMonad m => CopyFun (Complex Float) (PrimState m) m
+ccopy = copyAbstraction "ccopy" cblas_ccopy_safe cblas_ccopy_unsafe
+
+zcopy :: PrimMonad m => CopyFun (Complex Double) (PrimState m) m
+zcopy = copyAbstraction "zcopy" cblas_zcopy_safe cblas_zcopy_unsafe
 
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m
 sgemm =  gemmAbstraction "sgemm"  cblas_sgemm_safe cblas_sgemm_unsafe (\x f -> f x )

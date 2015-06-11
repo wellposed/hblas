@@ -52,3 +52,26 @@ foreign import ccall "cblas_zaxpy" cblas_zaxpy_safe::
 --void cblas_daxpy(  CInt n,   Double alpha,   Double *x,   CInt incx, Double *y,   CInt incy);
 --void cblas_caxpy(  CInt n,   Float *alpha,   Float *x,   CInt incx, Float *y,   CInt incy);
 --void cblas_zaxpy(  CInt n,   Double *alpha,   Double *x,   CInt incx, Double *y,   CInt incy);
+
+type CopyFunFFI el = CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_scopy" cblas_scopy_unsafe ::
+    CopyFunFFI Float
+foreign import ccall unsafe "cblas_dcopy" cblas_dcopy_unsafe ::
+    CopyFunFFI Double
+foreign import ccall unsafe "cblas_ccopy" cblas_ccopy_unsafe ::
+    CopyFunFFI (Complex Float)
+foreign import ccall unsafe "cblas_zcopy" cblas_zcopy_unsafe ::
+    CopyFunFFI (Complex Double)
+
+foreign import ccall "cblas_scopy" cblas_scopy_safe ::
+    CopyFunFFI Float
+foreign import ccall "cblas_dcopy" cblas_dcopy_safe ::
+    CopyFunFFI Double
+foreign import ccall "cblas_ccopy" cblas_ccopy_safe ::
+    CopyFunFFI (Complex Float)
+foreign import ccall "cblas_zcopy" cblas_zcopy_safe ::
+    CopyFunFFI (Complex Double)
+--void cblas_scopy(  CInt n,   Float *x,   CInt incx, Float *y,   CInt incy);
+--void cblas_dcopy(  CInt n,   Double *x,   CInt incx, Double *y,   CInt incy);
+--void cblas_ccopy(  CInt n,   Float *x,   CInt incx, Float *y,   CInt incy);
+--void cblas_zcopy(  CInt n,   Double *x,   CInt incx, Double *y,   CInt incy);
