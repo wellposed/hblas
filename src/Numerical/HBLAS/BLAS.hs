@@ -77,6 +77,11 @@ module Numerical.HBLAS.BLAS(
         ,ccopy
         ,zcopy
 
+        ,sdot
+        ,ddot
+        ,sdsdot
+        ,dsdot
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -147,6 +152,18 @@ ccopy = copyAbstraction "ccopy" cblas_ccopy_safe cblas_ccopy_unsafe
 
 zcopy :: PrimMonad m => CopyFun (Complex Double) (PrimState m) m
 zcopy = copyAbstraction "zcopy" cblas_zcopy_safe cblas_zcopy_unsafe
+
+sdot :: PrimMonad m => NoScalarDotFun Float Float (PrimState m) m
+sdot = noScalarDotAbstraction "sdot" cblas_sdot_safe cblas_sdot_unsafe
+
+ddot :: PrimMonad m => NoScalarDotFun Double Double (PrimState m) m
+ddot = noScalarDotAbstraction "ddot" cblas_ddot_safe cblas_ddot_unsafe
+
+sdsdot :: PrimMonad m => ScalarDotFun Float Float (PrimState m) m
+sdsdot = scalarDotAbstraction "sdsdot" cblas_sdsdot_safe cblas_sdsdot_unsafe
+
+dsdot :: PrimMonad m => NoScalarDotFun Float Double (PrimState m) m
+dsdot = noScalarDotAbstraction "dsdot" cblas_dsdot_safe cblas_dsdot_unsafe
 
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m
 sgemm =  gemmAbstraction "sgemm"  cblas_sgemm_safe cblas_sgemm_unsafe (\x f -> f x )

@@ -75,3 +75,21 @@ foreign import ccall "cblas_zcopy" cblas_zcopy_safe ::
 --void cblas_dcopy(  CInt n,   Double *x,   CInt incx, Double *y,   CInt incy);
 --void cblas_ccopy(  CInt n,   Float *x,   CInt incx, Float *y,   CInt incy);
 --void cblas_zcopy(  CInt n,   Double *x,   CInt incx, Double *y,   CInt incy);
+
+--dot products
+type NoScalarDotFunFFI el res = CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO res
+type ScalarDotFunFFI el res = CInt -> el -> Ptr el -> CInt -> Ptr el -> CInt -> IO res
+foreign import ccall "cblas_sdsdot" cblas_sdsdot_safe :: ScalarDotFunFFI Float Float
+foreign import ccall "cblas_dsdot" cblas_dsdot_safe :: NoScalarDotFunFFI Float Double
+foreign import ccall "cblas_sdot" cblas_sdot_safe :: NoScalarDotFunFFI Float Float
+foreign import ccall "cblas_ddot" cblas_ddot_safe :: NoScalarDotFunFFI Double Double
+
+foreign import ccall unsafe "cblas_sdsdot" cblas_sdsdot_unsafe :: ScalarDotFunFFI Float Float
+foreign import ccall unsafe "cblas_dsdot" cblas_dsdot_unsafe :: NoScalarDotFunFFI Float Double
+foreign import ccall unsafe "cblas_sdot" cblas_sdot_unsafe :: NoScalarDotFunFFI Float Float
+foreign import ccall unsafe "cblas_ddot" cblas_ddot_unsafe :: NoScalarDotFunFFI Double Double
+--Float  cblas_sdsdot(  CInt n,   Float alpha,   Float *x,   CInt incx,   Float *y,   CInt incy);
+--Double cblas_dsdot (  CInt n,   Float *x,   CInt incx,   Float *y,   CInt incy);
+--Float  cblas_sdot(  CInt n,   Float  *x,   CInt incx,   Float  *y,   CInt incy);
+--Double cblas_ddot(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy);
+

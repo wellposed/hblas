@@ -85,16 +85,6 @@ encodeSide BlasRight = CBLAS_SideT 142
 --typedef enum CBLAS_DIAG      {CblasNonUnit=131, CblasUnit=132} CBLAS_DIAG;
 --typedef enum CBLAS_SIDE      {CblasLeft=141, CblasRight=142} CBLAS_SIDE;
 
---dot products
-foreign import ccall unsafe "cblas_sdsdot" cblas_sdsdot_unsafe :: CInt -> Float -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO Float
-foreign import ccall unsafe "cblas_dsdot" cblas_dsdot_unsafe :: CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO Double
-foreign import ccall unsafe "cblas_sdot" cblas_sdot_unsafe :: CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO Float
-foreign import ccall unsafe "cblas_ddot" cblas_ddot_unsafe :: CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> IO Double
---Float  cblas_sdsdot(  CInt n,   Float alpha,   Float *x,   CInt incx,   Float *y,   CInt incy);
---Double cblas_dsdot (  CInt n,   Float *x,   CInt incx,   Float *y,   CInt incy);
---Float  cblas_sdot(  CInt n,   Float  *x,   CInt incx,   Float  *y,   CInt incy);
---Double cblas_ddot(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy);
-
 
 
 {-
@@ -105,8 +95,6 @@ we can only handle pointers to complex numbers right now
 --openblas_complex_Float  cblas_cdotc(  CInt n,   Float  *x,   CInt incx,   Float  *y,   CInt incy);
 --openblas_complex_Double cblas_zdotu(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy);
 --openblas_complex_Double cblas_zdotc(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy);
-
-
 
 
 --- not sure what to do for these complex

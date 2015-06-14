@@ -75,13 +75,45 @@ vecTest2DCOPY = do
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector output
   resList @?= [1, 0, 0, 3, 0, 0, 5, 0, 0]
 
+vecTest1SDOT :: IO ()
+vecTest1SDOT = do 
+  left <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  right <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
+  res <- sdot 3 left 2 right 4
+  res @?= 1 + 15 + 45
+
+vecTest1DDOT :: IO ()
+vecTest1DDOT = do 
+  left <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
+  right <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  res <- sdot 6 left 2 right 1
+  res @?= 1 + 6 + 15 + 28 + 45 + 66
+
+vecTest1SDSDOT :: IO ()
+vecTest1SDSDOT = do 
+  left <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  right <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
+  res <- sdsdot 3 2.0 left 2 right 4
+  res @?= 2 + 1 + 15 + 45
+
+vecTest1DSDOT :: IO ()
+vecTest1DSDOT = do 
+  left <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
+  right <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  res <- dsdot 6 left 2 right 1
+  res @?= 1 + 6 + 15 + 28 + 45 + 66
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "sasum on 6 with incx 1" matTest1SASUM,
                      testCase "sasum on 12 with incx 2" matTest2SASUM,
                      testCase "saxpy on 6 and 6 with both incx 1" vecTest1SAXPY,
                      testCase "saxpy on 12 and 18 with incx 2 and 3" vecTest2SAXPY,
                      testCase "dcopy on 6 and 6 with both incx 1" vecTest1DCOPY,
-                     testCase "dcopy on 6 and 9 with incx 2 and 3" vecTest2DCOPY
+                     testCase "dcopy on 6 and 9 with incx 2 and 3" vecTest2DCOPY,
+                     testCase "sdot on 6 and 9 with incx 2 and 3" vecTest1SDOT,
+                     testCase "ddot on 6 and 9 with incx 2 and 3" vecTest1DDOT,
+                     testCase "sdsdot on 6 and 9 with incx 2 and 3" vecTest1SDSDOT,
+                     testCase "dsdot on 6 and 9 with incx 2 and 3" vecTest1DSDOT      --TODO: not right here, got res of 0
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"
