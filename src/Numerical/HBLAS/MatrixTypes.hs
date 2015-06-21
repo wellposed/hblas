@@ -132,7 +132,12 @@ type instance TransposeF Row = Column
 type instance TransposeF Column = Row
 
 
-
+data MValue :: * -> * -> * where
+    MutableValue :: { _bufferMutVector :: !(S.MVector s elem)
+                    } -> MValue s elem
+#if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
+    deriving (Typeable)
+#endif
 
 
 data Variant = Direct | Implicit
@@ -188,6 +193,12 @@ mutableVectorToList mv =  do
         v <- S.unsafeFreeze mv
         return (S.toList v )
 {-# NOINLINE mutableVectorToList #-}
+
+mutableValueToValue :: (PrimMonad m, S.Storable a) => MValue (PrimState m) a -> m a
+mutableValueToValue mv = do
+  listValue <- mutableVectorToList $ _bufferMutVector mv
+  return $ listValue !! 0
+{-# NOINLINE mutableValueToValue #-}
 
 {-
 need to handle rendering a slice differently than a direct matrix
@@ -352,6 +363,12 @@ generateMutableDenseVector :: (S.Storable a,PrimMonad m) => Int -> (Int -> a) ->
 generateMutableDenseVector size init = do
     mv <- S.unsafeThaw $ S.generate size init
     return $! MutableDenseVector SDirect size 1 mv
+
+{-#NOINLINE generateMutableValue#-}
+generateMutableValue :: (S.Storable a, PrimMonad m) => a -> m (MValue (PrimState m) a)
+generateMutableValue value = do
+    valVect <- SM.replicate 1 value
+    return $! MutableValue valVect
 
 --- this (uncheckedMatrixSlice) will need to have its inlining quality checked
 

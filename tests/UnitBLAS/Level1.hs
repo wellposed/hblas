@@ -21,14 +21,14 @@ import Data.Complex
 import  Numerical.HBLAS.MatrixTypes as Matrix
 import  Numerical.HBLAS.BLAS as BLAS
 
-matTest1SASUM :: IO ()
-matTest1SASUM = do
+vecTest1SASUM :: IO ()
+vecTest1SASUM = do
   mat <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
   res <- BLAS.sasum 6 mat 1
   res @?= 21.0
 
-matTest2SASUM :: IO ()
-matTest2SASUM = do
+vecTest2SASUM :: IO ()
+vecTest2SASUM = do
   mat <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
   res <- BLAS.sasum 6 mat 2
   res @?= 36.0
@@ -103,9 +103,27 @@ vecTest1DSDOT = do
   res <- dsdot 6 left 2 right 1
   res @?= 1 + 6 + 15 + 28 + 45 + 66
 
+vecTest1CDOTU :: IO ()
+vecTest1CDOTU = do
+  left <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  right <- Matrix.generateMutableDenseVector 9 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  res <- Matrix.generateMutableValue (1:+1)
+  cdotu 3 left 2 right 3 res
+  resValue <- Matrix.mutableValueToValue res
+  resValue @?= 5:+1
+
+vecTest1CDOTC :: IO ()
+vecTest1CDOTC = do
+  left <- Matrix.generateMutableDenseVector 6 (\idx -> [2:+3, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  right <- Matrix.generateMutableDenseVector 9 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  res <- Matrix.generateMutableValue (1:+1)
+  cdotc 3 left 2 right 3 res
+  resValue <- Matrix.mutableValueToValue res
+  resValue @?= (-2):+(-9)
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
-                     testCase "sasum on 6 with incx 1" matTest1SASUM,
-                     testCase "sasum on 12 with incx 2" matTest2SASUM,
+                     testCase "sasum on 6 with incx 1" vecTest1SASUM,
+                     testCase "sasum on 12 with incx 2" vecTest2SASUM,
                      testCase "saxpy on 6 and 6 with both incx 1" vecTest1SAXPY,
                      testCase "saxpy on 12 and 18 with incx 2 and 3" vecTest2SAXPY,
                      testCase "dcopy on 6 and 6 with both incx 1" vecTest1DCOPY,
@@ -113,7 +131,9 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "sdot on 6 and 9 with incx 2 and 3" vecTest1SDOT,
                      testCase "ddot on 6 and 9 with incx 2 and 3" vecTest1DDOT,
                      testCase "sdsdot on 6 and 9 with incx 2 and 3" vecTest1SDSDOT,
-                     testCase "dsdot on 6 and 9 with incx 2 and 3" vecTest1DSDOT      --TODO: not right here, got res of 0
+                     testCase "dsdot on 6 and 9 with incx 2 and 3" vecTest1DSDOT,
+                     testCase "cdotu on 2 and 3 with incx of 1" vecTest1CDOTU,
+                     testCase "cdotc on 2 and 3 with incx of 1" vecTest1CDOTC
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"

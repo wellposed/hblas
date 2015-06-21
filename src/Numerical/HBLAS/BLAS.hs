@@ -82,6 +82,11 @@ module Numerical.HBLAS.BLAS(
         ,sdsdot
         ,dsdot
 
+        ,cdotu
+        ,cdotc
+        ,zdotu
+        ,zdotc
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -164,6 +169,20 @@ sdsdot = scalarDotAbstraction "sdsdot" cblas_sdsdot_safe cblas_sdsdot_unsafe
 
 dsdot :: PrimMonad m => NoScalarDotFun Float Double (PrimState m) m
 dsdot = noScalarDotAbstraction "dsdot" cblas_dsdot_safe cblas_dsdot_unsafe
+
+cdotu :: PrimMonad m => ComplexDotFun (Complex Float) (PrimState m) m
+cdotu = complexDotAbstraction "cdotu" cblas_cdotu_safe cblas_cdotu_unsafe
+
+cdotc :: PrimMonad m => ComplexDotFun (Complex Float) (PrimState m) m
+cdotc = complexDotAbstraction "cdotc" cblas_cdotc_safe cblas_cdotc_unsafe
+
+zdotu :: PrimMonad m => ComplexDotFun (Complex Double) (PrimState m) m
+zdotu = complexDotAbstraction "zdotu" cblas_zdotu_safe cblas_zdotu_unsafe
+
+zdotc :: PrimMonad m => ComplexDotFun (Complex Double) (PrimState m) m
+zdotc = complexDotAbstraction "zdotc" cblas_zdotc_safe cblas_zdotc_unsafe
+
+-- Level 2
 
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m
 sgemm =  gemmAbstraction "sgemm"  cblas_sgemm_safe cblas_sgemm_unsafe (\x f -> f x )

@@ -93,3 +93,18 @@ foreign import ccall unsafe "cblas_ddot" cblas_ddot_unsafe :: NoScalarDotFunFFI 
 --Float  cblas_sdot(  CInt n,   Float  *x,   CInt incx,   Float  *y,   CInt incy);
 --Double cblas_ddot(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy);
 
+--complex dot products
+type ComplexDotFunFFI el = CInt -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> IO ()
+foreign import ccall "cblas_cdotu_sub" cblas_cdotu_safe :: ComplexDotFunFFI (Complex Float)
+foreign import ccall "cblas_cdotc_sub" cblas_cdotc_safe :: ComplexDotFunFFI (Complex Float)
+foreign import ccall "cblas_zdotu_sub" cblas_zdotu_safe :: ComplexDotFunFFI (Complex Double)
+foreign import ccall "cblas_zdotc_sub" cblas_zdotc_safe :: ComplexDotFunFFI (Complex Double)
+
+foreign import ccall unsafe "cblas_cdotu_sub" cblas_cdotu_unsafe :: ComplexDotFunFFI (Complex Float)
+foreign import ccall unsafe "cblas_cdotc_sub" cblas_cdotc_unsafe :: ComplexDotFunFFI (Complex Float)
+foreign import ccall unsafe "cblas_zdotu_sub" cblas_zdotu_unsafe :: ComplexDotFunFFI (Complex Double)
+foreign import ccall unsafe "cblas_zdotc_sub" cblas_zdotc_unsafe :: ComplexDotFunFFI (Complex Double)
+--void cblas_cdotu(CInt n, void *x, CInt incx, void *y, CInt incy, void *res);
+--void cblas_cdotc(CInt n, void *x, CInt incx, void *y, CInt incy, void *res);
+--void cblas_zdotu(CInt n, void *x, CInt incx, void *y, CInt incy, void *res);
+--void cblas_zdotc(CInt n, void *x, CInt incx, void *y, CInt incy, void *res);

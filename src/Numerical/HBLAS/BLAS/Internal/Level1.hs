@@ -6,12 +6,14 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,CopyFun
   ,NoScalarDotFun
   ,ScalarDotFun
+  ,ComplexDotFun
 
   ,asumAbstraction
   ,axpyAbstraction
   ,copyAbstraction
   ,noScalarDotAbstraction
   ,scalarDotAbstraction
+  ,complexDotAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -26,6 +28,7 @@ type AxpyFun el s m = Int -> el -> MDenseVector s Direct el -> Int -> MDenseVect
 type CopyFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> m()
 type NoScalarDotFun el res s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> m res
 type ScalarDotFun el res s m = Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> m res
+type ComplexDotFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MValue (PrimState m) el -> m()
 
 isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
 isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
@@ -118,3 +121,23 @@ scalarDotAbstraction dotName dotSafeFFI dotUnsafeFFI = dot
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
             do unsafePrimToPrim $! (if shouldCallFast n then dotUnsafeFFI else dotSafeFFI) (fromIntegral n) sb ap (fromIntegral aincx) bp (fromIntegral bincx)
+
+{-# NOINLINE complexDotAbstraction #-}
+complexDotAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+  ComplexDotFunFFI el -> ComplexDotFunFFI el ->
+  ComplexDotFun el (PrimState m) m
+complexDotAbstraction dotName dotSafeFFI dotUnsafeFFI = dot
+  where
+    shouldCallFast :: Int -> Bool
+    shouldCallFast n = flopsThreshold >= fromIntegral n
+    dot n
+      (MutableDenseVector _ adim _ abuff) aincx
+      (MutableDenseVector _ bdim _ bbuff) bincx
+      (MutableValue resbuff)
+        | isVectorBadWithNIncrement adim n aincx = error $! vectorBadInfo dotName "first matrix" adim n aincx
+        | isVectorBadWithNIncrement bdim n bincx = error $! vectorBadInfo dotName "second matrix" bdim n bincx
+        | otherwise =
+          unsafeWithPrim abuff $ \ap ->
+          unsafeWithPrim bbuff $ \bp ->
+          unsafeWithPrim resbuff $ \resPtr ->
+            do unsafePrimToPrim $! (if shouldCallFast n then dotUnsafeFFI else dotSafeFFI) (fromIntegral n) ap (fromIntegral aincx) bp (fromIntegral bincx) resPtr
