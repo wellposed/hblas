@@ -108,3 +108,32 @@ foreign import ccall unsafe "cblas_zdotc_sub" cblas_zdotc_unsafe :: ComplexDotFu
 --void cblas_cdotc(CInt n, void *x, CInt incx, void *y, CInt incy, void *res);
 --void cblas_zdotu(CInt n, void *x, CInt incx, void *y, CInt incy, void *res);
 --void cblas_zdotc(CInt n, void *x, CInt incx, void *y, CInt incy, void *res);
+
+--Computes the Euclidean norm of a vector.
+type Nrm2FunFFI el res = CInt -> Ptr el -> CInt -> IO res
+foreign import ccall "cblas_snrm2" cblas_snrm2_safe :: Nrm2FunFFI Float Float
+foreign import ccall "cblas_dnrm2" cblas_dnrm2_safe :: Nrm2FunFFI Double Double
+foreign import ccall "cblas_scnrm2" cblas_scnrm2_safe :: Nrm2FunFFI (Complex Float) Float
+foreign import ccall "cblas_dznrm2" cblas_dznrm2_safe :: Nrm2FunFFI (Complex Double) Double
+
+foreign import ccall unsafe "cblas_snrm2" cblas_snrm2_unsafe :: Nrm2FunFFI Float Float
+foreign import ccall unsafe "cblas_dnrm2" cblas_dnrm2_unsafe :: Nrm2FunFFI Double Double
+foreign import ccall unsafe "cblas_scnrm2" cblas_scnrm2_unsafe :: Nrm2FunFFI (Complex Float) Float
+foreign import ccall unsafe "cblas_dznrm2" cblas_dznrm2_unsafe :: Nrm2FunFFI (Complex Double) Double
+--Float  cblas_snrm2 (  CInt N,   Float  *X,   CInt incX);
+--Double cblas_dnrm2 (  CInt N,   Double *X,   CInt incX);
+--Float  cblas_scnrm2(  CInt N,   Float  *X,   CInt incX);
+--Double cblas_dznrm2(  CInt N,   Double *X,   CInt incX);
+
+
+--void cblas_srot(  CInt N, Float *X,   CInt incX, Float *Y,   CInt incY,   Float c,   Float s);
+--void cblas_drot(  CInt N, Double *X,   CInt incX, Double *Y,   CInt incY,   Double c,   Double  s);
+
+--void cblas_srotg(Float *a, Float *b, Float *c, Float *s);
+--void cblas_drotg(Double *a, Double *b, Double *c, Double *s);
+
+--void cblas_srotm(  CInt N, Float *X,   CInt incX, Float *Y,   CInt incY,   Float *P);
+--void cblas_drotm(  CInt N, Double *X,   CInt incX, Double *Y,   CInt incY,   Double *P);
+
+--void cblas_srotmg(Float *d1, Float *d2, Float *b1,   Float b2, Float *P);
+--void cblas_drotmg(Double *d1, Double *d2, Double *b1,   Double b2, Double *P);

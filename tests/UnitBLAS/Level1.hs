@@ -121,19 +121,38 @@ vecTest1CDOTC = do
   resValue <- Matrix.mutableValueToValue res
   resValue @?= (-2):+(-9)
 
+vecTest1SNRM2 ::IO ()
+vecTest1SNRM2 = do
+  input <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, -2.0, 3.0, -4.0, 5.0, -6.0] !! idx)
+  res <- snrm2 6 input 1
+  True @?= 1e-6 > (abs $ res - (sqrt $ sum $ fmap (\x->x^2) [1, 2, 3, 4, 5, 6]))
+
+vecTest1DZNRM2 ::IO ()
+vecTest1DZNRM2 = do
+  input <- Matrix.generateMutableDenseVector 8 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1] !! idx)
+  res <- dznrm2 4 input 2
+  True @?= 1e-12 > (abs $ res - (sqrt $ sum $ fmap (\x->x^2) [1, 1, 2, 3, 3, 1, 4, 2]))
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
-                     testCase "sasum on 6 with incx 1" vecTest1SASUM,
-                     testCase "sasum on 12 with incx 2" vecTest2SASUM,
-                     testCase "saxpy on 6 and 6 with both incx 1" vecTest1SAXPY,
-                     testCase "saxpy on 12 and 18 with incx 2 and 3" vecTest2SAXPY,
-                     testCase "dcopy on 6 and 6 with both incx 1" vecTest1DCOPY,
-                     testCase "dcopy on 6 and 9 with incx 2 and 3" vecTest2DCOPY,
-                     testCase "sdot on 6 and 9 with incx 2 and 3" vecTest1SDOT,
-                     testCase "ddot on 6 and 9 with incx 2 and 3" vecTest1DDOT,
-                     testCase "sdsdot on 6 and 9 with incx 2 and 3" vecTest1SDSDOT,
-                     testCase "dsdot on 6 and 9 with incx 2 and 3" vecTest1DSDOT,
-                     testCase "cdotu on 2 and 3 with incx of 1" vecTest1CDOTU,
-                     testCase "cdotc on 2 and 3 with incx of 1" vecTest1CDOTC
+                     testCase "sasum on vector of length 6 with incx 1" vecTest1SASUM,
+                     testCase "sasum on vector of length 12 with incx 2" vecTest2SASUM,
+
+                     testCase "saxpy on vectors of lengths 6 and 6 with both incx 1" vecTest1SAXPY,
+                     testCase "saxpy on vectors of lenghts 12 and 18 with incx 2 and 3" vecTest2SAXPY,
+
+                     testCase "dcopy on vectors of lengths 6 and 6 with both incx 1" vecTest1DCOPY,
+                     testCase "dcopy on vectors of lengths 6 and 9 with incx 2 and 3" vecTest2DCOPY,
+
+                     testCase "sdot on vectors of lengths 6 and 12 with incx 2 and 4" vecTest1SDOT,
+                     testCase "ddot on vectors of lengths 12 and 6 with incx 2 and 1" vecTest1DDOT,
+                     testCase "sdsdot on vectors of lengths 6 and 12 with incx 2 and 4" vecTest1SDSDOT,
+                     testCase "dsdot on vectors of 12 and 6 with incx 2 and 1" vecTest1DSDOT,
+
+                     testCase "cdotu on vectors of 6 and 9 with incx of 2 and 3" vecTest1CDOTU,
+                     testCase "cdotc on vectors of 6 and 9 with incx of 2 and 3" vecTest1CDOTC,
+
+                     testCase "snrm on vector of length 6 with incx of 1" vecTest1SNRM2,
+                     testCase "dznrm on vector of length 8 with incx of 2" vecTest1DZNRM2
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"

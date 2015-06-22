@@ -104,24 +104,6 @@ we can only handle pointers to complex numbers right now
 --void  cblas_zdotc_sub(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy, openblas_complex_Double *ret);
 
 
-
-foreign import ccall unsafe "cblas_snrm2" cblas_snrm2_unsafe ::
-    CInt -> Ptr Float -> CInt -> IO Float
-foreign import ccall unsafe "cblas_dnrm2" cblas_dnrm2_unsafe ::
-    CInt -> Ptr Double -> CInt -> IO Double
-foreign import ccall unsafe "cblas_scnrm2" cblas_scnrm2_unsafe ::
-    CInt -> Ptr (Complex Float)-> CInt -> IO Float
-foreign import ccall unsafe "cblas_dznrm2" cblas_dznrm2_unsafe ::
-    CInt -> Ptr (Complex Double) -> CInt -> IO Double
-
-
---Float  cblas_snrm2 (  CInt N,   Float  *X,   CInt incX);
---Double cblas_dnrm2 (  CInt N,   Double *X,   CInt incX);
---Float  cblas_scnrm2(  CInt N,   Float  *X,   CInt incX);
---Double cblas_dznrm2(  CInt N,   Double *X,   CInt incX);
-
-
-
 foreign import ccall unsafe "cblas_isamax" cblas_isamax_unsafe ::
     CInt -> Ptr Float -> CInt -> IO CInt
 foreign import ccall unsafe "cblas_idamax" cblas_idamax_unsafe ::
@@ -151,18 +133,6 @@ foreign import ccall unsafe "cblas_zswap" cblas_zswap_unsafe ::
 --void cblas_zswap(  CInt n, Double *x,   CInt incx, Double *y,   CInt incy);
 
 
-
---void cblas_srot(  CInt N, Float *X,   CInt incX, Float *Y,   CInt incY,   Float c,   Float s);
---void cblas_drot(  CInt N, Double *X,   CInt incX, Double *Y,   CInt incY,   Double c,   Double  s);
-
---void cblas_srotg(Float *a, Float *b, Float *c, Float *s);
---void cblas_drotg(Double *a, Double *b, Double *c, Double *s);
-
---void cblas_srotm(  CInt N, Float *X,   CInt incX, Float *Y,   CInt incY,   Float *P);
---void cblas_drotm(  CInt N, Double *X,   CInt incX, Double *Y,   CInt incY,   Double *P);
-
---void cblas_srotmg(Float *d1, Float *d2, Float *b1,   Float b2, Float *P);
---void cblas_drotmg(Double *d1, Double *d2, Double *b1,   Double b2, Double *P);
 
 --void cblas_sscal(  CInt N,   Float alpha, Float *X,   CInt incX);
 --void cblas_dscal(  CInt N,   Double alpha, Double *X,   CInt incX);

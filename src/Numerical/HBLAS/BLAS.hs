@@ -87,6 +87,11 @@ module Numerical.HBLAS.BLAS(
         ,zdotu
         ,zdotc
 
+        ,snrm2
+        ,dnrm2
+        ,scnrm2
+        ,dznrm2
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -181,6 +186,18 @@ zdotu = complexDotAbstraction "zdotu" cblas_zdotu_safe cblas_zdotu_unsafe
 
 zdotc :: PrimMonad m => ComplexDotFun (Complex Double) (PrimState m) m
 zdotc = complexDotAbstraction "zdotc" cblas_zdotc_safe cblas_zdotc_unsafe
+
+snrm2 :: PrimMonad m => Nrm2Fun Float Float (PrimState m) m 
+snrm2 = norm2Abstraction "snrm2" cblas_snrm2_safe cblas_snrm2_unsafe
+
+dnrm2 :: PrimMonad m => Nrm2Fun Double Double (PrimState m) m 
+dnrm2 = norm2Abstraction "dnrm2" cblas_dnrm2_safe cblas_dnrm2_unsafe
+
+scnrm2 :: PrimMonad m => Nrm2Fun (Complex Float) Float (PrimState m) m 
+scnrm2 = norm2Abstraction "scnrm2" cblas_scnrm2_safe cblas_scnrm2_unsafe
+
+dznrm2 :: PrimMonad m => Nrm2Fun (Complex Double) Double (PrimState m) m 
+dznrm2 = norm2Abstraction "dznrm2" cblas_dznrm2_safe cblas_dznrm2_unsafe
 
 -- Level 2
 

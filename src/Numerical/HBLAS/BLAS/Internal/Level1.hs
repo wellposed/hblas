@@ -7,6 +7,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,NoScalarDotFun
   ,ScalarDotFun
   ,ComplexDotFun
+  ,Nrm2Fun
 
   ,asumAbstraction
   ,axpyAbstraction
@@ -14,6 +15,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,noScalarDotAbstraction
   ,scalarDotAbstraction
   ,complexDotAbstraction
+  ,norm2Abstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -29,6 +31,7 @@ type CopyFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s D
 type NoScalarDotFun el res s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> m res
 type ScalarDotFun el res s m = Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> m res
 type ComplexDotFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MValue (PrimState m) el -> m()
+type Nrm2Fun el res s m = Int -> MDenseVector s Direct el -> Int -> m res
 
 isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
 isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
@@ -141,3 +144,18 @@ complexDotAbstraction dotName dotSafeFFI dotUnsafeFFI = dot
           unsafeWithPrim bbuff $ \bp ->
           unsafeWithPrim resbuff $ \resPtr ->
             do unsafePrimToPrim $! (if shouldCallFast n then dotUnsafeFFI else dotSafeFFI) (fromIntegral n) ap (fromIntegral aincx) bp (fromIntegral bincx) resPtr
+
+{-# NOINLINE norm2Abstraction #-}
+norm2Abstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+  Nrm2FunFFI el res -> Nrm2FunFFI el res ->
+  Nrm2Fun el res (PrimState m) m
+norm2Abstraction norm2Name norm2SafeFFI norm2UnsafeFFI = norm2
+  where
+    shouldCallFast :: Int -> Bool
+    shouldCallFast n = flopsThreshold >= fromIntegral n -- not sure, maybe for complex is 2n
+    norm2 n
+      (MutableDenseVector _ dim _ buff) incx
+        | isVectorBadWithNIncrement dim n incx = error $! vectorBadInfo norm2Name "input matrix" dim n incx
+        | otherwise =
+          unsafeWithPrim buff $ \p ->
+            do unsafePrimToPrim $! (if shouldCallFast n then norm2UnsafeFFI else norm2SafeFFI) (fromIntegral n) p (fromIntegral incx)
