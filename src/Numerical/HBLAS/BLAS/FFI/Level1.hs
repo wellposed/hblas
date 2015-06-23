@@ -122,10 +122,17 @@ foreign import ccall unsafe "cblas_scnrm2" cblas_scnrm2_unsafe :: Nrm2FunFFI (Co
 foreign import ccall unsafe "cblas_dznrm2" cblas_dznrm2_unsafe :: Nrm2FunFFI (Complex Double) Double
 --Float  cblas_snrm2 (  CInt N,   Float  *X,   CInt incX);
 --Double cblas_dnrm2 (  CInt N,   Double *X,   CInt incX);
---Float  cblas_scnrm2(  CInt N,   Float  *X,   CInt incX);
---Double cblas_dznrm2(  CInt N,   Double *X,   CInt incX);
+--Float  cblas_scnrm2(  CInt N,   void  *X,   CInt incX);
+--Double cblas_dznrm2(  CInt N,   void  *X,   CInt incX);
 
 
+--Performs rotation of points in the plane.
+type RotFunFFI el scale = CInt -> Ptr el -> CInt -> Ptr el -> CInt -> scale -> scale -> IO ()
+foreign import ccall "cblas_srot" cblas_srot_safe :: RotFunFFI Float Float
+foreign import ccall "cblas_drot" cblas_drot_safe :: RotFunFFI Double Double
+
+foreign import ccall unsafe "cblas_srot" cblas_srot_unsafe :: RotFunFFI Float Float
+foreign import ccall unsafe "cblas_drot" cblas_drot_unsafe :: RotFunFFI Double Double
 --void cblas_srot(  CInt N, Float *X,   CInt incX, Float *Y,   CInt incY,   Float c,   Float s);
 --void cblas_drot(  CInt N, Double *X,   CInt incX, Double *Y,   CInt incY,   Double c,   Double  s);
 

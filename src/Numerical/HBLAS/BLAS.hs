@@ -92,6 +92,9 @@ module Numerical.HBLAS.BLAS(
         ,scnrm2
         ,dznrm2
 
+        ,srot
+        ,drot
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -127,16 +130,16 @@ import Data.Complex
 
 
 -- Level 1
-sasum :: PrimMonad m => AsumFun Float Float (PrimState m) m
+sasum :: PrimMonad m => AsumFun Float (PrimState m) m Float
 sasum = asumAbstraction "sasum" cblas_sasum_safe cblas_sasum_unsafe
 
-dasum :: PrimMonad m => AsumFun Double Double (PrimState m) m
+dasum :: PrimMonad m => AsumFun Double (PrimState m) m Double
 dasum = asumAbstraction "dasum" cblas_dasum_safe cblas_dasum_unsafe
 
-scasum :: PrimMonad m => AsumFun (Complex Float) Float (PrimState m) m
+scasum :: PrimMonad m => AsumFun (Complex Float) (PrimState m) m Float
 scasum = asumAbstraction "scasum" cblas_scasum_safe cblas_scasum_unsafe
 
-dzasum :: PrimMonad m => AsumFun (Complex Double) Double (PrimState m) m
+dzasum :: PrimMonad m => AsumFun (Complex Double) (PrimState m) m Double
 dzasum = asumAbstraction "dzasum" cblas_dzasum_safe cblas_dzasum_unsafe
 
 saxpy :: PrimMonad m => AxpyFun Float (PrimState m) m
@@ -163,16 +166,16 @@ ccopy = copyAbstraction "ccopy" cblas_ccopy_safe cblas_ccopy_unsafe
 zcopy :: PrimMonad m => CopyFun (Complex Double) (PrimState m) m
 zcopy = copyAbstraction "zcopy" cblas_zcopy_safe cblas_zcopy_unsafe
 
-sdot :: PrimMonad m => NoScalarDotFun Float Float (PrimState m) m
+sdot :: PrimMonad m => NoScalarDotFun Float (PrimState m) m Float
 sdot = noScalarDotAbstraction "sdot" cblas_sdot_safe cblas_sdot_unsafe
 
-ddot :: PrimMonad m => NoScalarDotFun Double Double (PrimState m) m
+ddot :: PrimMonad m => NoScalarDotFun Double (PrimState m) m Double
 ddot = noScalarDotAbstraction "ddot" cblas_ddot_safe cblas_ddot_unsafe
 
-sdsdot :: PrimMonad m => ScalarDotFun Float Float (PrimState m) m
+sdsdot :: PrimMonad m => ScalarDotFun Float (PrimState m) m Float
 sdsdot = scalarDotAbstraction "sdsdot" cblas_sdsdot_safe cblas_sdsdot_unsafe
 
-dsdot :: PrimMonad m => NoScalarDotFun Float Double (PrimState m) m
+dsdot :: PrimMonad m => NoScalarDotFun Float (PrimState m) m Double
 dsdot = noScalarDotAbstraction "dsdot" cblas_dsdot_safe cblas_dsdot_unsafe
 
 cdotu :: PrimMonad m => ComplexDotFun (Complex Float) (PrimState m) m
@@ -187,17 +190,23 @@ zdotu = complexDotAbstraction "zdotu" cblas_zdotu_safe cblas_zdotu_unsafe
 zdotc :: PrimMonad m => ComplexDotFun (Complex Double) (PrimState m) m
 zdotc = complexDotAbstraction "zdotc" cblas_zdotc_safe cblas_zdotc_unsafe
 
-snrm2 :: PrimMonad m => Nrm2Fun Float Float (PrimState m) m 
+snrm2 :: PrimMonad m => Nrm2Fun Float (PrimState m) m Float
 snrm2 = norm2Abstraction "snrm2" cblas_snrm2_safe cblas_snrm2_unsafe
 
-dnrm2 :: PrimMonad m => Nrm2Fun Double Double (PrimState m) m 
+dnrm2 :: PrimMonad m => Nrm2Fun Double (PrimState m) m Double
 dnrm2 = norm2Abstraction "dnrm2" cblas_dnrm2_safe cblas_dnrm2_unsafe
 
-scnrm2 :: PrimMonad m => Nrm2Fun (Complex Float) Float (PrimState m) m 
+scnrm2 :: PrimMonad m => Nrm2Fun (Complex Float) (PrimState m) m Float
 scnrm2 = norm2Abstraction "scnrm2" cblas_scnrm2_safe cblas_scnrm2_unsafe
 
-dznrm2 :: PrimMonad m => Nrm2Fun (Complex Double) Double (PrimState m) m 
+dznrm2 :: PrimMonad m => Nrm2Fun (Complex Double) (PrimState m) m Double
 dznrm2 = norm2Abstraction "dznrm2" cblas_dznrm2_safe cblas_dznrm2_unsafe
+
+srot :: PrimMonad m => RotFun Float (PrimState m) m Float
+srot = rotAbstraction "srot" cblas_srot_safe cblas_srot_unsafe
+
+drot :: PrimMonad m => RotFun Double (PrimState m) m Double
+drot = rotAbstraction "drot" cblas_drot_safe cblas_drot_unsafe
 
 -- Level 2
 
