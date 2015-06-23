@@ -127,15 +127,21 @@ foreign import ccall unsafe "cblas_dznrm2" cblas_dznrm2_unsafe :: Nrm2FunFFI (Co
 
 
 --Performs rotation of points in the plane.
-type RotFunFFI el scale = CInt -> Ptr el -> CInt -> Ptr el -> CInt -> scale -> scale -> IO ()
-foreign import ccall "cblas_srot" cblas_srot_safe :: RotFunFFI Float Float
-foreign import ccall "cblas_drot" cblas_drot_safe :: RotFunFFI Double Double
+type RotFunFFI el = CInt -> Ptr el -> CInt -> Ptr el -> CInt -> el -> el -> IO ()
+foreign import ccall "cblas_srot" cblas_srot_safe :: RotFunFFI Float
+foreign import ccall "cblas_drot" cblas_drot_safe :: RotFunFFI Double
 
-foreign import ccall unsafe "cblas_srot" cblas_srot_unsafe :: RotFunFFI Float Float
-foreign import ccall unsafe "cblas_drot" cblas_drot_unsafe :: RotFunFFI Double Double
+foreign import ccall unsafe "cblas_srot" cblas_srot_unsafe :: RotFunFFI Float
+foreign import ccall unsafe "cblas_drot" cblas_drot_unsafe :: RotFunFFI Double
 --void cblas_srot(  CInt N, Float *X,   CInt incX, Float *Y,   CInt incY,   Float c,   Float s);
 --void cblas_drot(  CInt N, Double *X,   CInt incX, Double *Y,   CInt incY,   Double c,   Double  s);
 
+type RotgFunFFI el = Ptr el -> Ptr el -> Ptr el -> Ptr el -> IO ()
+foreign import ccall "cblas_srotg" cblas_srotg_safe :: RotgFunFFI Float
+foreign import ccall "cblas_drotg" cblas_drotg_safe :: RotgFunFFI Double
+
+foreign import ccall unsafe "cblas_srotg" cblas_srotg_unsafe :: RotgFunFFI Float
+foreign import ccall unsafe "cblas_drotg" cblas_drotg_unsafe :: RotgFunFFI Double
 --void cblas_srotg(Float *a, Float *b, Float *c, Float *s);
 --void cblas_drotg(Double *a, Double *b, Double *c, Double *s);
 

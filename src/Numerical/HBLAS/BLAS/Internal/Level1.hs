@@ -9,6 +9,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,ComplexDotFun
   ,Nrm2Fun
   ,RotFun
+  ,RotgFun
 
   ,asumAbstraction
   ,axpyAbstraction
@@ -18,6 +19,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,complexDotAbstraction
   ,norm2Abstraction
   ,rotAbstraction 
+  ,rotgAbstraction 
 ) where
 
 import Numerical.HBLAS.Constants
@@ -34,7 +36,8 @@ type NoScalarDotFun el s m res = Int -> MDenseVector s Direct el -> Int -> MDens
 type ScalarDotFun el s m res = Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> m res
 type ComplexDotFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MValue (PrimState m) el -> m()
 type Nrm2Fun el s m res = Int -> MDenseVector s Direct el -> Int -> m res
-type RotFun el s m scale  = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> scale -> scale -> m()
+type RotFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> el -> el -> m()
+type RotgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> m()
 
 isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
 isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
@@ -165,8 +168,8 @@ norm2Abstraction norm2Name norm2SafeFFI norm2UnsafeFFI = norm2
 
 {-# NOINLINE rotAbstraction #-}
 rotAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
-  RotFunFFI el scale -> RotFunFFI el scale ->
-  RotFun el (PrimState m) m scale
+  RotFunFFI el -> RotFunFFI el ->
+  RotFun el (PrimState m) m
 rotAbstraction rotName rotSafeFFI rotUnsafeFFI = rot
   where
     shouldCallFast :: Int -> Bool
@@ -181,3 +184,18 @@ rotAbstraction rotName rotSafeFFI rotUnsafeFFI = rot
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
             do unsafePrimToPrim $! (if shouldCallFast n then rotUnsafeFFI else rotSafeFFI) (fromIntegral n) ap (fromIntegral aincx) bp (fromIntegral bincx) c s
+
+{-# NOINLINE rotgAbstraction #-}
+rotgAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+  RotgFunFFI el -> RotgFunFFI el ->
+  RotgFun el (PrimState m) m
+rotgAbstraction rotgName rotgSafeFFI rotgUnsafeFFI = rotg
+  where
+    shouldCallFast :: Bool
+    shouldCallFast = True -- not sure, seems O(1)
+    rotg (MutableValue aptr) (MutableValue bptr) (MutableValue cptr) (MutableValue sptr)
+      = unsafeWithPrim aptr $ \ap ->
+        unsafeWithPrim bptr $ \bp ->
+        unsafeWithPrim cptr $ \cp ->
+        unsafeWithPrim sptr $ \sp ->
+         do unsafePrimToPrim $! (if shouldCallFast then rotgUnsafeFFI else rotgSafeFFI) ap bp cp sp

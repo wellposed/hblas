@@ -86,7 +86,7 @@ vecTest1DDOT :: IO ()
 vecTest1DDOT = do 
   left <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
   right <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
-  res <- sdot 6 left 2 right 1
+  res <- ddot 6 left 2 right 1
   res @?= 1 + 6 + 15 + 28 + 45 + 66
 
 vecTest1SDSDOT :: IO ()
@@ -153,6 +153,38 @@ vecTest1DROT = do
   resLeft @?= [-16, -12, -8, -4]
   resRight @?= [2, 7, 4, 5, 6, 3, 8, 1]
 
+vecTest1SROTG :: IO ()
+vecTest1SROTG = do
+  a <- Matrix.generateMutableValue 3
+  b <- Matrix.generateMutableValue 4
+  c <- Matrix.generateMutableValue 0
+  s <- Matrix.generateMutableValue 0
+  srotg a b c s
+  av <- Matrix.mutableValueToValue a
+  bv <- Matrix.mutableValueToValue b
+  cv <- Matrix.mutableValueToValue c
+  sv <- Matrix.mutableValueToValue s
+  av @?= 5
+  True @?= 1e-6 > (abs $ bv - 1/0.6)
+  cv @?= 0.6
+  sv @?= 0.8
+
+vecTest1DROTG :: IO ()
+vecTest1DROTG = do
+  a <- Matrix.generateMutableValue 5.8
+  b <- Matrix.generateMutableValue 3.4
+  c <- Matrix.generateMutableValue 0
+  s <- Matrix.generateMutableValue 0
+  drotg a b c s
+  av <- Matrix.mutableValueToValue a
+  bv <- Matrix.mutableValueToValue b
+  cv <- Matrix.mutableValueToValue c
+  sv <- Matrix.mutableValueToValue s
+  True @?= 1e-12 > (abs $ av - sqrt(3.4^2 + 5.8^2))
+  True @?= 1e-12 > (abs $ bv - 3.4 / sqrt(3.4^2 + 5.8^2))
+  True @?= 1e-12 > (abs $ cv - 5.8 / sqrt(3.4^2 + 5.8^2))
+  True @?= 1e-12 > (abs $ sv - 3.4 / sqrt(3.4^2 + 5.8^2))
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "sasum on vector of length 6 with incx 1" vecTest1SASUM,
                      testCase "sasum on vector of length 12 with incx 2" vecTest2SASUM,
@@ -175,7 +207,10 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "dznrm on vector of length 8 with incx of 2" vecTest1DZNRM2,
 
                      testCase "srot on vector of length 6 and 6 with incx of 2" vecTest1SROT,
-                     testCase "drot on vector of length 4 and 8 with incx of 1 and 2" vecTest1DROT
+                     testCase "drot on vector of length 4 and 8 with incx of 1 and 2" vecTest1DROT,
+                     
+                     testCase "srotg on 3 4" vecTest1SROTG,
+                     testCase "drotg on 5.8 3.4" vecTest1DROTG
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"
