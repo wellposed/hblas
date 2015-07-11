@@ -10,6 +10,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,Nrm2Fun
   ,RotFun
   ,RotgFun
+  ,RotmFun
 
   ,asumAbstraction
   ,axpyAbstraction
@@ -18,8 +19,9 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,scalarDotAbstraction
   ,complexDotAbstraction
   ,norm2Abstraction
-  ,rotAbstraction 
-  ,rotgAbstraction 
+  ,rotAbstraction
+  ,rotgAbstraction
+  ,rotmAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -38,6 +40,7 @@ type ComplexDotFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVect
 type Nrm2Fun el s m res = Int -> MDenseVector s Direct el -> Int -> m res
 type RotFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> el -> el -> m()
 type RotgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> m()
+type RotmFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
 
 isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
 isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
@@ -90,7 +93,7 @@ copyAbstraction copyName copySafeFFI copyUnsafeFFI = copy
       (MutableDenseVector _ bdim _ bbuff) bincx
         | isVectorBadWithNIncrement adim n aincx = error $! vectorBadInfo copyName "first matrix" adim n aincx
         | isVectorBadWithNIncrement bdim n bincx = error $! vectorBadInfo copyName "second matrix" bdim n bincx
-        | otherwise = 
+        | otherwise =
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
             do unsafePrimToPrim $! (if shouldCallFast then copyUnsafeFFI else copySafeFFI) (fromIntegral n) ap (fromIntegral aincx) bp (fromIntegral bincx)
@@ -108,7 +111,7 @@ noScalarDotAbstraction dotName dotSafeFFI dotUnsafeFFI = dot
       (MutableDenseVector _ bdim _ bbuff) bincx
         | isVectorBadWithNIncrement adim n aincx = error $! vectorBadInfo dotName "first matrix" adim n aincx
         | isVectorBadWithNIncrement bdim n bincx = error $! vectorBadInfo dotName "second matrix" bdim n bincx
-        | otherwise = 
+        | otherwise =
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
             do unsafePrimToPrim $! (if shouldCallFast n then dotUnsafeFFI else dotSafeFFI) (fromIntegral n) ap (fromIntegral aincx) bp (fromIntegral bincx)
@@ -126,7 +129,7 @@ scalarDotAbstraction dotName dotSafeFFI dotUnsafeFFI = dot
       (MutableDenseVector _ bdim _ bbuff) bincx
         | isVectorBadWithNIncrement adim n aincx = error $! vectorBadInfo dotName "first matrix" adim n aincx
         | isVectorBadWithNIncrement bdim n bincx = error $! vectorBadInfo dotName "second matrix" bdim n bincx
-        | otherwise = 
+        | otherwise =
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
             do unsafePrimToPrim $! (if shouldCallFast n then dotUnsafeFFI else dotSafeFFI) (fromIntegral n) sb ap (fromIntegral aincx) bp (fromIntegral bincx)
@@ -199,3 +202,23 @@ rotgAbstraction rotgName rotgSafeFFI rotgUnsafeFFI = rotg
         unsafeWithPrim cptr $ \cp ->
         unsafeWithPrim sptr $ \sp ->
          do unsafePrimToPrim $! (if shouldCallFast then rotgUnsafeFFI else rotgSafeFFI) ap bp cp sp
+
+{-# NOINLINE rotmAbstraction #-}
+rotmAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+  RotmFunFFI el -> RotmFunFFI el ->
+  RotmFun el (PrimState m) m
+rotmAbstraction rotmName rotmSafeFFI rotmUnsafeFFI = rotm
+  where
+    shouldCallFast :: Bool
+    shouldCallFast = True -- O(1)
+    rotm n (MutableDenseVector _ adim _ abuff) aincx
+           (MutableDenseVector _ bdim _ bbuff) bincx
+           (MutableDenseVector _ pdim _ pbuff)
+      | isVectorBadWithNIncrement adim n aincx = error $! vectorBadInfo rotmName "first matrix" adim n aincx
+      | isVectorBadWithNIncrement bdim n bincx = error $! vectorBadInfo rotmName "second matrix" bdim n bincx
+      | pdim /= 5 = error $! rotmName ++ " param dimension is not 5"
+      | otherwise =
+        unsafeWithPrim abuff $ \ap ->
+        unsafeWithPrim bbuff $ \bp ->
+        unsafeWithPrim pbuff $ \pp ->
+          do unsafePrimToPrim $! (if shouldCallFast then rotmUnsafeFFI else rotmSafeFFI) (fromIntegral n) ap (fromIntegral aincx) bp (fromIntegral bincx) pp

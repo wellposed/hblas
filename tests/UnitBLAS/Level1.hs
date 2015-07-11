@@ -5,10 +5,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FunctionalDependencies #-}
 
-module UnitBLAS.Level1(unitTestLevel1BLAS) where 
+module UnitBLAS.Level1(unitTestLevel1BLAS) where
 
 --import Test.HUnit
---import Numerical.Array.Shape as S 
+--import Numerical.Array.Shape as S
 import Prelude as P
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -76,28 +76,28 @@ vecTest2DCOPY = do
   resList @?= [1, 0, 0, 3, 0, 0, 5, 0, 0]
 
 vecTest1SDOT :: IO ()
-vecTest1SDOT = do 
+vecTest1SDOT = do
   left <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
   right <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
   res <- sdot 3 left 2 right 4
   res @?= 1 + 15 + 45
 
 vecTest1DDOT :: IO ()
-vecTest1DDOT = do 
+vecTest1DDOT = do
   left <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
   right <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
   res <- ddot 6 left 2 right 1
   res @?= 1 + 6 + 15 + 28 + 45 + 66
 
 vecTest1SDSDOT :: IO ()
-vecTest1SDSDOT = do 
+vecTest1SDSDOT = do
   left <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
   right <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
   res <- sdsdot 3 2.0 left 2 right 4
   res @?= 2 + 1 + 15 + 45
 
 vecTest1DSDOT :: IO ()
-vecTest1DSDOT = do 
+vecTest1DSDOT = do
   left <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
   right <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
   res <- dsdot 6 left 2 right 1
@@ -185,6 +185,28 @@ vecTest1DROTG = do
   True @?= 1e-12 > (abs $ cv - 5.8 / sqrt(3.4^2 + 5.8^2))
   True @?= 1e-12 > (abs $ sv - 3.4 / sqrt(3.4^2 + 5.8^2))
 
+vecTest1DROTM :: IO ()
+vecTest1DROTM = do
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [1, 2, 3, 4] !! idx)
+  y <- Matrix.generateMutableDenseVector 8 (\idx -> [8, 7, 6, 5, 4, 3, 2, 1] !! idx)
+  param <- Matrix.generateMutableDenseVector 5 (\idx -> [-1, 0, -1, 1, 0] !! idx)
+  drotm 4 x 1 y 2 param
+  resX <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+  resY <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resX @?= [8, 6, 4, 2]
+  resY @?= [-1, 7, -2, 5, -3, 3, -4, 1]
+
+vecTest1SROTM :: IO ()
+vecTest1SROTM = do
+  x <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
+  y <- Matrix.generateMutableDenseVector 9 (\idx -> [9, 8, 7, 6, 5, 4, 3, 2, 1] !! idx)
+  param <- Matrix.generateMutableDenseVector 5 (\idx -> [1, 1, 2, -2, 1] !! idx)
+  srotm 3 x 2 y 3 param
+  resX <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+  resY <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resX @?= [10, 2, 9, 4, 8, 6]
+  resY @?= [8, 8, 7, 3, 5, 4, -2, 2, 1]
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "sasum on vector of length 6 with incx 1" vecTest1SASUM,
                      testCase "sasum on vector of length 12 with incx 2" vecTest2SASUM,
@@ -206,11 +228,14 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "snrm on vector of length 6 with incx of 1" vecTest1SNRM2,
                      testCase "dznrm on vector of length 8 with incx of 2" vecTest1DZNRM2,
 
-                     testCase "srot on vector of length 6 and 6 with incx of 2" vecTest1SROT,
-                     testCase "drot on vector of length 4 and 8 with incx of 1 and 2" vecTest1DROT,
-                     
+                     testCase "srot on vectors of length 6 and 6 with incx of 2" vecTest1SROT,
+                     testCase "drot on vectors of length 4 and 8 with incx of 1 and 2" vecTest1DROT,
+
                      testCase "srotg on 3 4" vecTest1SROTG,
-                     testCase "drotg on 5.8 3.4" vecTest1DROTG
+                     testCase "drotg on 5.8 3.4" vecTest1DROTG,
+
+                     testCase "drotm on vectos of 4 and 8 with incx of 1 and 2, param starts with -1" vecTest1DROTM,
+                     testCase "srotm on vectos of 6 and 9 with incx of 2 and 3, param starts with 1" vecTest1SROTM
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"
@@ -224,16 +249,16 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
 
 import Numerical.HBLAS.BLAS.FFI
 import Numerical.HBLAS.BLAS
-import Numerical.HBLAS.MatrixTypes 
-import Data.Vector.Storable.Mutable as M 
-import qualified Data.Vector.Storable as S 
+import Numerical.HBLAS.MatrixTypes
+import Data.Vector.Storable.Mutable as M
+import qualified Data.Vector.Storable as S
 
 main :: IO ()
 main = do
   -- Just test that the symbol resolves
-  --openblas_set_num_threads_unsafe 7  
+  --openblas_set_num_threads_unsafe 7
   v  :: IOVector Double <- M.replicate 10 1.0
-  res <- unsafeWith v (\ptr-> cblas_ddot_unsafe 10 ptr 1   ptr 1) 
+  res <- unsafeWith v (\ptr-> cblas_ddot_unsafe 10 ptr 1   ptr 1)
 
 
   -}

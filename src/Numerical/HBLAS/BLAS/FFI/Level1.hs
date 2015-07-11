@@ -145,8 +145,20 @@ foreign import ccall unsafe "cblas_drotg" cblas_drotg_unsafe :: RotgFunFFI Doubl
 --void cblas_srotg(Float *a, Float *b, Float *c, Float *s);
 --void cblas_drotg(Double *a, Double *b, Double *c, Double *s);
 
+type RotmFunFFI el = CInt -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> IO ()
+foreign import ccall "cblas_srotm" cblas_srotm_safe :: RotmFunFFI Float
+foreign import ccall "cblas_drotm" cblas_drotm_safe :: RotmFunFFI Double
+
+foreign import ccall unsafe "cblas_srotm" cblas_srotm_unsafe :: RotmFunFFI Float
+foreign import ccall unsafe "cblas_drotm" cblas_drotm_unsafe :: RotmFunFFI Double
 --void cblas_srotm(  CInt N, Float *X,   CInt incX, Float *Y,   CInt incY,   Float *P);
 --void cblas_drotm(  CInt N, Double *X,   CInt incX, Double *Y,   CInt incY,   Double *P);
 
+type RotmgFunFFI el = Ptr el -> Ptr el -> Ptr el -> el -> Ptr el -> IO ()
+foreign import ccall "cblas_srotmg" cblas_srotmg_safe :: RotmFunFFI Float
+foreign import ccall "cblas_drotmg" cblas_drotmg_safe :: RotmFunFFI Double
+
+foreign import ccall unsafe "cblas_srotmg" cblas_srotmg_unsafe :: RotmFunFFI Float
+foreign import ccall unsafe "cblas_drotmg" cblas_drotmg_unsafe :: RotmFunFFI Double
 --void cblas_srotmg(Float *d1, Float *d2, Float *b1,   Float b2, Float *P);
 --void cblas_drotmg(Double *d1, Double *d2, Double *b1,   Double b2, Double *P);
