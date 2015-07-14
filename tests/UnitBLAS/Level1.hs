@@ -207,6 +207,23 @@ vecTest1SROTM = do
   resX @?= [10, 2, 9, 4, 8, 6]
   resY @?= [8, 8, 7, 3, 5, 4, -2, 2, 1]
 
+vecTest1SROTMG :: IO ()
+vecTest1SROTMG = do
+  d1 <- Matrix.generateMutableValue 3
+  d2 <- Matrix.generateMutableValue 6
+  x <- Matrix.generateMutableValue 1
+  let y = 1
+  param <- Matrix.generateMutableDenseVector 5 (\idx -> [-1, 1, 1, -1, 1] !! idx)
+  srotmg d1 d2 x y param
+  paramR <- Matrix.mutableVectorToList $ _bufferMutDenseVector param
+  updatedD1 <- Matrix.mutableValueToValue d1
+  updatedD2 <- Matrix.mutableValueToValue d2
+  updatedX <- Matrix.mutableValueToValue x
+  paramR @?= [1, 0, 0.5, 0, 1]
+  updatedD1 @?= 4
+  updatedD2 @?= 2
+  updatedX @?= 1.5
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "sasum on vector of length 6 with incx 1" vecTest1SASUM,
                      testCase "sasum on vector of length 12 with incx 2" vecTest2SASUM,
@@ -236,6 +253,8 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
 
                      testCase "drotm on vectos of 4 and 8 with incx of 1 and 2, param starts with -1" vecTest1DROTM,
                      testCase "srotm on vectos of 6 and 9 with incx of 2 and 3, param starts with 1" vecTest1SROTM
+
+                     -- testCase "drotmg on vectos of 4 and 8 with incx of 1 and 2, param starts with -1" vecTest1SROTMG really confusing result.
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"

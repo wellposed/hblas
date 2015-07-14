@@ -11,6 +11,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,RotFun
   ,RotgFun
   ,RotmFun
+  ,RotmgFun
 
   ,asumAbstraction
   ,axpyAbstraction
@@ -22,6 +23,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,rotAbstraction
   ,rotgAbstraction
   ,rotmAbstraction
+  ,rotmgAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -41,6 +43,7 @@ type Nrm2Fun el s m res = Int -> MDenseVector s Direct el -> Int -> m res
 type RotFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> el -> el -> m()
 type RotgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> m()
 type RotmFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
+type RotmgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> el -> MDenseVector s Direct el -> m()
 
 isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
 isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
@@ -222,3 +225,24 @@ rotmAbstraction rotmName rotmSafeFFI rotmUnsafeFFI = rotm
         unsafeWithPrim bbuff $ \bp ->
         unsafeWithPrim pbuff $ \pp ->
           do unsafePrimToPrim $! (if shouldCallFast then rotmUnsafeFFI else rotmSafeFFI) (fromIntegral n) ap (fromIntegral aincx) bp (fromIntegral bincx) pp
+
+{-# NOINLINE rotmgAbstraction #-}
+rotmgAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+  RotmgFunFFI el -> RotmgFunFFI el ->
+  RotmgFun el (PrimState m) m
+rotmgAbstraction rotmgName rotmgSafeFFI rotmgUnsafeFFI = rotmg
+  where
+    shouldCallFast :: Bool
+    shouldCallFast = True -- O(1)
+    rotmg (MutableValue d1)
+          (MutableValue d2)
+          (MutableValue x1)
+          y1
+          (MutableDenseVector _ pdim _ pbuff)
+      | pdim /= 5 = error $! rotmgName ++ " param dimension is not 5"
+      | otherwise =
+        unsafeWithPrim d1 $ \d1p ->
+        unsafeWithPrim d2 $ \d2p ->
+        unsafeWithPrim x1 $ \x1p ->
+        unsafeWithPrim pbuff $ \pp ->
+          do unsafePrimToPrim $! (if shouldCallFast then rotmgUnsafeFFI else rotmgSafeFFI) d1p d2p x1p y1 pp

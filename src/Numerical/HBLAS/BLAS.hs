@@ -101,6 +101,9 @@ module Numerical.HBLAS.BLAS(
         ,srotm
         ,drotm
 
+        ,srotmg
+        ,drotmg
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -225,6 +228,12 @@ srotm = rotmAbstraction "srotm" cblas_srotm_safe cblas_srotm_unsafe
 
 drotm :: PrimMonad m => RotmFun Double (PrimState m) m
 drotm = rotmAbstraction "drotm" cblas_drotm_safe cblas_drotm_unsafe
+
+srotmg :: PrimMonad m => RotmgFun Float (PrimState m) m
+srotmg = rotmgAbstraction "srotmg" cblas_srotmg_safe cblas_srotmg_unsafe
+
+drotmg :: PrimMonad m => RotmgFun Double (PrimState m) m
+drotmg = rotmgAbstraction "drotmg" cblas_drotmg_safe cblas_drotmg_unsafe
 
 -- Level 2
 
