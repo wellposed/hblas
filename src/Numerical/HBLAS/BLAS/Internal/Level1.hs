@@ -12,6 +12,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,RotgFun
   ,RotmFun
   ,RotmgFun
+  ,ScalFun
 
   ,asumAbstraction
   ,axpyAbstraction
@@ -24,6 +25,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,rotgAbstraction
   ,rotmAbstraction
   ,rotmgAbstraction
+  ,scalAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -44,6 +46,7 @@ type RotFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Di
 type RotgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> m()
 type RotmFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
 type RotmgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> el -> MDenseVector s Direct el -> m()
+type ScalFun scale el s m = Int -> scale -> MDenseVector s Direct el -> Int -> m()
 
 isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
 isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
@@ -246,3 +249,18 @@ rotmgAbstraction rotmgName rotmgSafeFFI rotmgUnsafeFFI = rotmg
         unsafeWithPrim x1 $ \x1p ->
         unsafeWithPrim pbuff $ \pp ->
           do unsafePrimToPrim $! (if shouldCallFast then rotmgUnsafeFFI else rotmgSafeFFI) d1p d2p x1p y1 pp
+
+{-# NOINLINE scalAbstraction #-}
+scalAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+  ScalFunFFI scale el -> ScalFunFFI scale el -> (scaleplain -> (scale -> m()) -> m()) ->
+  ScalFun scaleplain el (PrimState m) m
+scalAbstraction scalName scalSafeFFI scalUnsafeFFI constHandler = scal
+  where
+    shouldCallFast :: Int -> Bool
+    shouldCallFast n = flopsThreshold >= fromIntegral n
+    scal n alpha (MutableDenseVector _ xdim _ xbuff) xincx
+      | isVectorBadWithNIncrement xdim n xincx = error $! vectorBadInfo scalName " vector" xdim n xincx
+      | otherwise =
+        unsafeWithPrim xbuff $ \xptr ->
+        constHandler alpha $ \alphaPtr ->
+          do unsafePrimToPrim $! (if shouldCallFast n then scalUnsafeFFI else scalSafeFFI) (fromIntegral n) alphaPtr xptr (fromIntegral xincx)

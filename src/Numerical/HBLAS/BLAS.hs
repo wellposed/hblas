@@ -104,6 +104,13 @@ module Numerical.HBLAS.BLAS(
         ,srotmg
         ,drotmg
 
+        ,sscal
+        ,dscal
+        ,cscal
+        ,zscal
+        ,csscal
+        ,zdscal
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -234,6 +241,24 @@ srotmg = rotmgAbstraction "srotmg" cblas_srotmg_safe cblas_srotmg_unsafe
 
 drotmg :: PrimMonad m => RotmgFun Double (PrimState m) m
 drotmg = rotmgAbstraction "drotmg" cblas_drotmg_safe cblas_drotmg_unsafe
+
+sscal :: PrimMonad m => ScalFun Float Float (PrimState m) m
+sscal = scalAbstraction "sscal" cblas_sscal_safe cblas_sscal_unsafe (\x f -> f x )
+
+dscal :: PrimMonad m => ScalFun Double Double (PrimState m) m
+dscal = scalAbstraction "dscal" cblas_dscal_safe cblas_dscal_unsafe (\x f -> f x )
+
+cscal :: PrimMonad m => ScalFun (Complex Float) (Complex Float) (PrimState m) m
+cscal = scalAbstraction "cscal" cblas_cscal_safe cblas_cscal_unsafe withRStorable_
+
+zscal :: PrimMonad m => ScalFun (Complex Double) (Complex Double) (PrimState m) m
+zscal = scalAbstraction "zscal" cblas_zscal_safe cblas_zscal_unsafe withRStorable_
+
+csscal :: PrimMonad m => ScalFun Float (Complex Float) (PrimState m) m
+csscal = scalAbstraction "csscal" cblas_csscal_safe cblas_csscal_unsafe (\x f -> f x )
+
+zdscal :: PrimMonad m => ScalFun Double (Complex Double) (PrimState m) m
+zdscal = scalAbstraction "zdscal" cblas_zdscal_safe cblas_zdscal_unsafe (\x f -> f x )
 
 -- Level 2
 

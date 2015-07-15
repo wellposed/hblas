@@ -134,13 +134,6 @@ foreign import ccall unsafe "cblas_zswap" cblas_zswap_unsafe ::
 
 
 
---void cblas_sscal(  CInt N,   Float alpha, Float *X,   CInt incX);
---void cblas_dscal(  CInt N,   Double alpha, Double *X,   CInt incX);
---void cblas_cscal(  CInt N,   Float *alpha, Float *X,   CInt incX);
---void cblas_zscal(  CInt N,   Double *alpha, Double *X,   CInt incX);
---void cblas_csscal(  CInt N,   Float alpha, Float *X,   CInt incX);
---void cblas_zdscal(  CInt N,   Double alpha, Double *X,   CInt incX);
-
 
 
 

@@ -162,3 +162,25 @@ foreign import ccall unsafe "cblas_srotmg" cblas_srotmg_unsafe :: RotmgFunFFI Fl
 foreign import ccall unsafe "cblas_drotmg" cblas_drotmg_unsafe :: RotmgFunFFI Double
 --void cblas_srotmg(Float *d1, Float *d2, Float *b1,   Float b2, Float *P);
 --void cblas_drotmg(Double *d1, Double *d2, Double *b1,   Double b2, Double *P);
+
+type ScalFunFFI scale el = CInt -> scale -> Ptr el -> CInt -> IO ()
+foreign import ccall "cblas_sscal" cblas_sscal_safe :: ScalFunFFI Float Float
+foreign import ccall "cblas_dscal" cblas_dscal_safe :: ScalFunFFI Double Double
+foreign import ccall "cblas_cscal" cblas_cscal_safe :: ScalFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall "cblas_zscal" cblas_zscal_safe :: ScalFunFFI (Ptr (Complex Double)) (Complex Double)
+foreign import ccall "cblas_csscal" cblas_csscal_safe :: ScalFunFFI Float (Complex Float)
+foreign import ccall "cblas_zdscal" cblas_zdscal_safe :: ScalFunFFI Double (Complex Double)
+
+foreign import ccall unsafe "cblas_sscal" cblas_sscal_unsafe :: ScalFunFFI Float Float
+foreign import ccall unsafe "cblas_dscal" cblas_dscal_unsafe :: ScalFunFFI Double Double
+foreign import ccall unsafe "cblas_cscal" cblas_cscal_unsafe :: ScalFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall unsafe "cblas_zscal" cblas_zscal_unsafe :: ScalFunFFI (Ptr (Complex Double)) (Complex Double)
+foreign import ccall unsafe "cblas_csscal" cblas_csscal_unsafe :: ScalFunFFI Float (Complex Float)
+foreign import ccall unsafe "cblas_zdscal" cblas_zdscal_unsafe :: ScalFunFFI Double (Complex Double)
+--void cblas_sscal(  CInt N,   Float alpha, Float *X,   CInt incX);
+--void cblas_dscal(  CInt N,   Double alpha, Double *X,   CInt incX);
+--void cblas_cscal(  CInt N,   Float *alpha, Float *X,   CInt incX);
+--void cblas_zscal(  CInt N,   Double *alpha, Double *X,   CInt incX);
+--void cblas_csscal(  CInt N,   Float alpha, Float *X,   CInt incX);
+--void cblas_zdscal(  CInt N,   Double alpha, Double *X,   CInt incX);
+

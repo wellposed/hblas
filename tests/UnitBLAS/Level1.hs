@@ -224,6 +224,27 @@ vecTest1SROTMG = do
   updatedD2 @?= 2
   updatedX @?= 1.5
 
+vecTest1SSCAL :: IO ()
+vecTest1SSCAL = do
+  x <- Matrix.generateMutableDenseVector 8 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
+  sscal 4 (-2) x 2
+  xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+  xRes @?= [-2, 2, -6, 4, -10, 6, -14, 8]
+
+vecTest1CSCAL :: IO ()
+vecTest1CSCAL = do
+  x <- Matrix.generateMutableDenseVector 8 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1] !! idx)
+  cscal 2 (2:+(-2)) x 4
+  xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+  xRes @?= [4:+0, 1:+2, 2:+(-3), 2:+(-2), (-4):+8, (-3):+0, (-4):+2, (-4):+1]
+
+vecTest1CSSCAL :: IO ()
+vecTest1CSSCAL = do
+  x <- Matrix.generateMutableDenseVector 8 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1] !! idx)
+  csscal 8 (-2) x 1
+  xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+  xRes @?= [(-2):+(-2), (-2):+(-4), (-4):+6, (-4):+4, 6:+(-2), 6:+0, 8:+(-4), 8:+(-2)]
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "sasum on vector of length 6 with incx 1" vecTest1SASUM,
                      testCase "sasum on vector of length 12 with incx 2" vecTest2SASUM,
@@ -251,10 +272,14 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "srotg on 3 4" vecTest1SROTG,
                      testCase "drotg on 5.8 3.4" vecTest1DROTG,
 
-                     testCase "drotm on vectos of 4 and 8 with incx of 1 and 2, param starts with -1" vecTest1DROTM,
-                     testCase "srotm on vectos of 6 and 9 with incx of 2 and 3, param starts with 1" vecTest1SROTM
+                     testCase "drotm on vectors of 4 and 8 with incx of 1 and 2, param starts with -1" vecTest1DROTM,
+                     testCase "srotm on vectors of 6 and 9 with incx of 2 and 3, param starts with 1" vecTest1SROTM,
 
-                     -- testCase "drotmg on vectos of 4 and 8 with incx of 1 and 2, param starts with -1" vecTest1SROTMG really confusing result.
+                     -- testCase "drotmg" vecTest1SROTMG really confusing result.
+
+                     testCase "sscal on vector of 8 with incx 2" vecTest1SSCAL,
+                     testCase "cscal on vector of 8 with incx 4" vecTest1CSCAL,
+                     testCase "csscal on vector of 8 with incx 1" vecTest1CSSCAL
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"
