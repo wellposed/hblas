@@ -277,6 +277,20 @@ vecTest1ICAMAX = do
   idx <- icamax 9 x 1
   idx @?= 8
 
+{-
+vecTest1ISAMIN :: IO ()
+vecTest1ISAMIN = do
+  x <- Matrix.generateMutableDenseVector 8 (\idx -> [1, 2, 3, 4, -5, 6, 7, 8] !! idx)
+  idx <- isamin 4 x 2
+  idx @?= 2
+
+vecTest1ICAMIN :: IO ()
+vecTest1ICAMIN = do
+  x <- Matrix.generateMutableDenseVector 9 (\idx -> [1:+2, 1:+2, (-2):+(-3), 2:+(-2), (-3):+1, (-2):+0, (-4):+2, (-4):+1, 0:+9] !! idx)
+  idx <- icamin 9 x 1
+  idx @?= 5
+-}
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "sasum on vector of length 6 with incx 1" vecTest1SASUM,
                      testCase "sasum on vector of length 12 with incx 2" vecTest2SASUM,
@@ -318,6 +332,9 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
 
                      testCase "isamax on vector of 8 with incx 2" vecTest1ISAMAX,
                      testCase "icamax on vector of 9 with incx 1" vecTest1ICAMAX
+
+                     --testCase "isamin on vector of 8 with incx 2" vecTest1ISAMIN,
+                     --testCase "icamin on vector of 9 with incx 1" vecTest1ICAMIN
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"

@@ -121,6 +121,13 @@ module Numerical.HBLAS.BLAS(
         ,icamax
         ,izamax
 
+{-
+        ,isamin
+        ,idamin
+        ,icamin
+        ,izamin
+-}
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -293,6 +300,20 @@ icamax = iamaxAbstraction "icamax" cblas_icamax_safe cblas_icamax_unsafe
 
 izamax :: PrimMonad m => IamaxFun (Complex Double)(PrimState m) m
 izamax = iamaxAbstraction "izamax" cblas_izamax_safe cblas_izamax_unsafe
+
+{-
+isamin :: PrimMonad m => IaminFun Float (PrimState m) m
+isamin = iaminAbstraction "isamin" cblas_isamin_safe cblas_isamin_unsafe
+
+idamin :: PrimMonad m => IaminFun Double (PrimState m) m
+idamin = iaminAbstraction "idamin" cblas_idamin_safe cblas_idamin_unsafe
+
+icamin :: PrimMonad m => IaminFun (Complex Float) (PrimState m) m
+icamin = iaminAbstraction "icamin" cblas_icamin_safe cblas_icamin_unsafe
+
+izamin :: PrimMonad m => IaminFun (Complex Double)(PrimState m) m
+izamin = iaminAbstraction "izamin" cblas_izamin_safe cblas_izamin_unsafe
+-}
 
 -- Level 2
 

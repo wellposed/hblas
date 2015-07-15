@@ -213,3 +213,20 @@ foreign import ccall unsafe "cblas_izamax" cblas_izamax_unsafe :: IamaxFunFFI (C
 --CBLAS_INDEX cblas_idamax(  CInt n,   Double *x,   CInt incx);
 --CBLAS_INDEX cblas_icamax(  CInt n,   Float  *x,   CInt incx);
 --CBLAS_INDEX cblas_izamax(  CInt n,   Double *x,   CInt incx);
+
+{-
+type IaminFunFFI el = CInt -> Ptr el -> CInt -> IO Int
+foreign import ccall "cblas_isamin" cblas_isamin_safe :: IaminFunFFI Float
+foreign import ccall "cblas_idamin" cblas_idamin_safe :: IaminFunFFI Double
+foreign import ccall "cblas_icamin" cblas_icamin_safe :: IaminFunFFI (Complex Float)
+foreign import ccall "cblas_izamin" cblas_izamin_safe :: IaminFunFFI (Complex Double)
+
+foreign import ccall unsafe "cblas_isamin" cblas_isamin_unsafe :: IaminFunFFI Float
+foreign import ccall unsafe "cblas_idamin" cblas_idamin_unsafe :: IaminFunFFI Double
+foreign import ccall unsafe "cblas_icamin" cblas_icamin_unsafe :: IaminFunFFI (Complex Float)
+foreign import ccall unsafe "cblas_izamin" cblas_izamin_unsafe :: IaminFunFFI (Complex Double)
+-}
+--CBLAS_INDEX cblas_isamin(  CInt n,   Float  *x,   CInt incx);
+--CBLAS_INDEX cblas_idamin(  CInt n,   Double *x,   CInt incx);
+--CBLAS_INDEX cblas_icamin(  CInt n,   Float  *x,   CInt incx);
+--CBLAS_INDEX cblas_izamin(  CInt n,   Double *x,   CInt incx);

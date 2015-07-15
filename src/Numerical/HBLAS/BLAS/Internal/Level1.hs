@@ -15,6 +15,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,ScalFun
   ,SwapFun
   ,IamaxFun
+  --,IaminFun
 
   ,asumAbstraction
   ,axpyAbstraction
@@ -30,6 +31,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,scalAbstraction
   ,swapAbstraction
   ,iamaxAbstraction
+  --,iaminAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -53,6 +55,7 @@ type RotmgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MVa
 type ScalFun scale el s m = Int -> scale -> MDenseVector s Direct el -> Int -> m()
 type SwapFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> m()
 type IamaxFun el s m = Int -> MDenseVector s Direct el -> Int -> m Int
+--type IaminFun el s m = Int -> MDenseVector s Direct el -> Int -> m Int
 
 isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
 isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
@@ -300,3 +303,19 @@ iamaxAbstraction iamaxName iamaxSafeFFI iamaxUnsafeFFI = iamax
       | otherwise =
         unsafeWithPrim xbuff $ \xptr ->
           do unsafePrimToPrim $! (if shouldCallFast n then iamaxUnsafeFFI else iamaxSafeFFI) (fromIntegral n) xptr (fromIntegral xincx)
+
+{-
+{-# NOINLINE iaminAbstraction #-}
+iaminAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+  IaminFunFFI el -> IaminFunFFI el ->
+  IaminFun el (PrimState m) m
+iaminAbstraction iaminName iaminSafeFFI iaminUnsafeFFI = iamin
+  where
+    shouldCallFast :: Int -> Bool
+    shouldCallFast n = flopsThreshold >= fromIntegral n -- n times comparison
+    iamin n (MutableDenseVector _ xdim _ xbuff) xincx
+      | isVectorBadWithNIncrement xdim n xincx = error $! vectorBadInfo iaminName "target vector" xdim n xincx
+      | otherwise =
+        unsafeWithPrim xbuff $ \xptr ->
+          do unsafePrimToPrim $! (if shouldCallFast n then iaminUnsafeFFI else iaminSafeFFI) (fromIntegral n) xptr (fromIntegral xincx)
+-}
