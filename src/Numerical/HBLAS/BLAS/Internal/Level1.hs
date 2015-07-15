@@ -14,6 +14,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,RotmgFun
   ,ScalFun
   ,SwapFun
+  ,IamaxFun
 
   ,asumAbstraction
   ,axpyAbstraction
@@ -28,6 +29,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,rotmgAbstraction
   ,scalAbstraction
   ,swapAbstraction
+  ,iamaxAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -49,7 +51,8 @@ type RotgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MVal
 type RotmFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
 type RotmgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> el -> MDenseVector s Direct el -> m()
 type ScalFun scale el s m = Int -> scale -> MDenseVector s Direct el -> Int -> m()
-type SwapFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int  -> m()
+type SwapFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> m()
+type IamaxFun el s m = Int -> MDenseVector s Direct el -> Int -> m Int
 
 isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
 isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
@@ -283,3 +286,17 @@ swapAbstraction swapName swapSafeFFI swapUnsafeFFI = swap
         unsafeWithPrim xbuff $ \xptr ->
         unsafeWithPrim ybuff $ \yptr ->
           do unsafePrimToPrim $! (if shouldCallFast n then swapUnsafeFFI else swapSafeFFI) (fromIntegral n) xptr (fromIntegral xincx) yptr (fromIntegral yincx)
+
+{-# NOINLINE iamaxAbstraction #-}
+iamaxAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+  IamaxFunFFI el -> IamaxFunFFI el ->
+  IamaxFun el (PrimState m) m
+iamaxAbstraction iamaxName iamaxSafeFFI iamaxUnsafeFFI = iamax
+  where
+    shouldCallFast :: Int -> Bool
+    shouldCallFast n = flopsThreshold >= fromIntegral n -- n times comparison
+    iamax n (MutableDenseVector _ xdim _ xbuff) xincx
+      | isVectorBadWithNIncrement xdim n xincx = error $! vectorBadInfo iamaxName "target vector" xdim n xincx
+      | otherwise =
+        unsafeWithPrim xbuff $ \xptr ->
+          do unsafePrimToPrim $! (if shouldCallFast n then iamaxUnsafeFFI else iamaxSafeFFI) (fromIntegral n) xptr (fromIntegral xincx)

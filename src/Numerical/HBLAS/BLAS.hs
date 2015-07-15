@@ -116,6 +116,11 @@ module Numerical.HBLAS.BLAS(
         ,cswap
         ,zswap
 
+        ,isamax
+        ,idamax
+        ,icamax
+        ,izamax
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -276,6 +281,18 @@ cswap = swapAbstraction "cswap" cblas_cswap_safe cblas_cswap_unsafe
 
 zswap :: PrimMonad m => SwapFun (Complex Double) (PrimState m) m
 zswap = swapAbstraction "zswap" cblas_zswap_safe cblas_zswap_unsafe
+
+isamax :: PrimMonad m => IamaxFun Float (PrimState m) m
+isamax = iamaxAbstraction "isamax" cblas_isamax_safe cblas_isamax_unsafe
+
+idamax :: PrimMonad m => IamaxFun Double (PrimState m) m
+idamax = iamaxAbstraction "idamax" cblas_idamax_safe cblas_idamax_unsafe
+
+icamax :: PrimMonad m => IamaxFun (Complex Float) (PrimState m) m
+icamax = iamaxAbstraction "icamax" cblas_icamax_safe cblas_icamax_unsafe
+
+izamax :: PrimMonad m => IamaxFun (Complex Double)(PrimState m) m
+izamax = iamaxAbstraction "izamax" cblas_izamax_safe cblas_izamax_unsafe
 
 -- Level 2
 

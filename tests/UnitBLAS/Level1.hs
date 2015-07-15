@@ -265,6 +265,18 @@ vecTest1CSWAP = do
   xRes @?= [1:+2, 1:+2, 2:+(-3), 3:+(-3), (-3):+1, (-3):+0, 3:+1, (-4):+1, 0:+9]
   yRes @?= [1:+1, 1:+3, 2:+(-2), 2:+2, (-4):+2, 3:+3]
 
+vecTest1ISAMAX :: IO ()
+vecTest1ISAMAX = do
+  x <- Matrix.generateMutableDenseVector 8 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
+  idx <- isamax 4 x 2
+  idx @?= 3
+
+vecTest1ICAMAX :: IO ()
+vecTest1ICAMAX = do
+  x <- Matrix.generateMutableDenseVector 9 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1, 0:+9] !! idx)
+  idx <- icamax 9 x 1
+  idx @?= 8
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "sasum on vector of length 6 with incx 1" vecTest1SASUM,
                      testCase "sasum on vector of length 12 with incx 2" vecTest2SASUM,
@@ -302,7 +314,10 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "csscal on vector of 8 with incx 1" vecTest1CSSCAL,
 
                      testCase "sswap on vector of 8 and 4 with incx 2 and 1" vecTest1SSWAP,
-                     testCase "cswap on vector of 9 and 6 with incx 3 and 2" vecTest1CSWAP
+                     testCase "cswap on vector of 9 and 6 with incx 3 and 2" vecTest1CSWAP,
+
+                     testCase "isamax on vector of 8 with incx 2" vecTest1ISAMAX,
+                     testCase "icamax on vector of 9 with incx 1" vecTest1ICAMAX
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"

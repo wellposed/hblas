@@ -104,18 +104,6 @@ we can only handle pointers to complex numbers right now
 --void  cblas_zdotc_sub(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy, openblas_complex_Double *ret);
 
 
-foreign import ccall unsafe "cblas_isamax" cblas_isamax_unsafe ::
-    CInt -> Ptr Float -> CInt -> IO CInt
-foreign import ccall unsafe "cblas_idamax" cblas_idamax_unsafe ::
-    CInt -> Ptr Float -> CInt -> IO CInt
-foreign import ccall unsafe "cblas_icamax" cblas_icamax_unsafe ::
-    CInt -> Ptr (Complex Float) -> CInt -> IO CInt
-foreign import ccall unsafe "cblas_izamax" cblas_izamax_unsafe ::
-    CInt -> Ptr (Complex Double) -> CInt -> IO CInt
---CBLAS_INDEX cblas_isamax(  CInt n,   Float  *x,   CInt incx);
---CBLAS_INDEX cblas_idamax(  CInt n,   Double *x,   CInt incx);
---CBLAS_INDEX cblas_icamax(  CInt n,   Float  *x,   CInt incx);
---CBLAS_INDEX cblas_izamax(  CInt n,   Double *x,   CInt incx);
 
 
 
