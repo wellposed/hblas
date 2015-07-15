@@ -245,6 +245,26 @@ vecTest1CSSCAL = do
   xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
   xRes @?= [(-2):+(-2), (-2):+(-4), (-4):+6, (-4):+4, 6:+(-2), 6:+0, 8:+(-4), 8:+(-2)]
 
+vecTest1SSWAP :: IO ()
+vecTest1SSWAP = do
+  x <- Matrix.generateMutableDenseVector 8 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
+  y <- Matrix.generateMutableDenseVector 4 (\idx -> [-1, -2, -3, -4] !! idx)
+  sswap 4 x 2 y 1
+  xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+  yRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  xRes @?= [-1, 2, -2, 4, -3, 6, -4, 8]
+  yRes @?= [1, 3, 5, 7]
+
+vecTest1CSWAP :: IO ()
+vecTest1CSWAP = do
+  x <- Matrix.generateMutableDenseVector 9 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1, 0:+9] !! idx)
+  y <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+2, 1:+3, 3:+(-3), 2:+2, 3:+1, 3:+3] !! idx)
+  cswap 3 x 3 y 2
+  xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+  yRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  xRes @?= [1:+2, 1:+2, 2:+(-3), 3:+(-3), (-3):+1, (-3):+0, 3:+1, (-4):+1, 0:+9]
+  yRes @?= [1:+1, 1:+3, 2:+(-2), 2:+2, (-4):+2, 3:+3]
+
 unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "sasum on vector of length 6 with incx 1" vecTest1SASUM,
                      testCase "sasum on vector of length 12 with incx 2" vecTest2SASUM,
@@ -279,7 +299,10 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
 
                      testCase "sscal on vector of 8 with incx 2" vecTest1SSCAL,
                      testCase "cscal on vector of 8 with incx 4" vecTest1CSCAL,
-                     testCase "csscal on vector of 8 with incx 1" vecTest1CSSCAL
+                     testCase "csscal on vector of 8 with incx 1" vecTest1CSSCAL,
+
+                     testCase "sswap on vector of 8 and 4 with incx 2 and 1" vecTest1SSWAP,
+                     testCase "cswap on vector of 9 and 6 with incx 3 and 2" vecTest1CSWAP
                      ]
 
 --unitTestShape = testGroup "Shape Unit tests"

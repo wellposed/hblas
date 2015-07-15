@@ -184,3 +184,17 @@ foreign import ccall unsafe "cblas_zdscal" cblas_zdscal_unsafe :: ScalFunFFI Dou
 --void cblas_csscal(  CInt N,   Float alpha, Float *X,   CInt incX);
 --void cblas_zdscal(  CInt N,   Double alpha, Double *X,   CInt incX);
 
+type SwapFunFFI el = CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+foreign import ccall "cblas_sswap" cblas_sswap_safe :: SwapFunFFI Float
+foreign import ccall "cblas_dswap" cblas_dswap_safe :: SwapFunFFI Double
+foreign import ccall "cblas_cswap" cblas_cswap_safe :: SwapFunFFI (Complex Float)
+foreign import ccall "cblas_zswap" cblas_zswap_safe :: SwapFunFFI (Complex Double)
+
+foreign import ccall unsafe "cblas_sswap" cblas_sswap_unsafe :: SwapFunFFI Float
+foreign import ccall unsafe "cblas_dswap" cblas_dswap_unsafe :: SwapFunFFI Double
+foreign import ccall unsafe "cblas_cswap" cblas_cswap_unsafe :: SwapFunFFI (Complex Float)
+foreign import ccall unsafe "cblas_zswap" cblas_zswap_unsafe :: SwapFunFFI (Complex Double)
+--void cblas_sswap(  CInt n, Float *x,   CInt incx, Float *y,   CInt incy);
+--void cblas_dswap(  CInt n, Double *x,   CInt incx, Double *y,   CInt incy);
+--void cblas_cswap(  CInt n, Float *x,   CInt incx, Float *y,   CInt incy);
+--void cblas_zswap(  CInt n, Double *x,   CInt incx, Double *y,   CInt incy);

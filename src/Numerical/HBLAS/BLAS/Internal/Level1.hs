@@ -13,6 +13,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,RotmFun
   ,RotmgFun
   ,ScalFun
+  ,SwapFun
 
   ,asumAbstraction
   ,axpyAbstraction
@@ -26,6 +27,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,rotmAbstraction
   ,rotmgAbstraction
   ,scalAbstraction
+  ,swapAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -47,6 +49,7 @@ type RotgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MVal
 type RotmFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
 type RotmgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> el -> MDenseVector s Direct el -> m()
 type ScalFun scale el s m = Int -> scale -> MDenseVector s Direct el -> Int -> m()
+type SwapFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int  -> m()
 
 isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
 isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
@@ -259,8 +262,24 @@ scalAbstraction scalName scalSafeFFI scalUnsafeFFI constHandler = scal
     shouldCallFast :: Int -> Bool
     shouldCallFast n = flopsThreshold >= fromIntegral n
     scal n alpha (MutableDenseVector _ xdim _ xbuff) xincx
-      | isVectorBadWithNIncrement xdim n xincx = error $! vectorBadInfo scalName " vector" xdim n xincx
+      | isVectorBadWithNIncrement xdim n xincx = error $! vectorBadInfo scalName "vector" xdim n xincx
       | otherwise =
         unsafeWithPrim xbuff $ \xptr ->
         constHandler alpha $ \alphaPtr ->
           do unsafePrimToPrim $! (if shouldCallFast n then scalUnsafeFFI else scalSafeFFI) (fromIntegral n) alphaPtr xptr (fromIntegral xincx)
+
+{-# NOINLINE swapAbstraction #-}
+swapAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+  SwapFunFFI el -> SwapFunFFI el ->
+  SwapFun el (PrimState m) m
+swapAbstraction swapName swapSafeFFI swapUnsafeFFI = swap
+  where
+    shouldCallFast :: Int -> Bool
+    shouldCallFast n = flopsThreshold >= fromIntegral n -- no computation? only n times memory access?
+    swap n (MutableDenseVector _ xdim _ xbuff) xincx (MutableDenseVector _ ydim _ ybuff) yincx
+      | isVectorBadWithNIncrement xdim n xincx = error $! vectorBadInfo swapName "vector x" xdim n xincx
+      | isVectorBadWithNIncrement ydim n yincx = error $! vectorBadInfo swapName "vector y" ydim n yincx
+      | otherwise =
+        unsafeWithPrim xbuff $ \xptr ->
+        unsafeWithPrim ybuff $ \yptr ->
+          do unsafePrimToPrim $! (if shouldCallFast n then swapUnsafeFFI else swapSafeFFI) (fromIntegral n) xptr (fromIntegral xincx) yptr (fromIntegral yincx)

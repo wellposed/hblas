@@ -111,6 +111,11 @@ module Numerical.HBLAS.BLAS(
         ,csscal
         ,zdscal
 
+        ,sswap
+        ,dswap
+        ,cswap
+        ,zswap
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -259,6 +264,18 @@ csscal = scalAbstraction "csscal" cblas_csscal_safe cblas_csscal_unsafe (\x f ->
 
 zdscal :: PrimMonad m => ScalFun Double (Complex Double) (PrimState m) m
 zdscal = scalAbstraction "zdscal" cblas_zdscal_safe cblas_zdscal_unsafe (\x f -> f x )
+
+sswap :: PrimMonad m => SwapFun Float (PrimState m) m
+sswap = swapAbstraction "sswap" cblas_sswap_safe cblas_sswap_unsafe
+
+dswap :: PrimMonad m => SwapFun Double (PrimState m) m
+dswap = swapAbstraction "dswap" cblas_dswap_safe cblas_dswap_unsafe
+
+cswap :: PrimMonad m => SwapFun (Complex Float) (PrimState m) m
+cswap = swapAbstraction "cswap" cblas_cswap_safe cblas_cswap_unsafe
+
+zswap :: PrimMonad m => SwapFun (Complex Double) (PrimState m) m
+zswap = swapAbstraction "zswap" cblas_zswap_safe cblas_zswap_unsafe
 
 -- Level 2
 
