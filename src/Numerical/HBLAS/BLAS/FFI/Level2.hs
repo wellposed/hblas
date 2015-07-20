@@ -78,3 +78,24 @@ foreign import ccall safe   "cblas_zgemv"
 --void cblas_zgemv(  enum CBLAS_ORDER order,    enum CBLAS_TRANSPOSE trans,    CInt m,   CInt n,
 --           Double *alpha,   Double  *a,   CInt lda,    Double  *x,   CInt incx,    Double *beta,  Double  *y,   CInt incy);
 
+
+-- perform the rank 1 operation   A := alpha*x*y' + A,
+
+type GerFunFFI el = CBLAS_ORDERT -> CInt -> CInt -> el -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+
+foreign import ccall unsafe "cblas_sger" cblas_sger_unsafe ::
+        CBLAS_ORDERT -> CInt -> CInt -> Float -> Ptr Float -> CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO ()
+foreign import ccall safe   "cblas_sger" cblas_sger_safe   ::
+        CBLAS_ORDERT -> CInt -> CInt -> Float -> Ptr Float -> CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO ()
+foreign import ccall unsafe "cblas_dger" cblas_dger_unsafe ::
+        CBLAS_ORDERT -> CInt -> CInt -> Double -> Ptr Double -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> IO ()
+foreign import ccall safe   "cblas_dger" cblas_dger_safe   ::
+        CBLAS_ORDERT -> CInt -> CInt -> Double -> Ptr Double -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> IO ()
+
+--void cblas_sger (  enum CBLAS_ORDER order,   CInt M,   CInt N,   Float   alpha,   Float  *X,   CInt incX,   Float  *Y,   CInt incY, Float  *A,   CInt lda);
+--void cblas_dger (  enum CBLAS_ORDER order,   CInt M,   CInt N,   Double  alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
+--void cblas_cgeru(  enum CBLAS_ORDER order,   CInt M,   CInt N,   Float  *alpha,   Float  *X,   CInt incX,   Float  *Y,   CInt incY, Float  *A,   CInt lda);
+--void cblas_cgerc(  enum CBLAS_ORDER order,   CInt M,   CInt N,   Float  *alpha,   Float  *X,   CInt incX,   Float  *Y,   CInt incY, Float  *A,   CInt lda);
+--void cblas_zgeru(  enum CBLAS_ORDER order,   CInt M,   CInt N,   Double *alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
+--void cblas_zgerc(  enum CBLAS_ORDER order,   CInt M,   CInt N,   Double *alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
+

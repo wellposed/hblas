@@ -181,13 +181,13 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
     ,testCase "dgemv  on 2x2 all 1s " matmatTest1DGEMV
     ,testCase "cgemv  on 2x2 all 1s" matmatTest1CGEMV
     ,testCase "zgemv on 2x2 all 1s" matmatTest1ZGEMV
+---- ger tests
+    ,testCase "sger on 2x2 all 1s" matmatTest1SGER
+    ,testCase "dger on 2x2 all 1s" matmatTest1DGER
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV
     ,testCase "ctrsv on 2x2 upper 1s" matmatTest1CTRSV
     ,testCase "ztrsv on 2x2 upper 1s" matmatTest1ZTRSV
----- ger tests
-    ,testCase "sger on 2x2 all 1s" matmatTest1SGER
-    ,testCase "dger on 2x2 all 1s" matmatTest1DGER
     ]
 
