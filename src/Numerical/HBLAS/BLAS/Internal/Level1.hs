@@ -37,6 +37,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
 import Numerical.HBLAS.Constants
 import Numerical.HBLAS.UtilsFFI
 import Numerical.HBLAS.BLAS.FFI.Level1
+import Numerical.HBLAS.BLAS.Internal.Utility
 import Numerical.HBLAS.MatrixTypes
 import Control.Monad.Primitive
 import qualified Data.Vector.Storable.Mutable as SM
@@ -56,12 +57,6 @@ type ScalFun scale el s m = Int -> scale -> MDenseVector s Direct el -> Int -> m
 type SwapFun el s m = Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> m()
 type IamaxFun el s m = Int -> MDenseVector s Direct el -> Int -> m Int
 --type IaminFun el s m = Int -> MDenseVector s Direct el -> Int -> m Int
-
-isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
-isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
-
-vectorBadInfo :: String -> String -> Int -> Int -> Int -> String
-vectorBadInfo funName matName dim n incx = "Function " ++ funName ++ ": " ++ matName ++ " constains too few elements of " ++ show dim ++ " and " ++ show (1 + (n-1) * incx) ++ " elements are needed."
 
 {-# NOINLINE asumAbstraction #-}
 asumAbstraction:: (SM.Storable el, PrimMonad m) => String ->

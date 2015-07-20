@@ -128,6 +128,12 @@ module Numerical.HBLAS.BLAS(
         ,izamin
 -}
 
+        -- Level 2
+        ,sgbmv
+        ,dgbmv
+        ,cgbmv
+        ,zgbmv
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -157,7 +163,9 @@ import Numerical.HBLAS.UtilsFFI
 import Numerical.HBLAS.BLAS.FFI
 import Numerical.HBLAS.BLAS.Internal
 import Numerical.HBLAS.BLAS.FFI.Level1
+import Numerical.HBLAS.BLAS.FFI.Level2
 import Numerical.HBLAS.BLAS.Internal.Level1
+import Numerical.HBLAS.BLAS.Internal.Level2
 import Control.Monad.Primitive
 import Data.Complex
 
@@ -316,6 +324,17 @@ izamin = iaminAbstraction "izamin" cblas_izamin_safe cblas_izamin_unsafe
 -}
 
 -- Level 2
+sgbmv :: PrimMonad m => GbmvFun Float orient (PrimState m) m
+sgbmv = gbmvAbstraction "sgbmv" cblas_sgbmv_safe cblas_sgbmv_unsafe (\x f -> f x)
+
+dgbmv :: PrimMonad m => GbmvFun Double orient (PrimState m) m
+dgbmv = gbmvAbstraction "dgbmv" cblas_dgbmv_safe cblas_dgbmv_unsafe (\x f -> f x)
+
+cgbmv :: PrimMonad m => GbmvFun (Complex Float) orient (PrimState m) m
+cgbmv = gbmvAbstraction "cgbmv" cblas_cgbmv_safe cblas_cgbmv_unsafe withRStorable_
+
+zgbmv :: PrimMonad m => GbmvFun (Complex Double) orient (PrimState m) m
+zgbmv = gbmvAbstraction "zgbmv" cblas_zgbmv_safe cblas_zgbmv_unsafe withRStorable_
 
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m
 sgemm =  gemmAbstraction "sgemm"  cblas_sgemm_safe cblas_sgemm_unsafe (\x f -> f x )

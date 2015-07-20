@@ -5,7 +5,7 @@ module Numerical.HBLAS.BLAS.Internal(
     ,SymmFun
     ,GemvFun
     ,GerFun
-    ,TrsvFun 
+    ,TrsvFun
 
     ,gemmAbstraction
     ,symmAbstraction
@@ -17,6 +17,8 @@ module Numerical.HBLAS.BLAS.Internal(
 import Numerical.HBLAS.Constants
 import Numerical.HBLAS.UtilsFFI
 import Numerical.HBLAS.BLAS.FFI
+import Numerical.HBLAS.BLAS.FFI.Level2
+import Numerical.HBLAS.BLAS.Internal.Utility
 import Numerical.HBLAS.MatrixTypes
 import Control.Monad.Primitive
 import qualified Data.Vector.Storable.Mutable as SM
@@ -65,12 +67,6 @@ isBadSymmBothSide :: (Ord a, Num a) => a -> a -> a -> a -> a -> a -> Bool
 isBadSymmBothSide ax ay bx by cx cy = (minimum [ax, ay, bx, by, cx, cy] <= 0)
     || not (ax == ay && bx == cx && by == cy)
 
-coordSwapper :: Transpose -> (a,a)-> (a,a)
-coordSwapper NoTranspose (a,b) = (a,b)
-coordSwapper ConjNoTranspose (a,b) = (a,b)
-coordSwapper Transpose (a,b) = (b,a)
-coordSwapper ConjTranspose (a,b) = (b,a)
-
 -- / checks if the size of a matrices rows matches input vector size
 -- and the  column count matchesresult vector size
 isBadGemv :: Transpose -> Int -> Int -> Int -> Int -> Bool
@@ -79,48 +75,6 @@ isBadGemv tr ax ay bdim cdim = isBadGemvHelper (cds tr (ax,ay))
     cds = coordSwapper
     isBadGemvHelper (realX,realY)  =
             minimum [realY,realX,bdim,cdim] <= 0 ||  not (realX == bdim && realY == cdim )
-
-
-encodeNiceOrder :: SOrientation x  -> CBLAS_ORDERT
-encodeNiceOrder SRow= encodeOrder  BLASRowMajor
-encodeNiceOrder SColumn= encodeOrder BLASColMajor
-
-
-encodeFFITranspose :: Transpose -> CBLAS_TRANSPOSET
-encodeFFITranspose  x=  encodeTranspose $ encodeNiceTranspose x
-
-encodeNiceTranspose :: Transpose -> BLAS_Transpose
-encodeNiceTranspose x = case x of
-        NoTranspose -> BlasNoTranspose
-        Transpose -> BlasTranspose
-        ConjTranspose -> BlasConjTranspose
-        ConjNoTranspose -> BlasConjNoTranspose
-
-encodeFFIMatrixHalf :: MatUpLo -> CBLAS_UPLOT
-encodeFFIMatrixHalf x = encodeUPLO $ encodeNiceUPLO x
-
-encodeNiceUPLO :: MatUpLo -> BLASUplo
-encodeNiceUPLO x = case x of
-                    MatUpper  -> BUpper
-                    MatLower  -> BLower
-
-encodeFFITriangleSort :: MatDiag -> CBLAS_DIAGT
-encodeFFITriangleSort x = encodeDiag $ encodeNiceDIAG x
-
-encodeNiceDIAG :: MatDiag -> BlasDiag
-encodeNiceDIAG x = case x of
-                    MatUnit    -> BlasUnit
-                    MatNonUnit -> BlasNonUnit
-
-encodeFFISide :: EquationSide -> CBLAS_SIDET
-encodeFFISide x = encodeSide $ encodeNiceSide x
-
-encodeNiceSide :: EquationSide -> BlasSide
-encodeNiceSide x = case x of
-                    LeftSide -> BlasLeft
-                    RightSide -> BlasRight
-
-
 
 {-
 A key design goal of this ffi is to provide *safe* throughput guarantees
