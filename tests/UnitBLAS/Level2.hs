@@ -57,6 +57,15 @@ matvecTest1CGBMV = do
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
     resList @?= [0:+4.0, 0:+4.0, 0:+4.0, 0:+2.0]
 
+matvecTest2CGBMV :: IO ()
+matvecTest2CGBMV = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 4) (\(x, y) -> [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 0] !! (x * 4 + y))
+    x <- Matrix.generateMutableDenseVector 4 (\_ -> (1.0:+1.0))
+    res <- Matrix.generateMutableDenseVector 4 (\_ -> (1.0:+1.0))
+    BLAS.cgbmv Matrix.ConjNoTranspose 4 4 0 1 1.0 a x 1 0.0 res 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
+    resList @?= [4.0:+0, 4.0:+0, 4.0:+0, 2.0:+0]
+
 matvecTest1ZGBMV :: IO ()
 matvecTest1ZGBMV = do
     a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 10) (\_ -> (1.0:+1.0))
@@ -65,6 +74,16 @@ matvecTest1ZGBMV = do
     BLAS.cgbmv Matrix.Transpose 10 5 1 0 2.0 a x 1 0.0 res 1
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
     resList @?= [0:+8.0, 0:+8.0, 0:+8.0, 0:+8.0, 0:+8.0]
+    -- not [0:+8.0, 0:+8.0, 0:+8.0, 0:+8.0, 0:+4.0]
+
+matvecTest2ZGBMV :: IO ()
+matvecTest2ZGBMV = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 10) (\_ -> (1.0:+1.0))
+    x <- Matrix.generateMutableDenseVector 10 (\_ -> (1.0:+1.0))
+    res <- Matrix.generateMutableDenseVector 5 (\_ -> (1.0:+1.0))
+    BLAS.cgbmv Matrix.ConjTranspose 10 5 1 0 2.0 a x 1 0.0 res 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
+    resList @?= [8.0:+0, 8.0:+0, 8.0:+0, 8.0:+0, 8.0:+0]
     -- not [0:+8.0, 0:+8.0, 0:+8.0, 0:+8.0, 0:+4.0]
 
 -- notes for gbmv
@@ -175,7 +194,9 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
     testCase "sgbmv on 3x5 a(5x5 matrix) all 1s" matvecTest1SGBMV
     ,testCase "dgbmv on 3x5 a(10x5 matrix) all 1s with beta 1.0" matvecTest1DGBMV
     ,testCase "cgbmv on 2x4 a(4x4 matrix) all 1+i s" matvecTest1CGBMV
+    -- ,testCase "cgbmv on 2x4 a(4x4 matrix) all 1+i s with conjnotranspose" matvecTest2CGBMV  conjnotranspose is invalid...
     ,testCase "zgbmv on 2x10 a(5x10 matrix) all 1+i s with transpose and alpha 1.0" matvecTest1ZGBMV
+    ,testCase "zgbmv on 2x10 a(5x10 matrix) all 1+i s with conjtranspose and alpha 1.0" matvecTest2ZGBMV
 ----- gemv tests
     ,testCase "sgemv on 2x2 all 1s"    matmatTest1SGEMV
     ,testCase "dgemv  on 2x2 all 1s " matmatTest1DGEMV
