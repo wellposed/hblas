@@ -81,16 +81,37 @@ foreign import ccall safe   "cblas_zgemv"
 
 -- perform the rank 1 operation   A := alpha*x*y' + A,
 
-type GerFunFFI el = CBLAS_ORDERT -> CInt -> CInt -> el -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+type GerxFunFFI scale el = CBLAS_ORDERT -> CInt -> CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 
 foreign import ccall unsafe "cblas_sger" cblas_sger_unsafe ::
-        CBLAS_ORDERT -> CInt -> CInt -> Float -> Ptr Float -> CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO ()
+        GerxFunFFI Float Float
 foreign import ccall safe   "cblas_sger" cblas_sger_safe   ::
-        CBLAS_ORDERT -> CInt -> CInt -> Float -> Ptr Float -> CInt -> Ptr Float -> CInt -> Ptr Float -> CInt -> IO ()
+        GerxFunFFI Float Float
+
 foreign import ccall unsafe "cblas_dger" cblas_dger_unsafe ::
-        CBLAS_ORDERT -> CInt -> CInt -> Double -> Ptr Double -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> IO ()
+        GerxFunFFI Double Double
 foreign import ccall safe   "cblas_dger" cblas_dger_safe   ::
-        CBLAS_ORDERT -> CInt -> CInt -> Double -> Ptr Double -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> IO ()
+        GerxFunFFI Double Double
+
+foreign import ccall unsafe "cblas_cgerc" cblas_cgerc_unsafe ::
+        GerxFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall unsafe "cblas_zgerc" cblas_zgerc_unsafe ::
+        GerxFunFFI (Ptr (Complex Double)) (Complex Double)
+
+foreign import ccall safe   "cblas_cgerc" cblas_cgerc_safe   ::
+        GerxFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall safe   "cblas_zgerc" cblas_zgerc_safe   ::
+        GerxFunFFI (Ptr (Complex Double)) (Complex Double)
+
+foreign import ccall unsafe "cblas_cgeru" cblas_cgeru_unsafe ::
+        GerxFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall unsafe "cblas_zgeru" cblas_zgeru_unsafe ::
+        GerxFunFFI (Ptr (Complex Double)) (Complex Double)
+
+foreign import ccall safe   "cblas_cgeru" cblas_cgeru_safe   ::
+        GerxFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall safe   "cblas_zgeru" cblas_zgeru_safe   ::
+        GerxFunFFI (Ptr (Complex Double)) (Complex Double)
 
 --void cblas_sger (  enum CBLAS_ORDER order,   CInt M,   CInt N,   Float   alpha,   Float  *X,   CInt incX,   Float  *Y,   CInt incY, Float  *A,   CInt lda);
 --void cblas_dger (  enum CBLAS_ORDER order,   CInt M,   CInt N,   Double  alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);

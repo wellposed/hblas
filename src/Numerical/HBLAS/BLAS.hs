@@ -134,6 +134,13 @@ module Numerical.HBLAS.BLAS(
         ,cgbmv
         ,zgbmv
 
+        ,sger
+        ,dger
+        ,cgerc
+        ,zgerc
+        ,cgeru
+        ,zgeru
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -148,9 +155,6 @@ module Numerical.HBLAS.BLAS(
         ,dgemv
         ,cgemv
         ,zgemv
-
-        ,sger
-        ,dger
 
         ,strsv
         ,dtrsv
@@ -330,6 +334,24 @@ sgbmv = gbmvAbstraction "sgbmv" cblas_sgbmv_safe cblas_sgbmv_unsafe (\x f -> f x
 dgbmv :: PrimMonad m => GbmvFun Double orient (PrimState m) m
 dgbmv = gbmvAbstraction "dgbmv" cblas_dgbmv_safe cblas_dgbmv_unsafe (\x f -> f x)
 
+sger :: PrimMonad m => GerFun Float orient (PrimState m) m
+sger = gerAbstraction "sger" cblas_sger_safe cblas_sger_unsafe (\x f -> f x)
+
+dger :: PrimMonad m => GerFun Double orient (PrimState m) m
+dger = gerAbstraction "dger" cblas_dger_safe cblas_dger_unsafe (\x f -> f x)
+
+cgerc :: PrimMonad m => GerFun (Complex Float) orient (PrimState m) m
+cgerc = gerAbstraction "cgerc" cblas_cgerc_safe cblas_cgerc_unsafe withRStorable_
+
+zgerc :: PrimMonad m => GerFun (Complex Double) orient (PrimState m) m
+zgerc = gerAbstraction "zgerc" cblas_zgerc_safe cblas_zgerc_unsafe withRStorable_
+
+cgeru :: PrimMonad m => GerFun (Complex Float) orient (PrimState m) m
+cgeru = gerAbstraction "cgeru" cblas_cgeru_safe cblas_cgeru_unsafe withRStorable_
+
+zgeru :: PrimMonad m => GerFun (Complex Double) orient (PrimState m) m
+zgeru = gerAbstraction "zgeru" cblas_zgeru_safe cblas_zgeru_unsafe withRStorable_
+
 cgbmv :: PrimMonad m => GbmvFun (Complex Float) orient (PrimState m) m
 cgbmv = gbmvAbstraction "cgbmv" cblas_cgbmv_safe cblas_cgbmv_unsafe withRStorable_
 
@@ -384,9 +406,3 @@ ctrsv = trsvAbstraction "ctrsv" cblas_ctrsv_safe cblas_ctrsv_unsafe
 
 ztrsv :: PrimMonad m => TrsvFun (Complex Double) orient (PrimState m) m
 ztrsv = trsvAbstraction "ztrsv" cblas_ztrsv_safe cblas_ztrsv_unsafe
-
-sger :: PrimMonad m => GerFun Float orient (PrimState m) m
-sger = gerAbstraction "sger" cblas_sger_safe cblas_sger_unsafe
-
-dger :: PrimMonad m => GerFun Double orient (PrimState m) m
-dger = gerAbstraction "dger" cblas_dger_safe cblas_dger_unsafe

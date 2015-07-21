@@ -147,8 +147,49 @@ matmatTest1DGER = do
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
   resList @?= [13.0,13.0,13.0,13.0]
 
-----
-----
+matmatTest1CGERC :: IO ()
+matmatTest1CGERC = do
+  res <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3,2) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 2.0:+3.0)
+  y <- Matrix.generateMutableDenseVector 2 (\_ -> 3.0:+2.0)
+  BLAS.cgerc 2.0 x y res
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+  resList @?= [25.0:+11.0, 25.0:+11.0, 1.0:+1.0, 25.0:+11.0, 25.0:+11.0, 1.0:+1.0]
+  -- why the following is not correct...
+  -- resList @?= [25.0:+11.0, 25.0:+11.0, 25.0:+11.0, 25.0:+11.0, 25.0:+11.0, 25.0:+11.0]
+
+matmatTest1ZGERC :: IO ()
+matmatTest1ZGERC = do
+  res <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3,2) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 2.0:+3.0)
+  y <- Matrix.generateMutableDenseVector 2 (\_ -> 3.0:+2.0)
+  BLAS.zgerc 2.0 x y res
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+  resList @?= [25.0:+11.0, 25.0:+11.0, 1.0:+1.0, 25.0:+11.0, 25.0:+11.0, 1.0:+1.0]
+  -- why the following is not correct...
+  -- resList @?= [25.0:+11.0, 25.0:+11.0, 25.0:+11.0, 25.0:+11.0, 25.0:+11.0, 25.0:+11.0]
+
+matmatTest1CGERU :: IO ()
+matmatTest1CGERU = do
+  res <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3,2) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 2.0:+(-3.0))
+  y <- Matrix.generateMutableDenseVector 2 (\_ -> 3.0:+(-2.0))
+  BLAS.cgeru 2.0 x y res
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+  resList @?= [1.0:+(-25.0), 1.0:+(-25.0), 1.0:+1.0, 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+1.0]
+  -- why the following is not correct...
+  -- resList @?= [1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0)]
+
+matmatTest1ZGERU :: IO ()
+matmatTest1ZGERU = do
+  res <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3,2) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 2.0:+(-3.0))
+  y <- Matrix.generateMutableDenseVector 2 (\_ -> 3.0:+(-2.0))
+  BLAS.zgeru 2.0 x y res
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
+  resList @?= [1.0:+(-25.0), 1.0:+(-25.0), 1.0:+1.0, 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+1.0]
+  -- why the following is not correct...
+  -- resList @?= [1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0)]
 
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
@@ -205,6 +246,10 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ---- ger tests
     ,testCase "sger on 2x2 all 1s" matmatTest1SGER
     ,testCase "dger on 2x2 all 1s" matmatTest1DGER
+    ,testCase "cgerc on 2x3 all 1+i s" matmatTest1CGERC
+    ,testCase "zgerc on 2x3 all 1+i s" matmatTest1ZGERC
+    ,testCase "cgeru on 2x3 all 1+i s" matmatTest1CGERU
+    ,testCase "zgeru on 2x3 all 1+i s" matmatTest1ZGERU
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV

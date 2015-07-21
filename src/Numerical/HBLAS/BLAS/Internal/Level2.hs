@@ -101,10 +101,11 @@ gemvAbstraction gemvName gemvSafeFFI gemvUnsafeFFI constHandler = gemv
 {-# NOINLINE gerAbstraction #-}
 gerAbstraction :: (SM.Storable el, PrimMonad m)
                => String
-               -> GerFunFFI el
-               -> GerFunFFI el
+               -> GerxFunFFI scale el
+               -> GerxFunFFI scale el
+               -> (el -> (scale -> m ())-> m ())
                -> forall orient . GerFun el orient (PrimState m) m
-gerAbstraction gerName gerSafeFFI gerUnsafeFFI = ger
+gerAbstraction gerName gerSafeFFI gerUnsafeFFI constHandler = ger
     where
       shouldCallFast :: Int -> Int -> Bool
       shouldCallFast m n = flopsThreshold >= (fromIntegral m :: Int64)
@@ -117,13 +118,14 @@ gerAbstraction gerName gerSafeFFI gerUnsafeFFI = ger
                 (MutableDenseVector _ ydim ystride ybuff)
                 (MutableDenseMatrix ornta ax ay astride abuff)
         | isBadGer xdim ydim ax ay =
-            error $! "bad dimension args to GER: xdim ydim ax ay" ++ show [xdim, ydim, ax, ay]
+            error $! "bad dimension args to " ++ gerName ++ ": xdim ydim ax ay" ++ show [xdim, ydim, ax, ay]
         | SM.overlaps xbuff abuff || SM.overlaps ybuff abuff =
             error $! "The read and write inputs for: " ++ gerName ++ " overlap. This is a programmer error. Please fix."
         | otherwise =
             unsafeWithPrim xbuff $ \xp ->
             unsafeWithPrim ybuff $ \yp ->
             unsafeWithPrim abuff $ \ap ->
+            constHandler alpha $ \alphaPtr ->
                 unsafePrimToPrim $! (if shouldCallFast ax ay then gerUnsafeFFI else gerSafeFFI)
-                    (encodeNiceOrder ornta) (fromIntegral ax) (fromIntegral ay) alpha xp
+                    (encodeNiceOrder ornta) (fromIntegral ax) (fromIntegral ay) alphaPtr xp
                     (fromIntegral xstride) yp (fromIntegral ystride) ap (fromIntegral astride)
