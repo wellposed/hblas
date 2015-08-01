@@ -120,3 +120,19 @@ foreign import ccall safe   "cblas_zgeru" cblas_zgeru_safe   ::
 --void cblas_zgeru(  enum CBLAS_ORDER order,   CInt M,   CInt N,   Double *alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
 --void cblas_zgerc(  enum CBLAS_ORDER order,   CInt M,   CInt N,   Double *alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
 
+type HbmvFunFFI sc el =
+       CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> CInt
+    -> sc -> Ptr el -> CInt -> Ptr el -> CInt -> sc -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_chbmv"
+    cblas_chbmv_unsafe :: HbmvFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall safe   "cblas_chbmv"
+    cblas_chbmv_safe   :: HbmvFunFFI (Ptr (Complex Float)) (Complex Float)
+
+foreign import ccall unsafe "cblas_zhbmv"
+    cblas_zhbmv_unsafe :: HbmvFunFFI (Ptr (Complex Double)) (Complex Double)
+foreign import ccall safe   "cblas_zhbmv"
+    cblas_zhbmv_safe   :: HbmvFunFFI (Ptr (Complex Double)) (Complex Double)
+--void cblas_chbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,
+--           Float *alpha,   Float *A,   CInt lda,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
+--void cblas_zhbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,
+--           Double *alpha,   Double *A,   CInt lda,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);

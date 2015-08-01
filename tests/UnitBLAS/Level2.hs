@@ -191,6 +191,51 @@ matmatTest1ZGERU = do
   -- why the following is not correct...
   -- resList @?= [1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0), 1.0:+(-25.0)]
 
+-- [1:+0    1:+1    1:+1    0:+0]
+-- [1:+(-1) 1:+0    1:+1    1:+1]
+-- [1:+(-1) 1:+(-1) 1:+0    1:+1]
+-- [0:+0    1:+(-1) 1:+(-1) 1:+0]
+--
+-- [1:+1]
+-- [1:+1]
+-- [1:+1]
+-- [1:+1]
+matvectTest1CHBMV :: IO ()
+matvectTest1CHBMV = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 4) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
+  y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
+  BLAS.chbmv Matrix.MatUpper 2 1.0 a x 1 0.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [1.0:+5.0, 3.0:+5.0, 5.0:+3.0, 5.0:+1.0]
+
+matvectTest2CHBMV :: IO ()
+matvectTest2CHBMV = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 4) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
+  y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
+  BLAS.chbmv Matrix.MatUpper 2 1.0 a x 1 0.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [1.0:+5.0, 3.0:+5.0, 5.0:+3.0, 5.0:+1.0]
+
+-- [1:+0    1:+1    1:+1    0:+0]
+-- [1:+(-1) 1:+0    1:+1    1:+1]
+-- [1:+(-1) 1:+(-1) 1:+0    1:+1]
+-- [0:+0    1:+(-1) 1:+(-1) 1:+0]
+--
+-- [1:+1]
+-- [1:+1]
+-- [1:+1]
+-- [1:+1]
+matvectTest1ZHBMV :: IO ()
+matvectTest1ZHBMV = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 4) (\_ -> 1.0:+(-1.0))
+  x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
+  y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
+  BLAS.zhbmv Matrix.MatLower 2 1.0 a x 1 0.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [1.0:+5.0, 3.0:+5.0, 5.0:+3.0, 5.0:+1.0]
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -250,6 +295,10 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
     ,testCase "zgerc on 2x3 all 1+i s" matmatTest1ZGERC
     ,testCase "cgeru on 2x3 all 1+i s" matmatTest1CGERU
     ,testCase "zgeru on 2x3 all 1+i s" matmatTest1ZGERU
+---- hbmv tests
+    ,testCase "chbmv on 4*3 a(4x4 matrix) all 1+i s" matvectTest1CHBMV
+    ,testCase "chbmv on 4*3 a(4x4 matrix) all 1+i s (column oriented)" matvectTest2CHBMV
+    ,testCase "zhbmv on 4*3 a(4x4 matrix) all 1+i s" matvectTest1ZHBMV
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV

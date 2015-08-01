@@ -4,10 +4,12 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   GbmvFun
   ,GemvFun
   ,GerFun
+  ,HbmvFun
 
   ,gbmvAbstraction
   ,gemvAbstraction
   ,gerAbstraction
+  ,hbmvAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -26,6 +28,8 @@ type GemvFun el orient s m = Transpose -> el -> el -> MDenseMatrix s orient el -
 
 type GerFun el orient s m = el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
 
+type HbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
+
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
                 => String
@@ -40,18 +44,18 @@ gbmvAbstraction gbmvName gbmvSafeFFI gbmvUnsafeFFI constHandler = gbmv
 
     gbmv trans m n kl ku alpha
       (MutableDenseMatrix ornta ax ay astride abuff)
-      (MutableDenseVector _ xdim _ xbuff) xincx
+      (MutableDenseVector _ xdim _ xbuff) incx
       beta
-      (MutableDenseVector _ ydim _ ybuff) yincx
-        | isVectorBadWithNIncrement xdim srcVecLen xincx = error $! vectorBadInfo gbmvName "input vector" xdim srcVecLen xincx
-        | isVectorBadWithNIncrement ydim dstVecLen yincx = error $! vectorBadInfo gbmvName "output vector" ydim dstVecLen yincx
+      (MutableDenseVector _ ydim _ ybuff) incy
+        | isVectorBadWithNIncrement xdim srcVecLen incx = error $! vectorBadInfo gbmvName "input vector" xdim srcVecLen incx
+        | isVectorBadWithNIncrement ydim dstVecLen incy = error $! vectorBadInfo gbmvName "output vector" ydim dstVecLen incy
         | otherwise =
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim xbuff $ \xp ->
           unsafeWithPrim ybuff $ \yp ->
           constHandler alpha $ \alphaPtr ->
           constHandler beta $ \betaPtr ->
-            do unsafePrimToPrim $! (if shouldCallFast ax ay then gbmvUnsafeFFI else gbmvSafeFFI) (encodeNiceOrder ornta) (encodeFFITranspose trans) (fromIntegral m) (fromIntegral n) (fromIntegral kl) (fromIntegral ku) alphaPtr ap (fromIntegral astride) xp (fromIntegral xincx) betaPtr yp (fromIntegral yincx)
+            do unsafePrimToPrim $! (if shouldCallFast ax ay then gbmvUnsafeFFI else gbmvSafeFFI) (encodeNiceOrder ornta) (encodeFFITranspose trans) (fromIntegral m) (fromIntegral n) (fromIntegral kl) (fromIntegral ku) alphaPtr ap (fromIntegral astride) xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
         where srcVecLen = snd $ coordSwapper trans (m, n)
               dstVecLen = fst $ coordSwapper trans (m, n)
 
@@ -129,3 +133,63 @@ gerAbstraction gerName gerSafeFFI gerUnsafeFFI constHandler = ger
                 unsafePrimToPrim $! (if shouldCallFast ax ay then gerUnsafeFFI else gerSafeFFI)
                     (encodeNiceOrder ornta) (fromIntegral ax) (fromIntegral ay) alphaPtr xp
                     (fromIntegral xstride) yp (fromIntegral ystride) ap (fromIntegral astride)
+
+-- uplo is upper
+-- [ a b c 0 0 0]
+-- [ 0 d e f 0 0]
+-- [ 0 0 g h i 0]
+-- [ 0 0 0 j k l]
+-- [ 0 0 0 0 m n]
+-- [ 0 0 0 0 0 o]
+--
+-- changed to a:
+--
+-- [ 0 0 c f i l]
+-- [ 0 b e h k n]
+-- [ a d g j m o]
+--
+--
+-- uplo is lower
+-- [ a 0 0 0 0 0]
+-- [ b c 0 0 0 0]
+-- [ d e f 0 0 0]
+-- [ 0 g h i 0 0]
+-- [ 0 0 j k l 0]
+-- [ 0 0 0 m n o]
+--
+-- changed to a:
+--
+-- [ a c f i l o]
+-- [ b e h k n 0]
+-- [ d g j m 0 0]
+{-# NOINLINE hbmvAbstraction #-}
+hbmvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> HbmvFunFFI scale el
+                -> HbmvFunFFI scale el
+                -> (el -> (scale -> m ())-> m ())
+                -> forall orient . HbmvFun el orient (PrimState m) m
+hbmvAbstraction hbmvName hbmvSafeFFI hbmvUnsafeFFI constHandler = hbmv
+  where
+    shouldCallFast :: Int -> Int  -> Bool
+    shouldCallFast a b = flopsThreshold >= (fromIntegral a) * (fromIntegral b)
+    hbmv uplo k alpha
+      (MutableDenseMatrix ornta ax ay astride abuff)
+      (MutableDenseVector _ xdim _ xbuff) incx beta
+      (MutableDenseVector _ ydim _ ybuff) incy
+        | isVectorBadWithNIncrement xdim ay incx = error $! vectorBadInfo hbmvName "x vector" xdim ay incx
+        | isVectorBadWithNIncrement ydim ay incy = error $! vectorBadInfo hbmvName "y vector" ydim ay incy
+        | astride < k + 1 = error $! hbmvName ++ ": lda " ++ (show astride) ++ " should be greater than k " ++ (show k) ++ "."
+        | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
+            error $! "The read and write inputs for: " ++ hbmvName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     unsafeWithPrim ybuff $ \yp ->
+                     constHandler alpha $ \alphaPtr ->
+                     constHandler beta  $ \betaPtr  ->
+                       unsafePrimToPrim $! (if shouldCallFast ax ay then hbmvUnsafeFFI else hbmvSafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral ay) (fromIntegral k) alphaPtr ap (fromIntegral astride) xp
+                         (fromIntegral incx) betaPtr yp (fromIntegral incy)
