@@ -136,3 +136,23 @@ foreign import ccall safe   "cblas_zhbmv"
 --           Float *alpha,   Float *A,   CInt lda,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
 --void cblas_zhbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,
 --           Double *alpha,   Double *A,   CInt lda,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);
+
+--------------------------------
+---- | hermitian matrix vector product   x:=Av, writes result x into v
+--------------------------------
+type HemvFunFFI sc el =
+       CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
+    -> sc -> Ptr el -> CInt -> Ptr el -> CInt -> sc -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_chemv"
+    cblas_chemv_unsafe :: HemvFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall safe   "cblas_chemv"
+    cblas_chemv_safe   :: HemvFunFFI (Ptr (Complex Float)) (Complex Float)
+
+foreign import ccall unsafe "cblas_zhemv"
+    cblas_zhemv_unsafe :: HemvFunFFI (Ptr (Complex Double)) (Complex Double)
+foreign import ccall safe   "cblas_zhemv"
+    cblas_zhemv_safe   :: HemvFunFFI (Ptr (Complex Double)) (Complex Double)
+--void cblas_chemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float *alpha,   Float *A,
+--                   CInt lda,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
+--void cblas_zhemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *A,
+--                   CInt lda,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);

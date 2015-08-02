@@ -236,6 +236,42 @@ matvectTest1ZHBMV = do
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [1.0:+5.0, 3.0:+5.0, 5.0:+3.0, 5.0:+1.0]
 
+-- [1:+0    1:+1    1:+1    1:+1]
+-- [1:+(-1) 1:+0    1:+1    1:+1]
+-- [1:+(-1) 1:+(-1) 1:+0    1:+1]
+-- [1:+(-1) 1:+(-1) 1:+(-1) 1:+0]
+--
+-- [1:+1]
+-- [1:+1]
+-- [1:+1]
+-- [1:+1]
+matvectTest1CHEMV :: IO ()
+matvectTest1CHEMV = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
+  y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
+  BLAS.chemv Matrix.MatUpper 1.0 a x 1 0.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [1.0:+7.0, 3.0:+5.0, 5.0:+3.0, 7.0:+1.0]
+
+matvectTest2CHEMV :: IO ()
+matvectTest2CHEMV = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (4, 4) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
+  y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
+  BLAS.chemv Matrix.MatUpper 1.0 a x 1 0.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [1.0:+7.0, 3.0:+5.0, 5.0:+3.0, 7.0:+1.0]
+
+matvectTest1ZHEMV :: IO ()
+matvectTest1ZHEMV = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+(-1.0))
+  x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
+  y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
+  BLAS.zhemv Matrix.MatLower 1.0 a x 1 0.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [1.0:+7.0, 3.0:+5.0, 5.0:+3.0, 7.0:+1.0]
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -299,6 +335,10 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
     ,testCase "chbmv on 4*3 a(4x4 matrix) all 1+i s" matvectTest1CHBMV
     ,testCase "chbmv on 4*3 a(4x4 matrix) all 1+i s (column oriented)" matvectTest2CHBMV
     ,testCase "zhbmv on 4*3 a(4x4 matrix) all 1+i s" matvectTest1ZHBMV
+---- hemv tests
+    ,testCase "chemv on 4*3 a(4x4 matrix) all 1+i s" matvectTest1CHEMV
+    ,testCase "chemv on 4*3 a(4x4 matrix) all 1+i s (column oriented)" matvectTest2CHEMV
+    ,testCase "zhemv on 4*3 a(4x4 matrix) all 1+i s" matvectTest1ZHEMV
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV

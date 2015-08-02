@@ -144,6 +144,9 @@ module Numerical.HBLAS.BLAS(
         ,chbmv
         ,zhbmv
 
+        ,chemv
+        ,zhemv
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -366,6 +369,12 @@ chbmv = hbmvAbstraction "chbmv" cblas_chbmv_safe cblas_chbmv_unsafe withRStorabl
 
 zhbmv :: PrimMonad m => HbmvFun (Complex Double) orient (PrimState m) m
 zhbmv = hbmvAbstraction "zhbmv" cblas_zhbmv_safe cblas_zhbmv_unsafe withRStorable_
+
+chemv :: PrimMonad m => HemvFun (Complex Float) orient (PrimState m) m
+chemv = hemvAbstraction "chemv" cblas_chemv_safe cblas_chemv_unsafe withRStorable_
+
+zhemv :: PrimMonad m => HemvFun (Complex Double) orient (PrimState m) m
+zhemv = hemvAbstraction "zhemv" cblas_zhemv_safe cblas_zhemv_unsafe withRStorable_
 
 -- Level 3
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m

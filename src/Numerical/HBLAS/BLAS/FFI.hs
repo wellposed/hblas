@@ -216,13 +216,6 @@ type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CIn
 --void cblas_dsymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *A,
 --                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
 
---------------------------------
----- | hermitian matrix vector product   x:=Av, writes result x into v
---------------------------------
---void cblas_chemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float *alpha,   Float *A,
---                   CInt lda,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
---void cblas_zhemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *A,
---                   CInt lda,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);
 
 
 
