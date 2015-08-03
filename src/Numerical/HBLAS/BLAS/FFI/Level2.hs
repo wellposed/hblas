@@ -159,17 +159,29 @@ type HerFunFFI sc el =
       CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
       -> sc -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign import ccall unsafe "cblas_cher"
-    cblas_cher_unsafe :: HerFunFFI (Ptr (Complex Float)) (Complex Float)
+    cblas_cher_unsafe :: HerFunFFI Float (Complex Float)
 foreign import ccall safe "cblas_cher"
-    cblas_cher_safe :: HerFunFFI (Ptr (Complex Float)) (Complex Float)
+    cblas_cher_safe :: HerFunFFI Float (Complex Float)
 
 foreign import ccall unsafe "cblas_zher"
-    cblas_zher_unsafe :: HerFunFFI (Ptr (Complex Double)) (Complex Double)
+    cblas_zher_unsafe :: HerFunFFI Double (Complex Double)
 foreign import ccall safe "cblas_zher"
-    cblas_zher_safe :: HerFunFFI (Ptr (Complex Double)) (Complex Double)
+    cblas_zher_safe :: HerFunFFI Double (Complex Double)
 --void cblas_cher(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *A,   CInt lda);
 --void cblas_zher(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *A,   CInt lda);
 
+type Her2FunFFI sc el =
+      CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
+      -> sc -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_cher2"
+    cblas_cher2_unsafe :: Her2FunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall safe "cblas_cher2"
+    cblas_cher2_safe :: Her2FunFFI (Ptr (Complex Float)) (Complex Float)
+
+foreign import ccall unsafe "cblas_zher2"
+    cblas_zher2_unsafe :: Her2FunFFI (Ptr (Complex Double)) (Complex Double)
+foreign import ccall safe "cblas_zher2"
+    cblas_zher2_safe :: Her2FunFFI (Ptr (Complex Double)) (Complex Double)
 --void cblas_cher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float *alpha,   Float *X,   CInt incX,
 --                  Float *Y,   CInt incY, Float *A,   CInt lda);
 --void cblas_zher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *X,   CInt incX,

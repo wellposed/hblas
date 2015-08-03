@@ -276,18 +276,12 @@ matvectTest1CHER :: IO ()
 matvectTest1CHER = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
-  BLAS.zher Matrix.MatUpper 1.0 x 1 a
+  BLAS.cher Matrix.MatUpper 1.0 x 1 a
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
-  {-
-  resList @?= [3.0:+0.0,    5.0:+1.0,     7.0:+1.0,     9.0:+1.0,
-               5.0:+(-1.0), 9.0:+0.0,     13.0:+1.0,    17.0:+1.0,
-               7.0:+(-1.0), 13.0:+(-1.0), 19.0:+0.0,    25.0:+1.0,
-               9.0:+(-1.0), 17.0:+(-1.0), 25.0:+(-1.0), 33.0:+0.0]
-               -}
-  resList @?= [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
-               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
-               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
-               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0]
+  resList @?= [3.0:+0.0, 5.0:+1.0,  7.0:+1.0,  9.0:+1.0,
+               1.0:+1.0, 9.0:+0.0, 13.0:+1.0, 17.0:+1.0,
+               1.0:+1.0, 1.0:+1.0, 19.0:+0.0, 25.0:+1.0,
+               1.0:+1.0, 1.0:+1.0,  1.0:+1.0, 33.0:+0.0]
 
 matvectTest1ZHER :: IO ()
 matvectTest1ZHER = do
@@ -295,16 +289,34 @@ matvectTest1ZHER = do
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
   BLAS.zher Matrix.MatLower 1.0 x 1 a
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
-  {-
-  resList @?= [3.0:+0.0,    5.0:+1.0,     7.0:+1.0,     9.0:+1.0,
-               5.0:+(-1.0), 9.0:+0.0,     13.0:+1.0,    17.0:+1.0,
-               7.0:+(-1.0), 13.0:+(-1.0), 19.0:+0.0,    25.0:+1.0,
-               9.0:+(-1.0), 17.0:+(-1.0), 25.0:+(-1.0), 33.0:+0.0]
-               -}
-  resList @?= [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
-               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
-               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
-               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0]
+  resList @?= [3.0:+0.0,  1.0:+1.0,  1.0:+1.0,  1.0:+1.0,
+               5.0:+1.0,  9.0:+0.0,  1.0:+1.0,  1.0:+1.0,
+               7.0:+1.0, 13.0:+1.0, 19.0:+0.0,  1.0:+1.0,
+               9.0:+1.0, 17.0:+1.0, 25.0:+1.0, 33.0:+0.0]
+
+matvectTest1CHER2 :: IO ()
+matvectTest1CHER2 = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
+  y <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
+  BLAS.cher2 Matrix.MatUpper 1.0 x 1 y 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
+  resList @?= [5.0:+0.0,  9.0:+1.0, 13.0:+1.0, 17.0:+1.0,
+               1.0:+1.0, 17.0:+0.0, 25.0:+1.0, 33.0:+1.0,
+               1.0:+1.0,  1.0:+1.0, 37.0:+0.0, 49.0:+1.0,
+               1.0:+1.0,  1.0:+1.0,  1.0:+1.0, 65.0:+0.0]
+
+matvectTest1ZHER2 :: IO ()
+matvectTest1ZHER2 = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
+  y <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
+  BLAS.zher2 Matrix.MatLower 1.0 x 1 y 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
+  resList @?= [ 5.0:+0.0,  1.0:+1.0,  1.0:+1.0,  1.0:+1.0,
+                9.0:+1.0, 17.0:+0.0,  1.0:+1.0,  1.0:+1.0,
+               13.0:+1.0, 25.0:+1.0, 37.0:+0.0,  1.0:+1.0,
+               17.0:+1.0, 33.0:+1.0, 49.0:+1.0, 65.0:+0.0]
 
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
@@ -376,6 +388,9 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ---- her tests
     ,testCase "cher on 4*4 a upper all 1+i s" matvectTest1CHER
     ,testCase "zher on 4*4 a upper all 1+i s" matvectTest1ZHER
+---- her2 tests
+    ,testCase "cher2 on 4*4 a upper all 1+i s" matvectTest1CHER2
+    ,testCase "zher2 on 4*4 a upper all 1+i s" matvectTest1ZHER2
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV
