@@ -39,6 +39,10 @@ void LAPACK_dgesvx( char* fact, char* trans, lapack_int* n, lapack_int* nrhs,
 -}
 
 --type Stride_C =
+newtype JobTy = JBT CChar
+newtype UploTy = UPLT CChar
+newtype Info = Info Int32
+
 
 newtype Fact_C = Fact_C CChar
 newtype Trans_C = Trans_C CChar
@@ -51,14 +55,11 @@ type Fun_FFI_GESVX el = Ptr Fact_C  {- fact -}-> Ptr Trans_C {- trans -}
     Ptr Int32 -> Ptr Equilib_C {- equed -} -> Ptr el {- r -} -> Ptr el  ->
     Ptr el {- b -} -> Ptr Stride_C {- ld b   -} -> Ptr el {- x -} -> Ptr Stride_C {- ldx -}->
     Ptr el {-rcond -}-> Ptr el {- ferr-} -> Ptr el {-berr-} -> Ptr el {-work-}->
-    Ptr Int32 {-iwork -}-> Ptr Int32 {-info  -} -> IO ()
-
-
+    Ptr Int32 {-iwork -}-> Ptr Info {-info  -} -> IO ()
 
 {-
 
 the prefixes mean s=single,d=double,c=complex float,d=complex double
-
 
 
 fact will be a 1 character C string
@@ -72,12 +73,9 @@ either
 
 
 {-
-Xgesvx  is the s -sing
-
-
 im assuming for now that any real use of *gesvx routines, or any other
 n^3 complexity algs from LAPACK, are on inputs typically  n>=15, which means > 1000 flops,
-which is > 1µs, and thus ok to
+which is > 1µs, and thus ok to always use the Safe FFI convention
 -}
 
 --need to get around to wrapping these, but thats for another day
@@ -91,9 +89,7 @@ foreign import ccall  "zgesvx_"  zgesvx :: Fun_FFI_GESVX (Complex Double)
 --lapack_int ?syev_(  char *jobz, char *uplo, lapack_int *n, ?* a, lapack_int * lda, ?* w );
 -- ? is Double or Float
 
-newtype JobTy = JBT CChar
-newtype UploTy = UPLT CChar
-newtype Info = Info Int32
+
 
 --basic symmetric eigen value solvers
 type SYEV_FUN_FFI elem = Ptr JobTy -> Ptr UploTy -> Ptr Int32  -> Ptr elem -> Ptr Int32 -> Ptr elem -> Ptr Info-> IO ()
