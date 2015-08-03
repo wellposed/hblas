@@ -6,12 +6,14 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,GerFun
   ,HbmvFun
   ,HemvFun
+  ,HerFun
 
   ,gbmvAbstraction
   ,gemvAbstraction
   ,gerAbstraction
   ,hbmvAbstraction
   ,hemvAbstraction
+  ,herAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -33,6 +35,8 @@ type GerFun el orient s m = el -> MDenseVector s Direct el -> MDenseVector s Dir
 type HbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
 
 type HemvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
+
+type HerFun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int -> MDenseMatrix s orient el -> m ()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -229,3 +233,30 @@ hemvAbstraction hemvName hemvSafeFFI hemvUnsafeFFI constHandler = hemv
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
                          (fromIntegral ay) alphaPtr ap (fromIntegral astride) xp
                          (fromIntegral incx) betaPtr yp (fromIntegral incy)
+
+{-# NOINLINE herAbstraction #-}
+herAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> HerFunFFI scale el
+                -> HerFunFFI scale el
+                -> (el -> (scale -> m ())-> m ())
+                -> forall orient . HerFun el orient (PrimState m) m
+herAbstraction herName herSafeFFI herUnsafeFFI constHandler = her
+  where
+    shouldCallFast :: Int -> Int  -> Bool
+    shouldCallFast a b = flopsThreshold >= (fromIntegral a) * (fromIntegral b)
+    her uplo alpha
+      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseMatrix ornta _ ay astride abuff)
+        | isVectorBadWithNIncrement xdim ay incx = error $! vectorBadInfo herName "x vector" xdim ay incx
+        | astride < ay = error $! herName ++ ": lda " ++ (show astride) ++ " should be greater than or equal with n " ++ (show ay) ++ "."
+        | SM.overlaps abuff xbuff =
+            error $! "The read and write inputs for: " ++ herName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     constHandler alpha $ \alphaPtr ->
+                       unsafePrimToPrim $! (if shouldCallFast ay ay then herUnsafeFFI else herSafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral ay) alphaPtr xp (fromIntegral incx) ap (fromIntegral astride)

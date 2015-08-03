@@ -137,9 +137,6 @@ foreign import ccall safe   "cblas_zhbmv"
 --void cblas_zhbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,
 --           Double *alpha,   Double *A,   CInt lda,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);
 
---------------------------------
----- | hermitian matrix vector product   x:=Av, writes result x into v
---------------------------------
 type HemvFunFFI sc el =
        CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
     -> sc -> Ptr el -> CInt -> Ptr el -> CInt -> sc -> Ptr el -> CInt -> IO ()
@@ -156,3 +153,24 @@ foreign import ccall safe   "cblas_zhemv"
 --                   CInt lda,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
 --void cblas_zhemv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *A,
 --                   CInt lda,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);
+
+
+type HerFunFFI sc el =
+      CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
+      -> sc -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_cher"
+    cblas_cher_unsafe :: HerFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall safe "cblas_cher"
+    cblas_cher_safe :: HerFunFFI (Ptr (Complex Float)) (Complex Float)
+
+foreign import ccall unsafe "cblas_zher"
+    cblas_zher_unsafe :: HerFunFFI (Ptr (Complex Double)) (Complex Double)
+foreign import ccall safe "cblas_zher"
+    cblas_zher_safe :: HerFunFFI (Ptr (Complex Double)) (Complex Double)
+--void cblas_cher(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *A,   CInt lda);
+--void cblas_zher(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *A,   CInt lda);
+
+--void cblas_cher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float *alpha,   Float *X,   CInt incX,
+--                  Float *Y,   CInt incY, Float *A,   CInt lda);
+--void cblas_zher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *X,   CInt incX,
+--                  Double *Y,   CInt incY, Double *A,   CInt lda);

@@ -136,8 +136,6 @@ foreign import ccall safe   "cblas_ztrsv"
 
 --void cblas_ssyr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *A,   CInt lda);
 --void cblas_dsyr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *A,   CInt lda);
---void cblas_cher(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *A,   CInt lda);
---void cblas_zher(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *A,   CInt lda);
 
 
 
@@ -145,10 +143,6 @@ foreign import ccall safe   "cblas_ztrsv"
 --                  CInt incX,   Float *Y,   CInt incY, Float *A,   CInt lda);
 --void cblas_dsyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,
 --                  CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
---void cblas_cher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float *alpha,   Float *X,   CInt incX,
---                  Float *Y,   CInt incY, Float *A,   CInt lda);
---void cblas_zher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *X,   CInt incX,
---                  Double *Y,   CInt incY, Double *A,   CInt lda);
 
 
 --void cblas_ssbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,   Float alpha,   Float *A,
@@ -215,8 +209,6 @@ type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CIn
 --                   CInt lda,   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
 --void cblas_dsymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *A,
 --                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
-
-
 
 
 ---------------

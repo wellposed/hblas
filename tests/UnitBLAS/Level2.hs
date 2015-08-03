@@ -272,6 +272,40 @@ matvectTest1ZHEMV = do
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [1.0:+7.0, 3.0:+5.0, 5.0:+3.0, 7.0:+1.0]
 
+matvectTest1CHER :: IO ()
+matvectTest1CHER = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
+  BLAS.zher Matrix.MatUpper 1.0 x 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
+  {-
+  resList @?= [3.0:+0.0,    5.0:+1.0,     7.0:+1.0,     9.0:+1.0,
+               5.0:+(-1.0), 9.0:+0.0,     13.0:+1.0,    17.0:+1.0,
+               7.0:+(-1.0), 13.0:+(-1.0), 19.0:+0.0,    25.0:+1.0,
+               9.0:+(-1.0), 17.0:+(-1.0), 25.0:+(-1.0), 33.0:+0.0]
+               -}
+  resList @?= [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
+               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
+               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
+               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0]
+
+matvectTest1ZHER :: IO ()
+matvectTest1ZHER = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
+  BLAS.zher Matrix.MatLower 1.0 x 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
+  {-
+  resList @?= [3.0:+0.0,    5.0:+1.0,     7.0:+1.0,     9.0:+1.0,
+               5.0:+(-1.0), 9.0:+0.0,     13.0:+1.0,    17.0:+1.0,
+               7.0:+(-1.0), 13.0:+(-1.0), 19.0:+0.0,    25.0:+1.0,
+               9.0:+(-1.0), 17.0:+(-1.0), 25.0:+(-1.0), 33.0:+0.0]
+               -}
+  resList @?= [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
+               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
+               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0,
+               1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0]
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -332,13 +366,16 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
     ,testCase "cgeru on 2x3 all 1+i s" matmatTest1CGERU
     ,testCase "zgeru on 2x3 all 1+i s" matmatTest1ZGERU
 ---- hbmv tests
-    ,testCase "chbmv on 4*3 a(4x4 matrix) all 1+i s" matvectTest1CHBMV
-    ,testCase "chbmv on 4*3 a(4x4 matrix) all 1+i s (column oriented)" matvectTest2CHBMV
-    ,testCase "zhbmv on 4*3 a(4x4 matrix) all 1+i s" matvectTest1ZHBMV
+    ,testCase "chbmv on 4*3 a(4x4 matrix) upper all 1+i s" matvectTest1CHBMV
+    ,testCase "chbmv on 4*3 a(4x4 matrix) upper all 1+i s (column oriented)" matvectTest2CHBMV
+    ,testCase "zhbmv on 4*3 a(4x4 matrix) lower all 1+i s" matvectTest1ZHBMV
 ---- hemv tests
-    ,testCase "chemv on 4*3 a(4x4 matrix) all 1+i s" matvectTest1CHEMV
-    ,testCase "chemv on 4*3 a(4x4 matrix) all 1+i s (column oriented)" matvectTest2CHEMV
-    ,testCase "zhemv on 4*3 a(4x4 matrix) all 1+i s" matvectTest1ZHEMV
+    ,testCase "chemv on 4*3 a(4x4 matrix) upper all 1+i s" matvectTest1CHEMV
+    ,testCase "chemv on 4*3 a(4x4 matrix) upper all 1+i s (column oriented)" matvectTest2CHEMV
+    ,testCase "zhemv on 4*3 a(4x4 matrix) lower all 1+i s" matvectTest1ZHEMV
+---- her tests
+    ,testCase "cher on 4*4 a upper all 1+i s" matvectTest1CHER
+    ,testCase "zher on 4*4 a upper all 1+i s" matvectTest1ZHER
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV
