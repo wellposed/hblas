@@ -318,6 +318,52 @@ matvectTest1ZHER2 = do
                13.0:+1.0, 25.0:+1.0, 37.0:+0.0,  1.0:+1.0,
                17.0:+1.0, 33.0:+1.0, 49.0:+1.0, 65.0:+0.0]
 
+-- [0:+0    1:+1    2:+2    3:+3]
+-- [1:+(-1) 4:+0    5:+5    6:+6]
+-- [2:+(-2) 5:+(-5) 7:+0    8:+8]
+-- [3:+(-3) 6:+(-6) 8:+(-8) 9:+0]
+--
+-- [2:+2]
+-- [2:+2]
+-- [2:+2]
+-- [2:+2]
+--
+-- [ 3:+27]
+-- [15:+55]
+-- [45:+49]
+-- [89:+21]
+matvectTest1CHPMV1 :: IO ()
+matvectTest1CHPMV1 = do
+  a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+0.0, 1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0, 5.0:+5.0, 6.0:+6.0, 7.0:+7.0, 8.0:+8.0, 9.0:+9.0] !! idx)
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [2.0:+2.0, 2.0:+2.0, 2.0:+2.0, 2.0:+2.0] !! idx)
+  y <- Matrix.generateMutableDenseVector 4 (\idx -> [3.0:+3.0, 3.0:+3.0, 3.0:+3.0, 3.0:+3.0] !! idx)
+  BLAS.chpmv Matrix.SRow Matrix.MatUpper 4 1.0 a x 1 1.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [ 3.0:+27.0, 15.0:+55.0, 45.0:+49.0, 89.0:+21.0]
+
+-- [0:+0    1:+1    3:+3    6:+6]
+-- [1:+(-1) 2:+0    4:+4    7:+7]
+-- [3:+(-3) 4:+(-4) 5:+0    8:+8]
+-- [6:+(-6) 7:+(-7) 8:+(-8) 9:+0]
+--
+-- [2:+2]
+-- [2:+2]
+-- [2:+2]
+-- [2:+2]
+--
+-- [  6:+46]
+-- [ 14:+54]
+-- [ 44:+48]
+-- [108:+24]
+matvectTest1ZHPMV1 :: IO ()
+matvectTest1ZHPMV1 = do
+  a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+0.0, 1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0, 5.0:+5.0, 6.0:+6.0, 7.0:+7.0, 8.0:+8.0, 9.0:+9.0] !! idx)
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [2.0:+2.0, 2.0:+2.0, 2.0:+2.0, 2.0:+2.0] !! idx)
+  y <- Matrix.generateMutableDenseVector 4 (\idx -> [3.0:+3.0, 3.0:+3.0, 3.0:+3.0, 3.0:+3.0] !! idx)
+  BLAS.zhpmv Matrix.SColumn Matrix.MatUpper 4 1.0 a x 1 2.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [ 6.0:+46.0, 14.0:+54.0, 44.0:+48.0, 108.0:+24.0]
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -391,6 +437,9 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ---- her2 tests
     ,testCase "cher2 on 4*4 a upper all 1+i s" matvectTest1CHER2
     ,testCase "zher2 on 4*4 a upper all 1+i s" matvectTest1ZHER2
+---- hpmv test
+    ,testCase "chpmv on 4*4 a upper (row oriented)" matvectTest1CHPMV1
+    ,testCase "zhpmv on 4*4 a upper (column oriented)" matvectTest1ZHPMV1
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV

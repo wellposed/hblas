@@ -239,11 +239,6 @@ type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CIn
 
 
 
---void cblas_chpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,
---           Float *alpha,   Float *Ap,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
---void cblas_zhpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,
---           Double *alpha,   Double *Ap,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);
-
 
 {-
 

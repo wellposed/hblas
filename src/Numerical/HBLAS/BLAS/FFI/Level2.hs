@@ -186,3 +186,21 @@ foreign import ccall safe "cblas_zher2"
 --                  Float *Y,   CInt incY, Float *A,   CInt lda);
 --void cblas_zher2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *X,   CInt incX,
 --                  Double *Y,   CInt incY, Double *A,   CInt lda);
+
+type HpmvFunFFI sc el =
+      CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
+      -> sc -> Ptr el -> Ptr el -> CInt -> sc -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_chpmv"
+    cblas_chpmv_unsafe :: HpmvFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall safe "cblas_chpmv"
+    cblas_chpmv_safe :: HpmvFunFFI (Ptr (Complex Float)) (Complex Float)
+
+foreign import ccall unsafe "cblas_zhpmv"
+    cblas_zhpmv_unsafe :: HpmvFunFFI (Ptr (Complex Double)) (Complex Double)
+foreign import ccall safe "cblas_zhpmv"
+    cblas_zhpmv_safe :: HpmvFunFFI (Ptr (Complex Double)) (Complex Double)
+--void cblas_chpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,
+--           Float *alpha,   Float *Ap,   Float *X,   CInt incX,   Float *beta, Float *Y,   CInt incY);
+--void cblas_zhpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,
+--           Double *alpha,   Double *Ap,   Double *X,   CInt incX,   Double *beta, Double *Y,   CInt incY);
+
