@@ -364,6 +364,60 @@ matvectTest1ZHPMV1 = do
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [ 6.0:+46.0, 14.0:+54.0, 44.0:+48.0, 108.0:+24.0]
 
+-- [1:+1]
+-- [2:+2]
+-- [3:+3]
+-- [4:+4]
+--
+-- [2:+0    4:+0    6:+0    8:+0 ]
+-- [4:+0    8:+0    12:+0   16:+0]
+-- [6:+0    12:+0   18:+0   24:+0]
+-- [8:+0    16:+0   24:+0   32:+0]
+--
+-- [0:+0    1:+1    3:+3    6:+6]
+-- [1:+(-1) 2:+0    4:+4    7:+7]
+-- [3:+(-3) 4:+(-4) 5:+0    8:+8]
+-- [6:+(-6) 7:+(-7) 8:+(-8) 9:+0]
+--
+-- [2:+0     5:+1     9:+3     14:+6]
+-- [5:+(-1)  10:+0    16:+4    23:+7]
+-- [9:+(-3)  16:+(-4) 23:+0    32:+8]
+-- [14:+(-6) 23:+(-7) 32:+(-8) 41:+0]
+matvectTest1CHPR1 :: IO ()
+matvectTest1CHPR1 = do
+  a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+0.0, 1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0, 5.0:+5.0, 6.0:+6.0, 7.0:+7.0, 8.0:+8.0, 9.0:+9.0] !! idx)
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
+  BLAS.chpr Matrix.SColumn Matrix.MatUpper 4 1.0 x 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
+  resList @?= [2.0:+0.0, 5.0:+1.0, 10.0:+0.0, 9.0:+3.0, 16.0:+4.0, 23.0:+0.0, 14.0:+6.0, 23.0:+7.0,  32.0:+8.0, 41.0:+0.0]
+
+-- [1:+1]
+-- [2:+2]
+-- [3:+3]
+-- [4:+4]
+--
+-- [2:+0    4:+0    6:+0    8:+0 ]
+-- [4:+0    8:+0    12:+0   16:+0]
+-- [6:+0    12:+0   18:+0   24:+0]
+-- [8:+0    16:+0   24:+0   32:+0]
+--
+-- [0:+0    1:+1    3:+3    6:+6]
+-- [1:+(-1) 2:+0    4:+4    7:+7]
+-- [3:+(-3) 4:+(-4) 5:+0    8:+8]
+-- [6:+(-6) 7:+(-7) 8:+(-8) 9:+0]
+--
+-- [2:+0     5:+1     9:+3     14:+6]
+-- [5:+(-1)  10:+0    16:+4    23:+7]
+-- [9:+(-3)  16:+(-4) 23:+0    32:+8]
+-- [14:+(-6) 23:+(-7) 32:+(-8) 41:+0]
+matvectTest1ZHPR1 :: IO ()
+matvectTest1ZHPR1 = do
+  a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+(-0.0), 1.0:+(-1.0), 2.0:+(-2.0), 3.0:+(-3.0), 4.0:+(-4.0), 5.0:+(-5.0), 6.0:+(-6.0), 7.0:+(-7.0), 8.0:+(-8.0), 9.0:+(-9.0)] !! idx)
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
+  BLAS.zhpr Matrix.SRow Matrix.MatLower 4 1.0 x 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
+  resList @?= [2.0:+0.0, 5.0:+(-1.0), 10.0:+0.0, 9.0:+(-3.0), 16.0:+(-4.0), 23.0:+0.0, 14.0:+(-6.0), 23.0:+(-7.0),  32.0:+(-8.0), 41.0:+0.0]
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -440,6 +494,9 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ---- hpmv test
     ,testCase "chpmv on 4*4 a upper (row oriented)" matvectTest1CHPMV1
     ,testCase "zhpmv on 4*4 a upper (column oriented)" matvectTest1ZHPMV1
+---- chpr test
+    ,testCase "chpr on 4*4 a upper (row oriented)" matvectTest1CHPR1
+    ,testCase "zhpr on 4*4 a lower (column oriented)" matvectTest1ZHPR1
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV

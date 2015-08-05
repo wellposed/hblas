@@ -9,6 +9,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,HerFun
   ,Her2Fun
   ,HpmvFun
+  ,HprFun
 
   ,gbmvAbstraction
   ,gemvAbstraction
@@ -18,6 +19,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,herAbstraction
   ,her2Abstraction
   ,hpmvAbstraction
+  ,hprAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -45,6 +47,8 @@ type HerFun scale el orient s m = MatUpLo -> scale -> MDenseVector s Direct el -
 type Her2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseMatrix s orient el -> m ()
 
 type HpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
+
+type HprFun scale el orient s m = SOrientation orient -> MatUpLo -> Int -> scale -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -309,7 +313,7 @@ hpmvAbstraction :: (SM.Storable el, PrimMonad m)
 hpmvAbstraction hpmvName hpmvSafeFFI hpmvUnsafeFFI constHandler = hpmv
   where
     shouldCallFast :: Int64 -> Bool
-    shouldCallFast n = flopsThreshold >= ((div (n * (n + 1)) 2) + n)
+    shouldCallFast n = flopsThreshold >= (n * n + n)
     hpmv ornta uplo n alpha
       (MutableDenseVector _ adim _ abuff)
       (MutableDenseVector _ xdim _ xbuff) incx beta
@@ -329,3 +333,30 @@ hpmvAbstraction hpmvName hpmvSafeFFI hpmvUnsafeFFI constHandler = hpmv
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then hpmvUnsafeFFI else hpmvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) alphaPtr ap xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
+
+{-# NOINLINE hprAbstraction #-}
+hprAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> HprFunFFI scalePtr el
+                -> HprFunFFI scalePtr el
+                -> (scale -> (scalePtr -> m ())-> m ())
+                -> forall orient . HprFun scale el orient (PrimState m) m
+hprAbstraction hprName hprSafeFFI hprUnsafeFFI constHandler = hpr
+  where
+    shouldCallFast :: Int64 -> Bool
+    shouldCallFast n = flopsThreshold >= (n * n + n)
+    hpr ornta uplo n alpha
+      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseVector _ adim _ abuff)
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo hprName "x vector" xdim n incx
+        | adim < (div (n * (n+1)) 2) = error $! hprName ++ ": array must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
+        | SM.overlaps abuff xbuff =
+            error $! "The read and write inputs for: " ++ hprName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     constHandler alpha $ \alphaPtr ->
+                       unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then hprUnsafeFFI else hprSafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral n) alphaPtr xp (fromIntegral incx) ap
