@@ -10,6 +10,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,Her2Fun
   ,HpmvFun
   ,HprFun
+  ,Hpr2Fun
 
   ,gbmvAbstraction
   ,gemvAbstraction
@@ -20,6 +21,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,her2Abstraction
   ,hpmvAbstraction
   ,hprAbstraction
+  ,hpr2Abstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -49,6 +51,8 @@ type Her2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int ->
 type HpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
 
 type HprFun scale el orient s m = SOrientation orient -> MatUpLo -> Int -> scale -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
+
+type Hpr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -360,3 +364,33 @@ hprAbstraction hprName hprSafeFFI hprUnsafeFFI constHandler = hpr
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then hprUnsafeFFI else hprSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) alphaPtr xp (fromIntegral incx) ap
+
+{-# NOINLINE hpr2Abstraction #-}
+hpr2Abstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> Hpr2FunFFI scale el
+                -> Hpr2FunFFI scale el
+                -> (el -> (scale -> m ())-> m ())
+                -> forall orient . Hpr2Fun el orient (PrimState m) m
+hpr2Abstraction hpr2Name hpr2SafeFFI hpr2UnsafeFFI constHandler = hpr2
+  where
+    shouldCallFast :: Int64 -> Bool
+    shouldCallFast n = flopsThreshold >= (n * n + n)
+    hpr2 ornta uplo n alpha
+      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseVector _ ydim _ ybuff) incy
+      (MutableDenseVector _ adim _ abuff)
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo hpr2Name "x vector" xdim n incx
+        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo hpr2Name "y vector" ydim n incy
+        | adim < (div (n * (n+1)) 2) = error $! hpr2Name ++ ": array must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
+        | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
+            error $! "The read and write inputs for: " ++ hpr2Name ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     unsafeWithPrim ybuff $ \yp ->
+                     constHandler alpha $ \alphaPtr ->
+                       unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then hpr2UnsafeFFI else hpr2SafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral n) alphaPtr xp (fromIntegral incx) yp (fromIntegral incy) ap

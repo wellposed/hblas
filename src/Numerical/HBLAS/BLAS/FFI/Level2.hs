@@ -218,5 +218,18 @@ foreign import ccall safe "cblas_zhpr"
     cblas_zhpr_safe :: HprFunFFI Double (Complex Double)
 --void cblas_chpr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *A);
 --void cblas_zhpr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,  CInt incX, Double *A);
+
+type Hpr2FunFFI sc el =
+      CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
+      -> sc -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> IO ()
+foreign import ccall unsafe "cblas_chpr2"
+    cblas_chpr2_unsafe :: Hpr2FunFFI (Ptr (Complex Float)) (Complex Float)
+foreign import ccall safe "cblas_chpr2"
+    cblas_chpr2_safe :: Hpr2FunFFI (Ptr (Complex Float)) (Complex Float)
+
+foreign import ccall unsafe "cblas_zhpr2"
+    cblas_zhpr2_unsafe :: Hpr2FunFFI (Ptr (Complex Double)) (Complex Double)
+foreign import ccall safe "cblas_zhpr2"
+    cblas_zhpr2_safe :: Hpr2FunFFI (Ptr (Complex Double)) (Complex Double)
 --void cblas_chpr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float *alpha,   Float *X,   CInt incX,   Float *Y,   CInt incY, Float *Ap);
 --void cblas_zhpr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *Ap);

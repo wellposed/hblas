@@ -157,6 +157,8 @@ module Numerical.HBLAS.BLAS(
 
         ,chpr
         ,zhpr
+        ,chpr2
+        ,zhpr2
 
         ,dgemm
         ,sgemm
@@ -410,6 +412,12 @@ chpr = hprAbstraction "chpr" cblas_chpr_safe cblas_chpr_unsafe (\x f -> f x)
 
 zhpr :: PrimMonad m => HprFun Double (Complex Double) orient (PrimState m) m
 zhpr = hprAbstraction "zhpr" cblas_zhpr_safe cblas_zhpr_unsafe (\x f -> f x)
+
+chpr2 :: PrimMonad m => Hpr2Fun (Complex Float) orient (PrimState m) m
+chpr2 = hpr2Abstraction "chpr2" cblas_chpr2_safe cblas_chpr2_unsafe withRStorable_
+
+zhpr2 :: PrimMonad m => Hpr2Fun (Complex Double) orient (PrimState m) m
+zhpr2 = hpr2Abstraction "zhpr2" cblas_zhpr2_safe cblas_zhpr2_unsafe withRStorable_
 
 -- Level 3
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m

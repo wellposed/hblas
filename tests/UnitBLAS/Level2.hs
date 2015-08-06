@@ -332,8 +332,8 @@ matvectTest1ZHER2 = do
 -- [15:+55]
 -- [45:+49]
 -- [89:+21]
-matvectTest1CHPMV1 :: IO ()
-matvectTest1CHPMV1 = do
+matvectTest1CHPMV :: IO ()
+matvectTest1CHPMV = do
   a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+0.0, 1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0, 5.0:+5.0, 6.0:+6.0, 7.0:+7.0, 8.0:+8.0, 9.0:+9.0] !! idx)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [2.0:+2.0, 2.0:+2.0, 2.0:+2.0, 2.0:+2.0] !! idx)
   y <- Matrix.generateMutableDenseVector 4 (\idx -> [3.0:+3.0, 3.0:+3.0, 3.0:+3.0, 3.0:+3.0] !! idx)
@@ -355,8 +355,8 @@ matvectTest1CHPMV1 = do
 -- [ 14:+54]
 -- [ 44:+48]
 -- [108:+24]
-matvectTest1ZHPMV1 :: IO ()
-matvectTest1ZHPMV1 = do
+matvectTest1ZHPMV :: IO ()
+matvectTest1ZHPMV = do
   a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+0.0, 1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0, 5.0:+5.0, 6.0:+6.0, 7.0:+7.0, 8.0:+8.0, 9.0:+9.0] !! idx)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [2.0:+2.0, 2.0:+2.0, 2.0:+2.0, 2.0:+2.0] !! idx)
   y <- Matrix.generateMutableDenseVector 4 (\idx -> [3.0:+3.0, 3.0:+3.0, 3.0:+3.0, 3.0:+3.0] !! idx)
@@ -383,8 +383,8 @@ matvectTest1ZHPMV1 = do
 -- [5:+(-1)  10:+0    16:+4    23:+7]
 -- [9:+(-3)  16:+(-4) 23:+0    32:+8]
 -- [14:+(-6) 23:+(-7) 32:+(-8) 41:+0]
-matvectTest1CHPR1 :: IO ()
-matvectTest1CHPR1 = do
+matvectTest1CHPR :: IO ()
+matvectTest1CHPR = do
   a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+0.0, 1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0, 5.0:+5.0, 6.0:+6.0, 7.0:+7.0, 8.0:+8.0, 9.0:+9.0] !! idx)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
   BLAS.chpr Matrix.SColumn Matrix.MatUpper 4 1.0 x 1 a
@@ -410,13 +410,36 @@ matvectTest1CHPR1 = do
 -- [5:+(-1)  10:+0    16:+4    23:+7]
 -- [9:+(-3)  16:+(-4) 23:+0    32:+8]
 -- [14:+(-6) 23:+(-7) 32:+(-8) 41:+0]
-matvectTest1ZHPR1 :: IO ()
-matvectTest1ZHPR1 = do
+matvectTest1ZHPR :: IO ()
+matvectTest1ZHPR = do
   a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+(-0.0), 1.0:+(-1.0), 2.0:+(-2.0), 3.0:+(-3.0), 4.0:+(-4.0), 5.0:+(-5.0), 6.0:+(-6.0), 7.0:+(-7.0), 8.0:+(-8.0), 9.0:+(-9.0)] !! idx)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
   BLAS.zhpr Matrix.SRow Matrix.MatLower 4 1.0 x 1 a
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
-  resList @?= [2.0:+0.0, 5.0:+(-1.0), 10.0:+0.0, 9.0:+(-3.0), 16.0:+(-4.0), 23.0:+0.0, 14.0:+(-6.0), 23.0:+(-7.0),  32.0:+(-8.0), 41.0:+0.0]
+  resList @?= [2.0:+0.0, 5.0:+(-1.0), 10.0:+0.0, 9.0:+(-3.0), 16.0:+(-4.0), 23.0:+0.0, 14.0:+(-6.0), 23.0:+(-7.0), 32.0:+(-8.0), 41.0:+0.0]
+
+-- [12:+0 ...]
+-- [.       ...]
+-- [.       ...]
+-- [.       ...]
+--
+matvectTest1CHPR2 :: IO ()
+matvectTest1CHPR2 = do
+  a <- Matrix.generateMutableDenseVector 10 (\_ -> 0.0:+0.0)
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0] !! idx)
+  y <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+2.0, 1.0:+2.0, 1.0:+2.0, 1.0:+2.0] !! idx)
+  BLAS.chpr2 Matrix.SColumn Matrix.MatUpper 4 2.0 x 1 y 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
+  resList @?= [12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0]
+
+matvectTest1ZHPR2 :: IO ()
+matvectTest1ZHPR2 = do
+  a <- Matrix.generateMutableDenseVector 10 (\_ -> 0.0:+0.0)
+  x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0] !! idx)
+  y <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+2.0, 1.0:+2.0, 1.0:+2.0, 1.0:+2.0] !! idx)
+  BLAS.zhpr2 Matrix.SColumn Matrix.MatUpper 4 2.0 x 1 y 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
+  resList @?= [12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0]
 
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
@@ -491,12 +514,15 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ---- her2 tests
     ,testCase "cher2 on 4*4 a upper all 1+i s" matvectTest1CHER2
     ,testCase "zher2 on 4*4 a upper all 1+i s" matvectTest1ZHER2
----- hpmv test
-    ,testCase "chpmv on 4*4 a upper (row oriented)" matvectTest1CHPMV1
-    ,testCase "zhpmv on 4*4 a upper (column oriented)" matvectTest1ZHPMV1
----- chpr test
-    ,testCase "chpr on 4*4 a upper (row oriented)" matvectTest1CHPR1
-    ,testCase "zhpr on 4*4 a lower (column oriented)" matvectTest1ZHPR1
+---- hpmv tests
+    ,testCase "chpmv on 4*4 a upper (row oriented)" matvectTest1CHPMV
+    ,testCase "zhpmv on 4*4 a upper (column oriented)" matvectTest1ZHPMV
+---- chpr tests
+    ,testCase "chpr on 4*4 a upper (column oriented)" matvectTest1CHPR
+    ,testCase "zhpr on 4*4 a lower (row oriented)" matvectTest1ZHPR
+---- chpr2 tests
+    ,testCase "chpr2 on 4*4 a upper (column oriented)" matvectTest1CHPR2
+    ,testCase "zhpr2 on 4*4 a upper (row oriented)" matvectTest1ZHPR2
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV
