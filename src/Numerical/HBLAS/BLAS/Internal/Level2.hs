@@ -11,6 +11,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,HpmvFun
   ,HprFun
   ,Hpr2Fun
+  ,SbmvFun
 
   ,gbmvAbstraction
   ,gemvAbstraction
@@ -22,6 +23,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,hpmvAbstraction
   ,hprAbstraction
   ,hpr2Abstraction
+  ,sbmvAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -53,6 +55,8 @@ type HpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDen
 type HprFun scale el orient s m = SOrientation orient -> MatUpLo -> Int -> scale -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
 
 type Hpr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
+
+type SbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -318,7 +322,7 @@ hpmvAbstraction hpmvName hpmvSafeFFI hpmvUnsafeFFI constHandler = hpmv
   where
     shouldCallFast :: Int64 -> Bool
     shouldCallFast n = flopsThreshold >= (n * n + n)
-    hpmv ornta uplo n alpha
+    hpmv ornt uplo n alpha
       (MutableDenseVector _ adim _ abuff)
       (MutableDenseVector _ xdim _ xbuff) incx beta
       (MutableDenseVector _ ydim _ ybuff) incy
@@ -335,7 +339,7 @@ hpmvAbstraction hpmvName hpmvSafeFFI hpmvUnsafeFFI constHandler = hpmv
                      constHandler alpha $ \alphaPtr ->
                      constHandler beta $ \betaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then hpmvUnsafeFFI else hpmvSafeFFI)
-                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) alphaPtr ap xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
 
 {-# NOINLINE hprAbstraction #-}
@@ -349,7 +353,7 @@ hprAbstraction hprName hprSafeFFI hprUnsafeFFI constHandler = hpr
   where
     shouldCallFast :: Int64 -> Bool
     shouldCallFast n = flopsThreshold >= (n * n + n)
-    hpr ornta uplo n alpha
+    hpr ornt uplo n alpha
       (MutableDenseVector _ xdim _ xbuff) incx
       (MutableDenseVector _ adim _ abuff)
         | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo hprName "x vector" xdim n incx
@@ -362,7 +366,7 @@ hprAbstraction hprName hprSafeFFI hprUnsafeFFI constHandler = hpr
                      unsafeWithPrim xbuff $ \xp ->
                      constHandler alpha $ \alphaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then hprUnsafeFFI else hprSafeFFI)
-                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) alphaPtr xp (fromIntegral incx) ap
 
 {-# NOINLINE hpr2Abstraction #-}
@@ -376,7 +380,7 @@ hpr2Abstraction hpr2Name hpr2SafeFFI hpr2UnsafeFFI constHandler = hpr2
   where
     shouldCallFast :: Int64 -> Bool
     shouldCallFast n = flopsThreshold >= (n * n + n)
-    hpr2 ornta uplo n alpha
+    hpr2 ornt uplo n alpha
       (MutableDenseVector _ xdim _ xbuff) incx
       (MutableDenseVector _ ydim _ ybuff) incy
       (MutableDenseVector _ adim _ abuff)
@@ -392,5 +396,39 @@ hpr2Abstraction hpr2Name hpr2SafeFFI hpr2UnsafeFFI constHandler = hpr2
                      unsafeWithPrim ybuff $ \yp ->
                      constHandler alpha $ \alphaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then hpr2UnsafeFFI else hpr2SafeFFI)
-                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) alphaPtr xp (fromIntegral incx) yp (fromIntegral incy) ap
+
+{-# NOINLINE sbmvAbstraction #-}
+sbmvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> SbmvFunFFI scale el
+                -> SbmvFunFFI scale el
+                -> (el -> (scale -> m ())-> m ())
+                -> forall orient . SbmvFun el orient (PrimState m) m
+sbmvAbstraction sbmvName sbmvSafeFFI sbmvUnsafeFFI constHandler = sbmv
+  where
+    shouldCallFast :: Int -> Int -> Bool
+    shouldCallFast n k = flopsThreshold >= (fromIntegral n) * (fromIntegral k)
+    sbmv uplo k alpha
+      (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
+      (MutableDenseVector _ xdim _ xbuff) incx beta
+      (MutableDenseVector _ ydim _ ybuff) incy
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo sbmvName "x vector" xdim n incx
+        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo sbmvName "y vector" ydim n incy
+        | lda < k+1 = error $! sbmvName ++ ": lda (" ++ (show lda) ++ ") must be greater than k (" ++ (show k) ++ ") + 1."
+        -- | True = error $! (show n) ++ " " ++ (show k) ++ " " ++ show(ax) ++ " " ++ show(lda)
+        | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
+            error $! "The read and write inputs for: " ++ sbmvName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              n = ax
+              lda = ay
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     unsafeWithPrim ybuff $ \yp ->
+                     constHandler alpha $ \alphaPtr ->
+                     constHandler beta $ \betaPtr ->
+                       unsafePrimToPrim $! (if shouldCallFast n k then sbmvUnsafeFFI else sbmvSafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral n) (fromIntegral k) alphaPtr ap (fromIntegral lda) xp (fromIntegral incx) betaPtr yp (fromIntegral incy)

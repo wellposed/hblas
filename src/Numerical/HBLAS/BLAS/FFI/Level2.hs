@@ -233,3 +233,21 @@ foreign import ccall safe "cblas_zhpr2"
     cblas_zhpr2_safe :: Hpr2FunFFI (Ptr (Complex Double)) (Complex Double)
 --void cblas_chpr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float *alpha,   Float *X,   CInt incX,   Float *Y,   CInt incY, Float *Ap);
 --void cblas_zhpr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double *alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *Ap);
+
+type SbmvFunFFI sc el =
+      CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> CInt
+      -> sc -> Ptr el -> CInt -> Ptr el -> CInt -> sc -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_ssbmv"
+    cblas_ssbmv_unsafe :: SbmvFunFFI Float Float
+foreign import ccall safe "cblas_ssbmv"
+    cblas_ssbmv_safe :: SbmvFunFFI Float Float
+
+foreign import ccall unsafe "cblas_dsbmv"
+    cblas_dsbmv_unsafe :: SbmvFunFFI Double Double
+foreign import ccall safe "cblas_dsbmv"
+    cblas_dsbmv_safe :: SbmvFunFFI Double Double
+--void cblas_ssbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,   Float alpha,   Float *A,
+--                   CInt lda,   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
+--void cblas_dsbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,   Double alpha,   Double *A,
+--                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
+

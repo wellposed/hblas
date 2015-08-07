@@ -441,6 +441,39 @@ matvectTest1ZHPR2 = do
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
   resList @?= [12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0]
 
+-- [1 2 0 0]
+-- [2 3 4 0]
+-- [0 4 5 6]
+-- [0 0 6 7]
+--
+-- [0 2 4 6]
+-- [1 3 5 7]
+--
+-- [5]
+-- [11]
+-- [17]
+-- [15]
+
+-- The storage of a is different from the refrence. In ref it should be [0 2 4 6 1 3 5 7]
+
+matvectTest1SSBMV :: IO ()
+matvectTest1SSBMV = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 2) (\(x, y) -> [1, 2, 3, 4, 5, 6, 7, 0] !! (y * 4 + x))
+  x <- Matrix.generateMutableDenseVector 4 (\_ -> 1)
+  y <- Matrix.generateMutableDenseVector 4 (\_ -> 2)
+  BLAS.ssbmv Matrix.MatUpper 1 1.0 a x 1 1.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [5, 11, 17, 15]
+
+matvectTest1DSBMV :: IO ()
+matvectTest1DSBMV = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (4, 2) (\(x, y) -> [1, 3, 5, 7, 2, 4, 6, 0] !! (y * 4 + x))
+  x <- Matrix.generateMutableDenseVector 4 (\_ -> 1)
+  y <- Matrix.generateMutableDenseVector 4 (\_ -> 2)
+  BLAS.dsbmv Matrix.MatLower 1 1.0 a x 1 1.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [5, 11, 17, 15]
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -517,12 +550,15 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ---- hpmv tests
     ,testCase "chpmv on 4*4 a upper (row oriented)" matvectTest1CHPMV
     ,testCase "zhpmv on 4*4 a upper (column oriented)" matvectTest1ZHPMV
----- chpr tests
+---- hpr tests
     ,testCase "chpr on 4*4 a upper (column oriented)" matvectTest1CHPR
     ,testCase "zhpr on 4*4 a lower (row oriented)" matvectTest1ZHPR
----- chpr2 tests
+---- hpr2 tests
     ,testCase "chpr2 on 4*4 a upper (column oriented)" matvectTest1CHPR2
     ,testCase "zhpr2 on 4*4 a upper (row oriented)" matvectTest1ZHPR2
+---- sbmv tests
+    ,testCase "ssbmv on 4*4 a upper (row oriented)" matvectTest1SSBMV
+    ,testCase "dsbmv on 4*4 a upper (column oriented)" matvectTest1DSBMV
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV
