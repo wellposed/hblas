@@ -12,6 +12,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,HprFun
   ,Hpr2Fun
   ,SbmvFun
+  ,SpmvFun
 
   ,gbmvAbstraction
   ,gemvAbstraction
@@ -24,6 +25,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,hprAbstraction
   ,hpr2Abstraction
   ,sbmvAbstraction
+  ,spmvAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -57,6 +59,8 @@ type HprFun scale el orient s m = SOrientation orient -> MatUpLo -> Int -> scale
 type Hpr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
 
 type SbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m()
+
+type SpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -417,7 +421,6 @@ sbmvAbstraction sbmvName sbmvSafeFFI sbmvUnsafeFFI constHandler = sbmv
         | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo sbmvName "x vector" xdim n incx
         | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo sbmvName "y vector" ydim n incy
         | lda < k+1 = error $! sbmvName ++ ": lda (" ++ (show lda) ++ ") must be greater than k (" ++ (show k) ++ ") + 1."
-        -- | True = error $! (show n) ++ " " ++ (show k) ++ " " ++ show(ax) ++ " " ++ show(lda)
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ sbmvName ++ " overlap. This is a programmer error. Please fix."
         | otherwise = call
@@ -432,3 +435,34 @@ sbmvAbstraction sbmvName sbmvSafeFFI sbmvUnsafeFFI constHandler = sbmv
                        unsafePrimToPrim $! (if shouldCallFast n k then sbmvUnsafeFFI else sbmvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) (fromIntegral k) alphaPtr ap (fromIntegral lda) xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
+
+{-# NOINLINE spmvAbstraction #-}
+spmvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> SpmvFunFFI scale el
+                -> SpmvFunFFI scale el
+                -> (el -> (scale -> m ())-> m ())
+                -> forall orient . SpmvFun el orient (PrimState m) m
+spmvAbstraction spmvName spmvSafeFFI spmvUnsafeFFI constHandler = spmv
+  where
+    shouldCallFast :: Int -> Bool
+    shouldCallFast n = flopsThreshold >= (fromIntegral n) * (fromIntegral n)
+    spmv ornta uplo n alpha
+      (MutableDenseVector _ adim _ abuff)
+      (MutableDenseVector _ xdim _ xbuff) incx beta
+      (MutableDenseVector _ ydim _ ybuff) incy
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo spmvName "x vector" xdim n incx
+        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo spmvName "y vector" ydim n incy
+        | adim < (div (n * (n+1)) 2) = error $! spmvName ++ ": array which has" ++ (show adim) ++ " elements must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
+        | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
+            error $! "The read and write inputs for: " ++ spmvName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     unsafeWithPrim ybuff $ \yp ->
+                     constHandler alpha $ \alphaPtr ->
+                     constHandler beta $ \betaPtr ->
+                       unsafePrimToPrim $! (if shouldCallFast n then spmvUnsafeFFI else spmvSafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral n) alphaPtr ap xp (fromIntegral incx) betaPtr yp (fromIntegral incy)

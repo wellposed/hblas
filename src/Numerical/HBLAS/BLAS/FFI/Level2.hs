@@ -251,3 +251,20 @@ foreign import ccall safe "cblas_dsbmv"
 --void cblas_dsbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,   Double alpha,   Double *A,
 --                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
 
+type SpmvFunFFI sc el =
+      CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
+      -> sc -> Ptr el -> Ptr el -> CInt -> sc -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_sspmv"
+    cblas_sspmv_unsafe :: SpmvFunFFI Float Float
+foreign import ccall safe "cblas_sspmv"
+    cblas_sspmv_safe :: SpmvFunFFI Float Float
+
+foreign import ccall unsafe "cblas_dspmv"
+    cblas_dspmv_unsafe :: SpmvFunFFI Double Double
+foreign import ccall safe "cblas_dspmv"
+    cblas_dspmv_safe :: SpmvFunFFI Double Double
+--void cblas_sspmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *Ap,
+--                   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
+--void cblas_dspmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *Ap,
+--                   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
+

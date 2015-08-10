@@ -208,11 +208,6 @@ type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CIn
 --- | packed symmetric matrix * vector product  y:= alpha * Av  + beta * y
 ---------------
 
---void cblas_sspmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *Ap,
---                   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
---void cblas_dspmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *Ap,
---                   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
-
 
 
 

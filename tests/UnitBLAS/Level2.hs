@@ -474,6 +474,24 @@ matvectTest1DSBMV = do
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [5, 11, 17, 15]
 
+matvectTest1SSPMV :: IO ()
+matvectTest1SSPMV = do
+  a <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
+  y <- Matrix.generateMutableDenseVector 3 (\_ -> 2)
+  BLAS.sspmv Matrix.SRow Matrix.MatUpper 3 1.0 a x 1 1.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [8, 13, 16]
+
+matvectTest1DSPMV :: IO ()
+matvectTest1DSPMV = do
+  a <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
+  y <- Matrix.generateMutableDenseVector 3 (\_ -> 2)
+  BLAS.dspmv Matrix.SColumn Matrix.MatLower 3 1.0 a x 1 1.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [8, 13, 16]
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -559,6 +577,9 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ---- sbmv tests
     ,testCase "ssbmv on 4*4 a upper (row oriented)" matvectTest1SSBMV
     ,testCase "dsbmv on 4*4 a upper (column oriented)" matvectTest1DSBMV
+---- spmv tests
+    ,testCase "sspmv on 4*4 a upper (row oriented)" matvectTest1SSPMV
+    ,testCase "dspmv on 4*4 a upper (column oriented)" matvectTest1DSPMV
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV
