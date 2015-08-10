@@ -166,6 +166,11 @@ module Numerical.HBLAS.BLAS(
         ,sspmv
         ,dspmv
 
+        ,sspr
+        ,dspr
+        ,sspr2
+        ,dspr2
+
         ,dgemm
         ,sgemm
         ,cgemm
@@ -436,6 +441,19 @@ sspmv = spmvAbstraction "sspmv" cblas_sspmv_safe cblas_sspmv_unsafe (\x f -> f x
 
 dspmv :: PrimMonad m => SpmvFun Double orient (PrimState m) m
 dspmv = spmvAbstraction "dspmv" cblas_dspmv_safe cblas_dspmv_unsafe (\x f -> f x)
+
+sspr :: PrimMonad m => SprFun Float orient (PrimState m) m
+sspr = sprAbstraction "sspr" cblas_sspr_safe cblas_sspr_unsafe (\x f -> f x)
+
+dspr :: PrimMonad m => SprFun Double orient (PrimState m) m
+dspr = sprAbstraction "dspr" cblas_dspr_safe cblas_dspr_unsafe (\x f -> f x)
+
+sspr2 :: PrimMonad m => Spr2Fun Float orient (PrimState m) m
+sspr2 = spr2Abstraction "sspr2" cblas_sspr2_safe cblas_sspr2_unsafe (\x f -> f x)
+
+dspr2 :: PrimMonad m => Spr2Fun Double orient (PrimState m) m
+dspr2 = spr2Abstraction "dspr2" cblas_dspr2_safe cblas_dspr2_unsafe (\x f -> f x)
+
 
 -- Level 3
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m

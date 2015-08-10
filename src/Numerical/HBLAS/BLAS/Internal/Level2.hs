@@ -13,6 +13,8 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,Hpr2Fun
   ,SbmvFun
   ,SpmvFun
+  ,SprFun
+  ,Spr2Fun
 
   ,gbmvAbstraction
   ,gemvAbstraction
@@ -24,6 +26,8 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,hpmvAbstraction
   ,hprAbstraction
   ,hpr2Abstraction
+  ,sprAbstraction
+  ,spr2Abstraction
   ,sbmvAbstraction
   ,spmvAbstraction
 ) where
@@ -61,6 +65,10 @@ type Hpr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDen
 type SbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m()
 
 type SpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m()
+
+type SprFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m ()
+
+type Spr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m ()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -468,3 +476,61 @@ spmvAbstraction spmvName spmvSafeFFI spmvUnsafeFFI constHandler = spmv
                        unsafePrimToPrim $! (if shouldCallFast n then spmvUnsafeFFI else spmvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) alphaPtr ap xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
+
+{-# NOINLINE sprAbstraction #-}
+sprAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> SprFunFFI scale el
+                -> SprFunFFI scale el
+                -> (el -> (scale -> m ())-> m ())
+                -> forall orient . SprFun el orient (PrimState m) m
+sprAbstraction sprName sprSafeFFI sprUnsafeFFI constHandler = spr
+  where
+    shouldCallFast :: Int64 -> Bool
+    shouldCallFast n = flopsThreshold >= (n * n + n)
+    spr ornt uplo n alpha
+      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseVector _ adim _ abuff)
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo sprName "x vector" xdim n incx
+        | adim < (div (n * (n+1)) 2) = error $! sprName ++ ": array which has" ++ (show adim) ++ " elements must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
+        | SM.overlaps abuff xbuff =
+            error $! "The read and write inputs for: " ++ sprName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     constHandler alpha $ \alphaPtr ->
+                       unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then sprUnsafeFFI else sprSafeFFI)
+                         (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral n) alphaPtr xp (fromIntegral incx) ap
+
+{-# NOINLINE spr2Abstraction #-}
+spr2Abstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> Spr2FunFFI scale el
+                -> Spr2FunFFI scale el
+                -> (el -> (scale -> m ())-> m ())
+                -> forall orient . Spr2Fun el orient (PrimState m) m
+spr2Abstraction spr2Name spr2SafeFFI spr2UnsafeFFI constHandler = spr2
+  where
+    shouldCallFast :: Int64 -> Bool
+    shouldCallFast n = flopsThreshold >= (n * n + n)
+    spr2 ornt uplo n alpha
+      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseVector _ ydim _ ybuff) incy
+      (MutableDenseVector _ adim _ abuff)
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo spr2Name "x vector" xdim n incx
+        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo spr2Name "y vector" ydim n incy
+        | adim < (div (n * (n+1)) 2) = error $! spr2Name ++ ": array which has" ++ (show adim) ++ " elements must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
+        | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
+            error $! "The read and write inputs for: " ++ spr2Name ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     unsafeWithPrim ybuff $ \yp ->
+                     constHandler alpha $ \alphaPtr ->
+                       unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then spr2UnsafeFFI else spr2SafeFFI)
+                         (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral n) alphaPtr xp (fromIntegral incx) yp (fromIntegral incy) ap
+

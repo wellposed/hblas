@@ -251,6 +251,9 @@ foreign import ccall safe "cblas_dsbmv"
 --void cblas_dsbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   CInt K,   Double alpha,   Double *A,
 --                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
 
+---------------
+--- | packed symmetric matrix * vector product  y:= alpha * Av  + beta * y
+---------------
 type SpmvFunFFI sc el =
       CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
       -> sc -> Ptr el -> Ptr el -> CInt -> sc -> Ptr el -> CInt -> IO ()
@@ -267,4 +270,35 @@ foreign import ccall safe "cblas_dspmv"
 --                   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
 --void cblas_dspmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *Ap,
 --                   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
+
+type SprFunFFI sc el =
+      CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
+      -> sc -> Ptr el -> CInt -> Ptr el -> IO ()
+foreign import ccall unsafe "cblas_sspr"
+    cblas_sspr_unsafe :: SprFunFFI Float Float
+foreign import ccall safe "cblas_sspr"
+    cblas_sspr_safe :: SprFunFFI Float Float
+
+foreign import ccall unsafe "cblas_dspr"
+    cblas_dspr_unsafe :: SprFunFFI Double Double
+foreign import ccall safe "cblas_dspr"
+    cblas_dspr_safe :: SprFunFFI Double Double
+--void cblas_sspr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *Ap);
+--void cblas_dspr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *Ap);
+
+
+type Spr2FunFFI sc el =
+      CBLAS_ORDERT -> CBLAS_UPLOT -> CInt
+      -> sc -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> IO ()
+foreign import ccall unsafe "cblas_sspr2"
+    cblas_sspr2_unsafe :: Spr2FunFFI Float Float
+foreign import ccall safe "cblas_sspr2"
+    cblas_sspr2_safe :: Spr2FunFFI Float Float
+
+foreign import ccall unsafe "cblas_dspr2"
+    cblas_dspr2_unsafe :: Spr2FunFFI Double Double
+foreign import ccall safe "cblas_dspr2"
+    cblas_dspr2_safe :: Spr2FunFFI Double Double
+--void cblas_sspr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX,   Float *Y,   CInt incY, Float *A);
+--void cblas_dspr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A);
 

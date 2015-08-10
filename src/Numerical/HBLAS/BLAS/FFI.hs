@@ -204,20 +204,9 @@ type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CIn
 --                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
 
 
----------------
---- | packed symmetric matrix * vector product  y:= alpha * Av  + beta * y
----------------
 
 
 
-
---void cblas_sspr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *Ap);
---void cblas_dspr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *Ap);
-
-
-
---void cblas_sspr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX,   Float *Y,   CInt incY, Float *A);
---void cblas_dspr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A);
 
 
 
