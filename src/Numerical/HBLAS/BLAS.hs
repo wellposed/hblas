@@ -205,7 +205,7 @@ sdot = noScalarDotAbstraction "sdot" cblas_sdot_safe cblas_sdot_unsafe
 ddot :: PrimMonad m => NoScalarDotFun Double (PrimState m) m Double
 ddot = noScalarDotAbstraction "ddot" cblas_ddot_safe cblas_ddot_unsafe
 
-sdsdot :: PrimMonad m => ScalarDotFun Float (PrimState m) m Double
+sdsdot :: PrimMonad m => ScalarDotFun Float (PrimState m) m Float
 sdsdot = scalarDotAbstraction "sdsdot" cblas_sdsdot_safe cblas_sdsdot_unsafe withRStorable withRStorable
 
 dsdot :: PrimMonad m => NoScalarDotFun Float (PrimState m) m Double

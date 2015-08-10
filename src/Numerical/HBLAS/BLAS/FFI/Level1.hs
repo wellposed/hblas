@@ -80,12 +80,12 @@ foreign import ccall "cblas_zcopy" cblas_zcopy_safe ::
 type NoScalarDotFunFFI el res = CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO res
 -- type ScalarDotFunFFI el res = CInt -> el -> Ptr el -> CInt -> Ptr el -> CInt -> IO res
 type SdsdotFortranFunFFI el res = Ptr CInt -> Ptr el -> Ptr el -> Ptr CInt -> Ptr el -> Ptr CInt -> IO res
-foreign import ccall "sdsdot_" cblas_sdsdot_safe :: SdsdotFortranFunFFI Float Double
+foreign import ccall "sdsdot_" cblas_sdsdot_safe :: SdsdotFortranFunFFI Float Float
 foreign import ccall "cblas_dsdot" cblas_dsdot_safe :: NoScalarDotFunFFI Float Double
 foreign import ccall "cblas_sdot" cblas_sdot_safe :: NoScalarDotFunFFI Float Float
 foreign import ccall "cblas_ddot" cblas_ddot_safe :: NoScalarDotFunFFI Double Double
 
-foreign import ccall unsafe "sdsdot_" cblas_sdsdot_unsafe :: SdsdotFortranFunFFI Float Double
+foreign import ccall unsafe "sdsdot_" cblas_sdsdot_unsafe :: SdsdotFortranFunFFI Float Float
 foreign import ccall unsafe "cblas_dsdot" cblas_dsdot_unsafe :: NoScalarDotFunFFI Float Double
 foreign import ccall unsafe "cblas_sdot" cblas_sdot_unsafe :: NoScalarDotFunFFI Float Float
 foreign import ccall unsafe "cblas_ddot" cblas_ddot_unsafe :: NoScalarDotFunFFI Double Double
