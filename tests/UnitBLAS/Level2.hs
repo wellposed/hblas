@@ -202,7 +202,7 @@ matmatTest1ZGERU = do
 -- [1:+1]
 matvectTest1CHBMV :: IO ()
 matvectTest1CHBMV = do
-  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 4) (\_ -> 1.0:+1.0)
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 3) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
   BLAS.chbmv Matrix.MatUpper 2 1.0 a x 1 0.0 y 1
@@ -211,7 +211,7 @@ matvectTest1CHBMV = do
 
 matvectTest2CHBMV :: IO ()
 matvectTest2CHBMV = do
-  a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 4) (\_ -> 1.0:+1.0)
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (4, 3) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
   BLAS.chbmv Matrix.MatUpper 2 1.0 a x 1 0.0 y 1
@@ -229,7 +229,7 @@ matvectTest2CHBMV = do
 -- [1:+1]
 matvectTest1ZHBMV :: IO ()
 matvectTest1ZHBMV = do
-  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 4) (\_ -> 1.0:+(-1.0))
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 3) (\_ -> 1.0:+(-1.0))
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
   BLAS.zhbmv Matrix.MatLower 2 1.0 a x 1 0.0 y 1

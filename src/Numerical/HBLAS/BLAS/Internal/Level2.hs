@@ -206,24 +206,26 @@ hbmvAbstraction hbmvName hbmvSafeFFI hbmvUnsafeFFI constHandler = hbmv
     shouldCallFast :: Int -> Int  -> Bool
     shouldCallFast a b = flopsThreshold >= (fromIntegral a) * (fromIntegral b)
     hbmv uplo k alpha
-      (MutableDenseMatrix ornta ax ay astride abuff)
+      (MutableDenseMatrix ornta ax ay _ abuff) -- (n, lda)
       (MutableDenseVector _ xdim _ xbuff) incx beta
       (MutableDenseVector _ ydim _ ybuff) incy
-        | isVectorBadWithNIncrement xdim ay incx = error $! vectorBadInfo hbmvName "x vector" xdim ay incx
-        | isVectorBadWithNIncrement ydim ay incy = error $! vectorBadInfo hbmvName "y vector" ydim ay incy
-        | astride < k + 1 = error $! hbmvName ++ ": lda " ++ (show astride) ++ " should be greater than k " ++ (show k) ++ "."
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo hbmvName "x vector" xdim n incx
+        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo hbmvName "y vector" ydim n incy
+        | lda < k + 1 = error $! hbmvName ++ ": lda " ++ (show lda) ++ " should be greater than k " ++ (show k) ++ "."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ hbmvName ++ " overlap. This is a programmer error. Please fix."
         | otherwise = call
             where
+              n = ax
+              lda = ay
               call = unsafeWithPrim abuff $ \ap ->
                      unsafeWithPrim xbuff $ \xp ->
                      unsafeWithPrim ybuff $ \yp ->
                      constHandler alpha $ \alphaPtr ->
                      constHandler beta  $ \betaPtr  ->
-                       unsafePrimToPrim $! (if shouldCallFast ax ay then hbmvUnsafeFFI else hbmvSafeFFI)
+                       unsafePrimToPrim $! (if shouldCallFast n k then hbmvUnsafeFFI else hbmvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral ay) (fromIntegral k) alphaPtr ap (fromIntegral astride) xp
+                         (fromIntegral n) (fromIntegral k) alphaPtr ap (fromIntegral lda) xp
                          (fromIntegral incx) betaPtr yp (fromIntegral incy)
 
 {-# NOINLINE hemvAbstraction #-}
