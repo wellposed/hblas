@@ -547,6 +547,44 @@ matvectTest1DSYMV = do
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [8, 15, 18]
 
+-- [1 2 3]
+-- [0 5 6]
+-- [0 0 7]
+matvectTest1SSYR :: IO ()
+matvectTest1SSYR = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 3) (\(x, y) -> [1, 2, 3, 0, 5, 6, 0, 0, 7] !! (y * 3 + x))
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
+  BLAS.ssyr Matrix.MatUpper 1.0 x 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
+  resList @?= [2, 3, 4, 0, 6, 7, 0, 0, 8]
+
+matvectTest1DSYR :: IO ()
+matvectTest1DSYR = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 3) (\(x, y) -> [1, 0, 0, 2, 5, 0, 3, 6, 7] !! (y * 3 + x))
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
+  BLAS.dsyr Matrix.MatLower 1.0 x 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
+  resList @?= [2, 3, 4, 0, 6, 7, 0, 0, 8]
+
+matvectTest1SSYR2 :: IO ()
+matvectTest1SSYR2 = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 3) (\(x, y) -> [1, 2, 3, 0, 5, 6, 0, 0, 7] !! (y * 3 + x))
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
+  y <- Matrix.generateMutableDenseVector 3 (\idx -> [1, 2, 3] !! idx)
+  BLAS.ssyr2 Matrix.MatUpper 1.0 x 1 y 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
+  resList @?= [3, 5, 7, 0, 9, 11, 0, 0, 13]
+
+matvectTest1DSYR2 :: IO ()
+matvectTest1DSYR2 = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 3) (\(x, y) -> [1, 0, 0, 2, 5, 0, 3, 6, 7] !! (y * 3 + x))
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
+  y <- Matrix.generateMutableDenseVector 3 (\idx -> [1, 2, 3] !! idx)
+  BLAS.dsyr2 Matrix.MatLower 1.0 x 1 y 1 a
+  resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
+  resList @?= [3, 5, 7, 0, 9, 11, 0, 0, 13]
+
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -644,6 +682,12 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ---- symv tests
     ,testCase "ssymv on 3*3 a upper (row oriented)" matvectTest1SSYMV
     ,testCase "dsymv on 3*3 a lower (column oriented)" matvectTest1DSYMV
+---- syr tests
+    ,testCase "ssyr on 3*3 a upper (row oriented)" matvectTest1SSYR
+    ,testCase "dsyr on 3*3 a upper (column oriented)" matvectTest1DSYR
+---- syr2 tests
+    ,testCase "ssyr2 on 3*3 a upper (row oriented)" matvectTest1SSYR2
+    ,testCase "dsyr2 on 3*3 a upper (column oriented)" matvectTest1DSYR2
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV

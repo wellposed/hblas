@@ -134,16 +134,6 @@ foreign import ccall safe   "cblas_ztrsv"
 
 
 
---void cblas_ssyr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *A,   CInt lda);
---void cblas_dsyr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *A,   CInt lda);
-
-
-
---void cblas_ssyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,  CInt N,   Float alpha,   Float *X,
---                  CInt incX,   Float *Y,   CInt incY, Float *A,   CInt lda);
---void cblas_dsyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,
---                  CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
-
 
 --void cblas_stbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);

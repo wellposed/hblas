@@ -16,6 +16,8 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,SprFun
   ,Spr2Fun
   ,SymvFun
+  ,SyrFun
+  ,Syr2Fun
 
   ,gbmvAbstraction
   ,gemvAbstraction
@@ -32,6 +34,8 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,sbmvAbstraction
   ,spmvAbstraction
   ,symvAbstraction
+  ,syrAbstraction
+  ,syr2Abstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -73,6 +77,10 @@ type SprFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDens
 type Spr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m ()
 
 type SymvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
+
+type SyrFun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int -> MDenseMatrix s orient el -> m ()
+
+type Syr2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseMatrix s orient el -> m ()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -571,3 +579,63 @@ symvAbstraction symvName symvSafeFFI symvUnsafeFFI constHandler = symv
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) alphaPtr ap (fromIntegral lda) xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
 
+{-# NOINLINE syrAbstraction #-}
+syrAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> SyrFunFFI el
+                -> SyrFunFFI el
+                -> (el -> (el -> m ())-> m ())
+                -> forall orient . SyrFun el orient (PrimState m) m
+syrAbstraction syrName syrSafeFFI syrUnsafeFFI constHandler = syr
+  where
+    shouldCallFast :: Int64 -> Bool
+    shouldCallFast n = flopsThreshold >= (n * n)
+    syr uplo alpha
+      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo syrName "x vector" xdim n incx
+        | lda < n = error $! syrName ++ ": lda (" ++ (show lda) ++ ") must be greater than or equal to n (" ++ (show n) ++ ")."
+        | SM.overlaps abuff xbuff =
+            error $! "The read and write inputs for: " ++ syrName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              n = ax
+              lda = ay
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     constHandler alpha $ \alphaPtr ->
+                       unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then syrUnsafeFFI else syrSafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral n) alphaPtr xp (fromIntegral incx) ap (fromIntegral lda)
+
+{-# NOINLINE syr2Abstraction #-}
+syr2Abstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> Syr2FunFFI el
+                -> Syr2FunFFI el
+                -> (el -> (el -> m ())-> m ())
+                -> forall orient . Syr2Fun el orient (PrimState m) m
+syr2Abstraction syr2Name syr2SafeFFI syr2UnsafeFFI constHandler = syr2
+  where
+    shouldCallFast :: Int64 -> Bool
+    shouldCallFast n = flopsThreshold >= (n * n * 2)
+    syr2 uplo alpha
+      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseVector _ ydim _ ybuff) incy
+      (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo syr2Name "x vector" xdim n incx
+        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo syr2Name "y vector" ydim n incy
+        | lda < n = error $! syr2Name ++ ": lda (" ++ (show lda) ++ ") must be greater than or equal to n (" ++ (show n) ++ ")."
+        | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
+            error $! "The read and write inputs for: " ++ syr2Name ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              n = ax
+              lda = ay
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     unsafeWithPrim ybuff $ \yp ->
+                     constHandler alpha $ \alphaPtr ->
+                       unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then syr2UnsafeFFI else syr2SafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral n) alphaPtr xp (fromIntegral incx) yp (fromIntegral incy) ap (fromIntegral lda)

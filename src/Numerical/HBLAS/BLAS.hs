@@ -174,6 +174,11 @@ module Numerical.HBLAS.BLAS(
         ,ssymv
         ,dsymv
 
+        ,ssyr
+        ,dsyr
+        ,ssyr2
+        ,dsyr2
+
         -- Level 3
         ,dgemm
         ,sgemm
@@ -464,6 +469,17 @@ ssymv = symvAbstraction "ssymv" cblas_ssymv_safe cblas_ssymv_unsafe (\x f -> f x
 dsymv :: PrimMonad m => SymvFun Double orient (PrimState m) m
 dsymv = symvAbstraction "dsymv" cblas_dsymv_safe cblas_dsymv_unsafe (\x f -> f x)
 
+ssyr :: PrimMonad m => SyrFun Float orient (PrimState m) m
+ssyr = syrAbstraction "ssyr" cblas_ssyr_safe cblas_ssyr_unsafe (\x f -> f x)
+
+dsyr :: PrimMonad m => SyrFun Double orient (PrimState m) m
+dsyr = syrAbstraction "dsyr" cblas_dsyr_safe cblas_dsyr_unsafe (\x f -> f x)
+
+ssyr2 :: PrimMonad m => Syr2Fun Float orient (PrimState m) m
+ssyr2 = syr2Abstraction "ssyr2" cblas_ssyr2_safe cblas_ssyr2_unsafe (\x f -> f x)
+
+dsyr2 :: PrimMonad m => Syr2Fun Double orient (PrimState m) m
+dsyr2 = syr2Abstraction "dsyr2" cblas_dsyr2_safe cblas_dsyr2_unsafe (\x f -> f x)
 
 -- Level 3
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m

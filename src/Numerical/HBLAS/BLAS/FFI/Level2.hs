@@ -323,3 +323,31 @@ foreign import ccall safe "cblas_dsymv"
 --void cblas_dsymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *A,
 --                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
 
+type SyrFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_ssyr"
+      cblas_ssyr_unsafe :: SyrFunFFI Float
+foreign import ccall safe "cblas_ssyr"
+      cblas_ssyr_safe :: SyrFunFFI Float
+
+foreign import ccall unsafe "cblas_dsyr"
+      cblas_dsyr_unsafe :: SyrFunFFI Double
+foreign import ccall safe "cblas_dsyr"
+      cblas_dsyr_safe :: SyrFunFFI Double
+--void cblas_ssyr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX, Float *A,   CInt lda);
+--void cblas_dsyr(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX, Double *A,   CInt lda);
+
+type Syr2FunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_ssyr2"
+      cblas_ssyr2_unsafe :: Syr2FunFFI Float
+foreign import ccall safe "cblas_ssyr2"
+      cblas_ssyr2_safe :: Syr2FunFFI Float
+
+foreign import ccall unsafe "cblas_dsyr2"
+      cblas_dsyr2_unsafe :: Syr2FunFFI Double
+foreign import ccall safe "cblas_dsyr2"
+      cblas_dsyr2_safe :: Syr2FunFFI Double
+--void cblas_ssyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,  CInt N,   Float alpha,   Float *X,
+--                  CInt incX,   Float *Y,   CInt incY, Float *A,   CInt lda);
+--void cblas_dsyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,
+--                  CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
+
