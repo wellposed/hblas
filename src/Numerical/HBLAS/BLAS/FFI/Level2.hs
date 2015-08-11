@@ -351,3 +351,36 @@ foreign import ccall safe "cblas_dsyr2"
 --void cblas_dsyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,
 --                  CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
 
+----------------
+--- | solves  Ax=v where A is k+1 banded triangular matrix, and x and
+----------------
+type TbsvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT ->
+                      CInt -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_stbsv"
+      cblas_stbsv_unsafe :: TbsvFunFFI Float
+foreign import ccall safe "cblas_stbsv"
+      cblas_stbsv_safe :: TbsvFunFFI Float
+
+foreign import ccall unsafe "cblas_dtbsv"
+      cblas_dtbsv_unsafe :: TbsvFunFFI Double
+foreign import ccall safe "cblas_dtbsv"
+      cblas_dtbsv_safe :: TbsvFunFFI Double
+
+foreign import ccall unsafe "cblas_ctbsv"
+      cblas_ctbsv_unsafe :: TbsvFunFFI (Complex Float)
+foreign import ccall safe "cblas_ctbsv"
+      cblas_ctbsv_safe :: TbsvFunFFI (Complex Float)
+
+foreign import ccall unsafe "cblas_ztbsv"
+      cblas_ztbsv_unsafe :: TbsvFunFFI (Complex Double)
+foreign import ccall safe "cblas_ztbsv"
+      cblas_ztbsv_safe :: TbsvFunFFI (Complex Double)
+--void cblas_stbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_dtbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
+--void cblas_ctbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_ztbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
+

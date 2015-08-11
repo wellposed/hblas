@@ -584,6 +584,49 @@ matvectTest1DSYR2 = do
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
   resList @?= [3, 5, 7, 0, 9, 11, 0, 0, 13]
 
+-- [ 1 2 0]   [-2]   [4]
+-- [ 0 1 1] * [ 3] = [5]
+-- [ 0 0 1]   [ 2]   [2]
+matmatTest1STBSV:: IO ()
+matmatTest1STBSV = do
+    a  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (3, 2) (\(x, y) -> [0, 2, 1, 1, 1, 1] !! (y * 3 + x))
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [4, 5, 2] !! idx)
+    BLAS.stbsv MatUpper NoTranspose MatUnit 1 a x 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [-2, 3, 2]
+
+-- [1 1 0]   [-2]   [1]
+-- [0 1 1] * [ 3] = [5]
+-- [0 0 1]   [ 2]   [2]
+matmatTest1DTBSV:: IO ()
+matmatTest1DTBSV = do
+    a  <- Matrix.generateMutableDenseMatrix (Matrix.SColumn)  (3, 2) (\(x, y) -> [0, 1, 1, 1, 1, 1] !! (y * 3 + x))
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [1, 5, 2] !! idx)
+    BLAS.dtbsv MatLower Transpose MatUnit 1 a x 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [-2, 3, 2]
+
+-- [ 1:+0    0:+0    0:+0]   [-2]   [-2:+0   ]
+-- [ 2:+(-2) 1:+0    0:+0] * [ 3] = [-1:+4   ]
+-- [ 0:+0    1:+(-1) 1:+0]   [ 2]   [ 5:+(-3)]
+matmatTest1CTBSV:: IO ()
+matmatTest1CTBSV = do
+    a  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (3, 2) (\(x, y) -> [0:+0, 2:+2, 1:+1, 1:+1, 1:+1, 1:+1] !! (y * 3 + x))
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [(-2):+0, (-1):+4, 5:+(-3)] !! idx)
+    BLAS.ctbsv MatUpper Matrix.ConjTranspose MatUnit 1 a x 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [-2, 3, 2]
+
+-- [1 1 0]   [2]   [5]
+-- [0 1 1] * [3] = [5]
+-- [0 0 1]   [2]   [2]
+matmatTest1ZTBSV:: IO ()
+matmatTest1ZTBSV = do
+    a  <- Matrix.generateMutableDenseMatrix (Matrix.SColumn)  (3, 2) (\(x, y) -> [0:+0, 1:+0, 1:+0, 1:+0, 1:+0, 1:+0] !! (y * 3 + x))
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [5, 5, 2] !! idx)
+    BLAS.ztbsv MatUpper NoTranspose MatNonUnit 1 a x 1 -- TODO: error when using Lower Transpose
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [2, 3, 2]
 
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
@@ -688,6 +731,11 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ---- syr2 tests
     ,testCase "ssyr2 on 3*3 a upper (row oriented)" matvectTest1SSYR2
     ,testCase "dsyr2 on 3*3 a upper (column oriented)" matvectTest1DSYR2
+----- tbsv tests
+    ,testCase "stbsv on 3x3 upper no trans (row oriented)" matmatTest1STBSV
+    ,testCase "dtbsv on 3x3 lower trans (column oriented)" matmatTest1DTBSV
+    ,testCase "ctbsv on 3x3 upper conj trans (row oriented)" matmatTest1CTBSV
+    ,testCase "ztbsv on 3x3 lower no trans (row oriented)" matmatTest1ZTBSV
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV
