@@ -446,15 +446,15 @@ matvectTest1ZHPR2 = do
 -- [0 4 5 6]
 -- [0 0 6 7]
 --
--- [0 2 4 6]
--- [1 3 5 7]
+-- [1 2]
+-- [3 4]
+-- [5 6]
+-- [7 0]
 --
 -- [5]
 -- [11]
 -- [17]
 -- [15]
-
--- The storage of a is different from the refrence. In ref it should be [0 2 4 6 1 3 5 7]
 
 matvectTest1SSBMV :: IO ()
 matvectTest1SSBMV = do
@@ -464,6 +464,9 @@ matvectTest1SSBMV = do
   BLAS.ssbmv Matrix.MatUpper 1 1.0 a x 1 1.0 y 1
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [5, 11, 17, 15]
+
+-- [1 3 5 7]
+-- [2 4 6 0]
 
 matvectTest1DSBMV :: IO ()
 matvectTest1DSBMV = do
@@ -624,7 +627,7 @@ matmatTest1ZTBSV:: IO ()
 matmatTest1ZTBSV = do
     a  <- Matrix.generateMutableDenseMatrix (Matrix.SColumn)  (3, 2) (\(x, y) -> [0:+0, 1:+0, 1:+0, 1:+0, 1:+0, 1:+0] !! (y * 3 + x))
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [5, 5, 2] !! idx)
-    BLAS.ztbsv MatUpper NoTranspose MatNonUnit 1 a x 1 -- TODO: error when using Lower Transpose
+    BLAS.ztbsv MatUpper NoTranspose MatNonUnit 1 a x 1 -- TODO: NAN error when using Lower Transpose
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [2, 3, 2]
 
