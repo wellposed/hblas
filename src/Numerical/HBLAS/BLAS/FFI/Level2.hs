@@ -302,3 +302,24 @@ foreign import ccall safe "cblas_dspr2"
 --void cblas_sspr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *X,   CInt incX,   Float *Y,   CInt incY, Float *A);
 --void cblas_dspr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,   CInt incX,   Double *Y,   CInt incY, Double *A);
 
+
+----------------------------------
+---- |  (unpacked) symmetric matrix vector product    x:=Av, writes result x into v
+---------------------------------
+
+type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CInt ->
+                        Ptr el -> CInt -> el -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_ssymv"
+    cblas_ssymv_unsafe :: SymvFunFFI Float
+foreign import ccall safe "cblas_ssymv"
+    cblas_ssymv_safe :: SymvFunFFI Float
+
+foreign import ccall unsafe "cblas_dsymv"
+    cblas_dsymv_unsafe :: SymvFunFFI Double
+foreign import ccall safe "cblas_dsymv"
+    cblas_dsymv_safe :: SymvFunFFI Double
+--void cblas_ssymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *A,
+--                   CInt lda,   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
+--void cblas_dsymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *A,
+--                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
+

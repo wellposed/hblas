@@ -171,6 +171,10 @@ module Numerical.HBLAS.BLAS(
         ,sspr2
         ,dspr2
 
+        ,ssymv
+        ,dsymv
+
+        -- Level 3
         ,dgemm
         ,sgemm
         ,cgemm
@@ -453,6 +457,12 @@ sspr2 = spr2Abstraction "sspr2" cblas_sspr2_safe cblas_sspr2_unsafe (\x f -> f x
 
 dspr2 :: PrimMonad m => Spr2Fun Double orient (PrimState m) m
 dspr2 = spr2Abstraction "dspr2" cblas_dspr2_safe cblas_dspr2_unsafe (\x f -> f x)
+
+ssymv :: PrimMonad m => SymvFun Float orient (PrimState m) m
+ssymv = symvAbstraction "ssymv" cblas_ssymv_safe cblas_ssymv_unsafe (\x f -> f x)
+
+dsymv :: PrimMonad m => SymvFun Double orient (PrimState m) m
+dsymv = symvAbstraction "dsymv" cblas_dsymv_safe cblas_dsymv_unsafe (\x f -> f x)
 
 
 -- Level 3

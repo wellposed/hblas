@@ -191,19 +191,6 @@ foreign import ccall safe   "cblas_ztrsv"
 --                   CInt N,   Double *Ap, Double *X,   CInt incX);
 
 
-----------------------------------
----- |  (unpacked) symmetric matrix vector product    x:=Av, writes result x into v
----------------------------------
-
-type SymvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CInt -> el -> Ptr el ->  CInt ->
-                        Ptr el -> CInt -> el -> Ptr el -> CInt -> IO ()
-
---void cblas_ssymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Float alpha,   Float *A,
---                   CInt lda,   Float *X,   CInt incX,   Float beta, Float *Y,   CInt incY);
---void cblas_dsymv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *A,
---                   CInt lda,   Double *X,   CInt incX,   Double beta, Double *Y,   CInt incY);
-
-
 
 
 

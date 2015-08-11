@@ -526,6 +526,27 @@ matvectTest1DSPR2 = do
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
   resList @?= [3, 5, 7, 8, 10, 12]
 
+-- [1 2 3]
+-- [0 5 6]
+-- [0 0 7]
+matvectTest1SSYMV :: IO ()
+matvectTest1SSYMV = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 3) (\(x, y) -> [1, 2, 3, 0, 5, 6, 0, 0, 7] !! (y * 3 + x))
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
+  y <- Matrix.generateMutableDenseVector 3 (\_ -> 2)
+  BLAS.ssymv Matrix.MatUpper 1.0 a x 1 1.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [8, 15, 18]
+
+matvectTest1DSYMV :: IO ()
+matvectTest1DSYMV = do
+  a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 3) (\(x, y) -> [1, 0, 0, 2, 5, 0, 3, 6, 7] !! (y * 3 + x))
+  x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
+  y <- Matrix.generateMutableDenseVector 3 (\_ -> 2)
+  BLAS.dsymv Matrix.MatLower 1.0 a x 1 1.0 y 1
+  resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
+  resList @?= [8, 15, 18]
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -620,6 +641,9 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
 ---- spr2 tests
     ,testCase "sspr2 on 3*3 a upper (row oriented)" matvectTest1SSPR2
     ,testCase "dspr2 on 3*3 a upper (column oriented)" matvectTest1DSPR2
+---- symv tests
+    ,testCase "ssymv on 3*3 a upper (row oriented)" matvectTest1SSYMV
+    ,testCase "dsymv on 3*3 a lower (column oriented)" matvectTest1DSYMV
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV

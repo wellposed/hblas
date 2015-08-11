@@ -15,6 +15,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,SpmvFun
   ,SprFun
   ,Spr2Fun
+  ,SymvFun
 
   ,gbmvAbstraction
   ,gemvAbstraction
@@ -30,6 +31,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,spr2Abstraction
   ,sbmvAbstraction
   ,spmvAbstraction
+  ,symvAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -69,6 +71,8 @@ type SpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDen
 type SprFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m ()
 
 type Spr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m ()
+
+type SymvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -487,7 +491,7 @@ sprAbstraction :: (SM.Storable el, PrimMonad m)
 sprAbstraction sprName sprSafeFFI sprUnsafeFFI constHandler = spr
   where
     shouldCallFast :: Int64 -> Bool
-    shouldCallFast n = flopsThreshold >= (n * n + n)
+    shouldCallFast n = flopsThreshold >= (n * n)
     spr ornt uplo n alpha
       (MutableDenseVector _ xdim _ xbuff) incx
       (MutableDenseVector _ adim _ abuff)
@@ -514,7 +518,7 @@ spr2Abstraction :: (SM.Storable el, PrimMonad m)
 spr2Abstraction spr2Name spr2SafeFFI spr2UnsafeFFI constHandler = spr2
   where
     shouldCallFast :: Int64 -> Bool
-    shouldCallFast n = flopsThreshold >= (n * n + n)
+    shouldCallFast n = flopsThreshold >= (n * n * 2)
     spr2 ornt uplo n alpha
       (MutableDenseVector _ xdim _ xbuff) incx
       (MutableDenseVector _ ydim _ ybuff) incy
@@ -533,4 +537,37 @@ spr2Abstraction spr2Name spr2SafeFFI spr2UnsafeFFI constHandler = spr2
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then spr2UnsafeFFI else spr2SafeFFI)
                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) alphaPtr xp (fromIntegral incx) yp (fromIntegral incy) ap
+
+{-# NOINLINE symvAbstraction #-}
+symvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> SymvFunFFI el
+                -> SymvFunFFI el
+                -> (el -> (el -> m ())-> m ())
+                -> forall orient . SymvFun el orient (PrimState m) m
+symvAbstraction symvName symvSafeFFI symvUnsafeFFI constHandler = symv
+  where
+    shouldCallFast :: Int64 -> Bool
+    shouldCallFast n = flopsThreshold >= (n * n)
+    symv uplo alpha
+      (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
+      (MutableDenseVector _ xdim _ xbuff) incx beta
+      (MutableDenseVector _ ydim _ ybuff) incy
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo symvName "x vector" xdim n incx
+        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo symvName "y vector" ydim n incy
+        | lda < n = error $! symvName ++ ": lda (" ++ (show lda) ++ ") must be greater than or equal to n (" ++ (show n) ++ ")."
+        | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
+            error $! "The read and write inputs for: " ++ symvName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              n = ax
+              lda = ay
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                     unsafeWithPrim ybuff $ \yp ->
+                     constHandler alpha $ \alphaPtr ->
+                     constHandler beta $ \betaPtr ->
+                       unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then symvUnsafeFFI else symvSafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
+                         (fromIntegral n) alphaPtr ap (fromIntegral lda) xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
 
