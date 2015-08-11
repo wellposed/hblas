@@ -179,6 +179,11 @@ module Numerical.HBLAS.BLAS(
         ,ssyr2
         ,dsyr2
 
+        ,stbmv
+        ,dtbmv
+        ,ctbmv
+        ,ztbmv
+
         ,stbsv
         ,dtbsv
         ,ctbsv
@@ -485,6 +490,18 @@ ssyr2 = syr2Abstraction "ssyr2" cblas_ssyr2_safe cblas_ssyr2_unsafe (\x f -> f x
 
 dsyr2 :: PrimMonad m => Syr2Fun Double orient (PrimState m) m
 dsyr2 = syr2Abstraction "dsyr2" cblas_dsyr2_safe cblas_dsyr2_unsafe (\x f -> f x)
+
+stbmv :: PrimMonad m => TbmvFun Float orient (PrimState m) m
+stbmv = tbmvAbstraction "stbmv" cblas_stbmv_safe cblas_stbmv_unsafe
+
+dtbmv :: PrimMonad m => TbmvFun Double orient (PrimState m) m
+dtbmv = tbmvAbstraction "dtbmv" cblas_dtbmv_safe cblas_dtbmv_unsafe
+
+ctbmv :: PrimMonad m => TbmvFun (Complex Float) orient (PrimState m) m
+ctbmv = tbmvAbstraction "ctbmv" cblas_ctbmv_safe cblas_ctbmv_unsafe
+
+ztbmv :: PrimMonad m => TbmvFun (Complex Double) orient (PrimState m) m
+ztbmv = tbmvAbstraction "ztbmv" cblas_ztbmv_safe cblas_ztbmv_unsafe
 
 stbsv :: PrimMonad m => TbsvFun Float orient (PrimState m) m
 stbsv = tbsvAbstraction "stbsv" cblas_stbsv_safe cblas_stbsv_unsafe

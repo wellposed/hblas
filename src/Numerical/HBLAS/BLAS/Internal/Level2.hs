@@ -19,6 +19,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,SyrFun
   ,Syr2Fun
   ,TbsvFun
+  ,TbmvFun
 
   ,gbmvAbstraction
   ,gemvAbstraction
@@ -38,6 +39,7 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,syrAbstraction
   ,syr2Abstraction
   ,tbsvAbstraction
+  ,tbmvAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -83,6 +85,8 @@ type SymvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDense
 type SyrFun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int -> MDenseMatrix s orient el -> m ()
 
 type Syr2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseMatrix s orient el -> m ()
+
+type TbmvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> m ()
 
 type TbsvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> m ()
 
@@ -643,6 +647,34 @@ syr2Abstraction syr2Name syr2SafeFFI syr2UnsafeFFI constHandler = syr2
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then syr2UnsafeFFI else syr2SafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) alphaPtr xp (fromIntegral incx) yp (fromIntegral incy) ap (fromIntegral lda)
+
+-- To get x=A*x.
+{-# NOINLINE tbmvAbstraction #-}
+tbmvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> TbmvFunFFI el
+                -> TbmvFunFFI el
+                -> forall orient . TbmvFun el orient (PrimState m) m
+tbmvAbstraction tbmvName tbmvSafeFFI tbmvUnsafeFFI = tbmv
+  where
+    shouldCallFast :: Int64 -> Bool
+    shouldCallFast n = flopsThreshold >= (n * n)
+    tbmv uplo trans diag k
+      (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
+      (MutableDenseVector _ xdim _ xbuff) incx
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo tbmvName "x vector" xdim n incx
+        | lda < k + 1 = error $! tbmvName ++ ": lda " ++ (show lda) ++ " should be greater than k " ++ (show k) ++ "."
+        | SM.overlaps abuff xbuff =
+            error $! "The read and write inputs for: " ++ tbmvName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              n = ax
+              lda = ay
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                       unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then tbmvUnsafeFFI else tbmvSafeFFI)
+                         (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo) (encodeFFITranspose trans) (encodeFFITriangleSort diag)
+                         (fromIntegral n) (fromIntegral k) ap (fromIntegral lda) xp (fromIntegral incx)
 
 -- To solve A*x = b to get x.
 {-# NOINLINE tbsvAbstraction #-}

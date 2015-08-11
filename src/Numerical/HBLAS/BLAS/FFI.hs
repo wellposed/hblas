@@ -134,28 +134,6 @@ foreign import ccall safe   "cblas_ztrsv"
 
 
 
-
---void cblas_stbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
---void cblas_dtbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
---void cblas_ctbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
---void cblas_ztbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
-
-----------------
---- | solves  Ax=v where A is k+1 banded triangular matrix, and x and
-----------------
---void cblas_stbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
---void cblas_dtbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
---void cblas_ctbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
---void cblas_ztbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
---                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
-
 -------------------------------------------------------------------------
 -- | matrix vector product Av, writes result into v, where A is a packed triangular nxn matrix
 -------------------------------------------------------------------------

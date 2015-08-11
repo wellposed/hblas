@@ -351,6 +351,37 @@ foreign import ccall safe "cblas_dsyr2"
 --void cblas_dsyr2(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   CInt N,   Double alpha,   Double *X,
 --                  CInt incX,   Double *Y,   CInt incY, Double *A,   CInt lda);
 
+
+type TbmvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT ->
+                      CInt -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_stbmv"
+      cblas_stbmv_unsafe :: TbmvFunFFI Float
+foreign import ccall safe "cblas_stbmv"
+      cblas_stbmv_safe :: TbmvFunFFI Float
+
+foreign import ccall unsafe "cblas_dtbmv"
+      cblas_dtbmv_unsafe :: TbmvFunFFI Double
+foreign import ccall safe "cblas_dtbmv"
+      cblas_dtbmv_safe :: TbmvFunFFI Double
+
+foreign import ccall unsafe "cblas_ctbmv"
+      cblas_ctbmv_unsafe :: TbmvFunFFI (Complex Float)
+foreign import ccall safe "cblas_ctbmv"
+      cblas_ctbmv_safe :: TbmvFunFFI (Complex Float)
+
+foreign import ccall unsafe "cblas_ztbmv"
+      cblas_ztbmv_unsafe :: TbmvFunFFI (Complex Double)
+foreign import ccall safe "cblas_ztbmv"
+      cblas_ztbmv_safe :: TbmvFunFFI (Complex Double)
+--void cblas_stbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_dtbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
+--void cblas_ctbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   CInt K,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_ztbmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
+
 ----------------
 --- | solves  Ax=v where A is k+1 banded triangular matrix, and x and
 ----------------
