@@ -194,6 +194,21 @@ module Numerical.HBLAS.BLAS(
         ,ctpmv
         ,ztpmv
 
+        ,stpsv
+        ,dtpsv
+        ,ctpsv
+        ,ztpsv
+
+        ,strmv
+        ,dtrmv
+        ,ctrmv
+        ,ztrmv
+
+        ,strsv
+        ,dtrsv
+        ,ctrsv
+        ,ztrsv
+
         -- Level 3
         ,dgemm
         ,sgemm
@@ -209,11 +224,6 @@ module Numerical.HBLAS.BLAS(
         ,dgemv
         ,cgemv
         ,zgemv
-
-        ,strsv
-        ,dtrsv
-        ,ctrsv
-        ,ztrsv
             ) where
 
 
@@ -532,6 +542,42 @@ ctpmv = tpmvAbstraction "ctpmv" cblas_ctpmv_safe cblas_ctpmv_unsafe
 ztpmv :: PrimMonad m => TpmvFun (Complex Double) orient (PrimState m) m
 ztpmv = tpmvAbstraction "ztpmv" cblas_ztpmv_safe cblas_ztpmv_unsafe
 
+stpsv :: PrimMonad m => TpsvFun Float orient (PrimState m) m
+stpsv = tpsvAbstraction "stpsv" cblas_stpsv_safe cblas_stpsv_unsafe
+
+dtpsv :: PrimMonad m => TpsvFun Double orient (PrimState m) m
+dtpsv = tpsvAbstraction "dtpsv" cblas_dtpsv_safe cblas_dtpsv_unsafe
+
+ctpsv :: PrimMonad m => TpsvFun (Complex Float) orient (PrimState m) m
+ctpsv = tpsvAbstraction "ctpsv" cblas_ctpsv_safe cblas_ctpsv_unsafe
+
+ztpsv :: PrimMonad m => TpsvFun (Complex Double) orient (PrimState m) m
+ztpsv = tpsvAbstraction "ztpsv" cblas_ztpsv_safe cblas_ztpsv_unsafe
+
+strmv :: PrimMonad m => TrmvFun Float orient (PrimState m) m
+strmv = trmvAbstraction "strmv" cblas_strmv_safe cblas_strmv_unsafe
+
+dtrmv :: PrimMonad m => TrmvFun Double orient (PrimState m) m
+dtrmv = trmvAbstraction "dtrmv" cblas_dtrmv_safe cblas_dtrmv_unsafe
+
+ctrmv :: PrimMonad m => TrmvFun (Complex Float) orient (PrimState m) m
+ctrmv = trmvAbstraction "ctrmv" cblas_ctrmv_safe cblas_ctrmv_unsafe
+
+ztrmv :: PrimMonad m => TrmvFun (Complex Double) orient (PrimState m) m
+ztrmv = trmvAbstraction "ztrmv" cblas_ztrmv_safe cblas_ztrmv_unsafe
+
+strsv :: PrimMonad m => TrsvFun Float orient (PrimState m) m
+strsv = trsvAbstraction "strsv" cblas_strsv_safe cblas_strsv_unsafe
+
+dtrsv :: PrimMonad m => TrsvFun Double orient (PrimState m) m
+dtrsv = trsvAbstraction "dtrsv" cblas_dtrsv_safe cblas_dtrsv_unsafe
+
+ctrsv :: PrimMonad m => TrsvFun (Complex Float) orient (PrimState m) m
+ctrsv = trsvAbstraction "ctrsv" cblas_ctrsv_safe cblas_ctrsv_unsafe
+
+ztrsv :: PrimMonad m => TrsvFun (Complex Double) orient (PrimState m) m
+ztrsv = trsvAbstraction "ztrsv" cblas_ztrsv_safe cblas_ztrsv_unsafe
+
 -- Level 3
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m
 sgemm =  gemmAbstraction "sgemm"  cblas_sgemm_safe cblas_sgemm_unsafe (\x f -> f x )
@@ -568,14 +614,3 @@ cgemv = gemvAbstraction "cgemv" cblas_cgemv_safe cblas_cgemv_unsafe withRStorabl
 
 zgemv :: PrimMonad m => GemvFun (Complex Double) orient (PrimState m) m
 zgemv = gemvAbstraction "zgemv" cblas_zgemv_safe cblas_zgemv_unsafe withRStorable_
-strsv :: PrimMonad m => TrsvFun Float orient (PrimState m) m
-strsv = trsvAbstraction "strsv" cblas_strsv_safe cblas_strsv_unsafe
-
-dtrsv :: PrimMonad m => TrsvFun Double orient (PrimState m) m
-dtrsv = trsvAbstraction "dtrsv" cblas_dtrsv_safe cblas_dtrsv_unsafe
-
-ctrsv :: PrimMonad m => TrsvFun (Complex Float) orient (PrimState m) m
-ctrsv = trsvAbstraction "ctrsv" cblas_ctrsv_safe cblas_ctrsv_unsafe
-
-ztrsv :: PrimMonad m => TrsvFun (Complex Double) orient (PrimState m) m
-ztrsv = trsvAbstraction "ztrsv" cblas_ztrsv_safe cblas_ztrsv_unsafe

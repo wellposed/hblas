@@ -719,6 +719,89 @@ matmatTest1ZTPMV = do
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [5, 5, 2]
 
+-- [ 1 2 0]   [-2]   [4]
+-- [ 0 1 1] * [ 3] = [5]
+-- [ 0 0 1]   [ 2]   [2]
+matmatTest1STPSV:: IO ()
+matmatTest1STPSV = do
+    a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 0, 1, 1, 1] !! idx)
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [4, 5, 2] !! idx)
+    BLAS.stpsv Matrix.SRow MatUpper NoTranspose MatUnit 3 a x 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [-2, 3, 2]
+
+-- [1 1 0]   [-2]   [1]
+-- [0 1 1] * [ 3] = [5]
+-- [0 0 1]   [ 2]   [2]
+matmatTest1DTPSV:: IO ()
+matmatTest1DTPSV = do
+    a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 1, 0, 1, 1, 1] !! idx)
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [1, 5, 2] !! idx)
+    BLAS.dtpsv Matrix.SColumn MatLower Transpose MatUnit 3 a x 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [-2, 3, 2]
+
+-- [ 1:+0    0:+0    0:+0]   [-2]   [-2:+0   ]
+-- [ 2:+(-2) 1:+0    0:+0] * [ 3] = [-1:+4   ]
+-- [ 0:+0    1:+(-1) 1:+0]   [ 2]   [ 5:+(-3)]
+matmatTest1CTPSV:: IO ()
+matmatTest1CTPSV = do
+    a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+0, 2:+2, 0:+0, 1:+0, 1:+1, 1:+0] !! idx)
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [(-2):+0, (-1):+4, 5:+(-3)]!! idx)
+    BLAS.ctpsv Matrix.SRow MatUpper Matrix.ConjTranspose MatUnit 3 a x 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [-2, 3, 2]
+
+-- [1 1 0]   [2]   [5]
+-- [0 1 1] * [3] = [5]
+-- [0 0 1]   [2]   [2]
+matmatTest1ZTPSV:: IO ()
+matmatTest1ZTPSV = do
+    a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+0, 1:+0, 1:+0, 0:+0, 1:+0, 1:+0] !! idx)
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [5, 5, 2] !! idx)
+    BLAS.ztpsv Matrix.SColumn MatUpper NoTranspose MatNonUnit 3 a x 1 -- TODO: NAN error when using Lower Transpose
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [2, 3, 2]
+
+matmatTest1STRMV:: IO ()
+matmatTest1STRMV = do
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
+            (\(i,j) -> if i >= j then (1.0::Float) else 0 )
+
+    res  <- Matrix.generateMutableDenseVector  2 (\i -> if i == 0 then 2 else 1)
+    BLAS.strmv MatUpper NoTranspose MatUnit left res
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
+    resList @?= [3,1]
+
+matmatTest1DTRMV:: IO ()
+matmatTest1DTRMV = do
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
+                (\(i,j) -> if i >= j then (1.0::Double) else 0 )
+
+    res  <- Matrix.generateMutableDenseVector  2 (\i -> if i == 0 then 2 else 1)
+    BLAS.dtrmv MatUpper NoTranspose MatUnit left res
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
+    resList @?= [3,1]
+
+matmatTest1CTRMV:: IO ()
+matmatTest1CTRMV = do
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
+                (\(i,j) -> if i >= j then (1.0::(Complex Float)) else 0 )
+
+    res  <- Matrix.generateMutableDenseVector  2 (\i -> if i == 0 then 2 else 1)
+    BLAS.ctrmv MatUpper NoTranspose MatUnit left res
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
+    resList @?= [3,1]
+
+matmatTest1ZTRMV:: IO ()
+matmatTest1ZTRMV = do
+    left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
+                (\(i,j) -> if i >= j then (1.0::(Complex Double )) else 0 )
+    res  <- Matrix.generateMutableDenseVector  2 (\i -> if i == 0 then 2 else 1)
+    BLAS.ztrmv MatUpper NoTranspose MatUnit left res
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
+    resList @?= [3,1]
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -837,6 +920,16 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
     ,testCase "dtpmv on 3x3 lower trans (column oriented)" matmatTest1DTPMV
     ,testCase "ctpmv on 3x3 upper conj trans (row oriented)" matmatTest1CTPMV
     ,testCase "ztpmv on 3x3 lower no trans (row oriented)" matmatTest1ZTPMV
+----- tpmv tests
+    ,testCase "stpsv on 3x3 upper no trans (row oriented)" matmatTest1STPSV
+    ,testCase "dtpsv on 3x3 lower trans (column oriented)" matmatTest1DTPSV
+    ,testCase "ctpsv on 3x3 upper conj trans (row oriented)" matmatTest1CTPSV
+    ,testCase "ztpsv on 3x3 lower no trans (row oriented)" matmatTest1ZTPSV
+----- trmv tests
+    ,testCase "strmv on 2x2 upper 1s" matmatTest1STRMV
+    ,testCase "dtrmv on 2x2 upper 1s" matmatTest1DTRMV
+    ,testCase "ctrmv on 2x2 upper 1s" matmatTest1CTRMV
+    ,testCase "ztrmv on 2x2 upper 1s" matmatTest1ZTRMV
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV

@@ -448,3 +448,93 @@ foreign import ccall safe "cblas_ztpmv"
 --                   CInt N,   Float *Ap, Float *X,   CInt incX);
 --void cblas_ztpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   Double *Ap, Double *X,   CInt incX);
+
+--------------------------------------------------
+---  | solve  Ax=v where A is a nxn packed triangular matrix, v vector input, writes the solution into x.
+--------------------------------------------------
+type TpsvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT ->
+                      CInt -> Ptr el -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_stpsv"
+      cblas_stpsv_unsafe :: TpsvFunFFI Float
+foreign import ccall safe "cblas_stpsv"
+      cblas_stpsv_safe :: TpsvFunFFI Float
+
+foreign import ccall unsafe "cblas_dtpsv"
+      cblas_dtpsv_unsafe :: TpsvFunFFI Double
+foreign import ccall safe "cblas_dtpsv"
+      cblas_dtpsv_safe :: TpsvFunFFI Double
+
+foreign import ccall unsafe "cblas_ctpsv"
+      cblas_ctpsv_unsafe :: TpsvFunFFI (Complex Float)
+foreign import ccall safe "cblas_ctpsv"
+      cblas_ctpsv_safe :: TpsvFunFFI (Complex Float)
+
+foreign import ccall unsafe "cblas_ztpsv"
+      cblas_ztpsv_unsafe :: TpsvFunFFI (Complex Double)
+foreign import ccall safe "cblas_ztpsv"
+      cblas_ztpsv_safe :: TpsvFunFFI (Complex Double)
+--void cblas_stpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   Float *Ap, Float *X,   CInt incX);
+--void cblas_dtpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   Double *Ap, Double *X,   CInt incX);
+--void cblas_ctpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   Float *Ap, Float *X,   CInt incX);
+--void cblas_ztpsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   Double *Ap, Double *X,   CInt incX);
+
+type TrmvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT ->
+                      CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_strmv"
+      cblas_strmv_unsafe :: TrmvFunFFI Float
+foreign import ccall safe "cblas_strmv"
+      cblas_strmv_safe :: TrmvFunFFI Float
+
+foreign import ccall unsafe "cblas_dtrmv"
+      cblas_dtrmv_unsafe :: TrmvFunFFI Double
+foreign import ccall safe "cblas_dtrmv"
+      cblas_dtrmv_safe :: TrmvFunFFI Double
+
+foreign import ccall unsafe "cblas_ctrmv"
+      cblas_ctrmv_unsafe :: TrmvFunFFI (Complex Float)
+foreign import ccall safe "cblas_ctrmv"
+      cblas_ctrmv_safe :: TrmvFunFFI (Complex Float)
+
+foreign import ccall unsafe "cblas_ztrmv"
+      cblas_ztrmv_unsafe :: TrmvFunFFI (Complex Double)
+foreign import ccall safe "cblas_ztrmv"
+      cblas_ztrmv_safe :: TrmvFunFFI (Complex Double)
+--void cblas_strmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_dtrmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Double *A,   CInt lda, Double *X,   CInt incX);
+--void cblas_ctrmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_ztrmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Double *A,   CInt lda, Double *X,   CInt incX);
+
+--STRSV - solve one of the systems of equations   A*x = b, or A'*x = b, where A is a (non)unit upper(/lower) triangular matrix
+type TrsvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT ->
+                      CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+
+foreign import ccall unsafe "cblas_strsv"
+  cblas_strsv_unsafe :: TrsvFunFFI Float
+foreign import ccall safe   "cblas_strsv"
+  cblas_strsv_safe   :: TrsvFunFFI Float
+
+foreign import ccall unsafe "cblas_dtrsv"
+  cblas_dtrsv_unsafe :: TrsvFunFFI Double
+foreign import ccall safe   "cblas_dtrsv"
+  cblas_dtrsv_safe   :: TrsvFunFFI Double
+
+foreign import ccall unsafe "cblas_ctrsv"
+  cblas_ctrsv_unsafe :: TrsvFunFFI (Complex Float)
+foreign import ccall safe   "cblas_ctrsv"
+  cblas_ctrsv_safe   :: TrsvFunFFI (Complex Float)
+
+foreign import ccall unsafe "cblas_ztrsv"
+  cblas_ztrsv_unsafe :: TrsvFunFFI (Complex Double)
+foreign import ccall safe   "cblas_ztrsv"
+  cblas_ztrsv_safe   :: TrsvFunFFI (Complex Double)
+
+--void cblas_strsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_dtrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Double *A,   CInt lda, Double *X,   CInt incX);
+--void cblas_ctrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Float *A,   CInt lda, Float *X,   CInt incX);
+--void cblas_ztrsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,   CInt N,   Double *A,   CInt lda, Double *X,   CInt incX);
+
+

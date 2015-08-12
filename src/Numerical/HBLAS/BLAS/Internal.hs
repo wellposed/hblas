@@ -3,11 +3,9 @@
 module Numerical.HBLAS.BLAS.Internal(
     GemmFun
     ,SymmFun
-    ,TrsvFun
 
     ,gemmAbstraction
     ,symmAbstraction
-    ,trsvAbstraction
     ) where
 
 import Numerical.HBLAS.Constants
@@ -25,10 +23,6 @@ type GemmFun el orient s m = Transpose ->Transpose ->  el -> el  -> MDenseMatrix
 
 type SymmFun el orient s m = EquationSide -> MatUpLo -> el -> el -> MDenseMatrix s orient el
   -> MDenseMatrix s orient el -> MDenseMatrix s orient el -> m ()
-
-type TrsvFun el orient s m =
-      MatUpLo -> Transpose -> MatDiag
-   -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
 
 gemmComplexity :: Integral a => a -> a -> a -> Int64
 gemmComplexity a b c = fromIntegral a * fromIntegral b *fromIntegral c  -- this will be wrong by some constant factor, albeit a small one
@@ -135,32 +129,4 @@ symmAbstraction symmName symmSafeFFI symmUnsafeFFI constHandler = symm
                         unsafePrimToPrim $!  (if shouldCallFast cy cx ax then symmUnsafeFFI  else symmSafeFFI)
                             rawOrder rawSide rawUplo (fromIntegral cy) (fromIntegral cx)
                                 alphaPtr ap (fromIntegral astride) bp (fromIntegral bstride) betaPtr cp (fromIntegral cstride)
-
-
-{-# NOINLINE trsvAbstraction #-}
-trsvAbstraction :: (SM.Storable el, PrimMonad m)
-                => String
-                -> TrsvFunFFI el -> TrsvFunFFI el
-                -> forall orient . TrsvFun el orient (PrimState m) m
-trsvAbstraction trsvName trsvSafeFFI trsvUnsafeFFI = trsv
-  where
-    shouldCallFast :: Int -> Bool
-    shouldCallFast n = flopsThreshold >= (fromIntegral n :: Int64)^(2 :: Int64)
-
-    isBadTrsv :: Int -> Int -> Int -> Bool
-    isBadTrsv nx ny vdim = nx < 0 || nx /= ny || nx /= vdim
-
-    trsv uplo tra diag
-      (MutableDenseMatrix ornt x y mstride mbuff)
-      (MutableDenseVector _ vdim vstride vbuff)
-        | isBadTrsv x y vdim =
-            error $! "Bad dimension args to TRSV: x y vdim: " ++ show [x,y,vdim]
-        | SM.overlaps vbuff mbuff =
-            error $! "The read and write inputs for: " ++ trsvName ++ " overlap. This is a programmer error. Please fix."
-        | otherwise = unsafeWithPrim mbuff $ \mp ->
-                      unsafeWithPrim vbuff $ \vp ->
-                        unsafePrimToPrim $! (if shouldCallFast x then trsvUnsafeFFI else trsvSafeFFI)
-                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo) (encodeFFITranspose tra)
-                          (encodeFFITriangleSort diag) (fromIntegral x) mp (fromIntegral mstride) vp
-                          (fromIntegral vstride)
 

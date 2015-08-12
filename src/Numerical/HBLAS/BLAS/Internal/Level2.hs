@@ -21,6 +21,9 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,TbmvFun
   ,TbsvFun
   ,TpmvFun
+  ,TpsvFun
+  ,TrmvFun
+  ,TrsvFun
 
   ,gbmvAbstraction
   ,gemvAbstraction
@@ -42,6 +45,9 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,tbmvAbstraction
   ,tbsvAbstraction
   ,tpmvAbstraction
+  ,tpsvAbstraction
+  ,trmvAbstraction
+  ,trsvAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -93,6 +99,12 @@ type TbmvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMat
 type TbsvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> m ()
 
 type TpmvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> m ()
+
+type TpsvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> m ()
+
+type TrmvFun el orient s m =  MatUpLo -> Transpose -> MatDiag -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
+
+type TrsvFun el orient s m =  MatUpLo -> Transpose -> MatDiag -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -733,4 +745,84 @@ tpmvAbstraction tpmvName tpmvSafeFFI tpmvUnsafeFFI = tpmv
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then tpmvUnsafeFFI else tpmvSafeFFI)
                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo) (encodeFFITranspose trans) (encodeFFITriangleSort diag)
                          (fromIntegral n) ap xp (fromIntegral incx)
+
+-- To solve A*x=b to get x. A is array of (n * (n+1) / 2) length
+{-# NOINLINE tpsvAbstraction #-}
+tpsvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> TpsvFunFFI el
+                -> TpsvFunFFI el
+                -> forall orient . TpsvFun el orient (PrimState m) m
+tpsvAbstraction tpsvName tpsvSafeFFI tpsvUnsafeFFI = tpsv
+  where
+    shouldCallFast :: Int64 -> Bool
+    shouldCallFast n = flopsThreshold >= (n * n) -- TODO: to confirm the computation.
+    tpsv ornt uplo trans diag n
+      (MutableDenseVector _ adim _ abuff)
+      (MutableDenseVector _ xdim _ xbuff) incx
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo tpsvName "x vector" xdim n incx
+        | adim < (div (n * (n+1)) 2) = error $! tpsvName ++ ": array which has" ++ (show adim) ++ " elements must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
+        | SM.overlaps abuff xbuff =
+            error $! "The read and write inputs for: " ++ tpsvName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                       unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then tpsvUnsafeFFI else tpsvSafeFFI)
+                         (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo) (encodeFFITranspose trans) (encodeFFITriangleSort diag)
+                         (fromIntegral n) ap xp (fromIntegral incx)
+
+{-# NOINLINE trmvAbstraction #-}
+trmvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> TrmvFunFFI el -> TrmvFunFFI el
+                -> forall orient . TrmvFun el orient (PrimState m) m
+trmvAbstraction trmvName trmvSafeFFI trmvUnsafeFFI = trmv
+  where
+    shouldCallFast :: Int -> Bool
+    shouldCallFast n = flopsThreshold >= (fromIntegral n :: Int64)^(2 :: Int64)
+
+    isBadtrmv :: Int -> Int -> Int -> Bool
+    isBadtrmv nx ny vdim = nx < 0 || nx /= ny || nx /= vdim
+
+    trmv uplo tra diag
+      (MutableDenseMatrix ornt x y mstride mbuff)
+      (MutableDenseVector _ vdim vstride vbuff)
+        | isBadtrmv x y vdim =
+            error $! "Bad dimension args to trmv: x y vdim: " ++ show [x,y,vdim]
+        | SM.overlaps vbuff mbuff =
+            error $! "The read and write inputs for: " ++ trmvName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = unsafeWithPrim mbuff $ \mp ->
+                      unsafeWithPrim vbuff $ \vp ->
+                        unsafePrimToPrim $! (if shouldCallFast x then trmvUnsafeFFI else trmvSafeFFI)
+                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo) (encodeFFITranspose tra)
+                          (encodeFFITriangleSort diag) (fromIntegral x) mp (fromIntegral mstride) vp
+                          (fromIntegral vstride)
+
+{-# NOINLINE trsvAbstraction #-}
+trsvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> TrsvFunFFI el -> TrsvFunFFI el
+                -> forall orient . TrsvFun el orient (PrimState m) m
+trsvAbstraction trsvName trsvSafeFFI trsvUnsafeFFI = trsv
+  where
+    shouldCallFast :: Int -> Bool
+    shouldCallFast n = flopsThreshold >= (fromIntegral n :: Int64)^(2 :: Int64)
+
+    isBadTrsv :: Int -> Int -> Int -> Bool
+    isBadTrsv nx ny vdim = nx < 0 || nx /= ny || nx /= vdim
+
+    trsv uplo tra diag
+      (MutableDenseMatrix ornt x y mstride mbuff)
+      (MutableDenseVector _ vdim vstride vbuff)
+        | isBadTrsv x y vdim =
+            error $! "Bad dimension args to TRSV: x y vdim: " ++ show [x,y,vdim]
+        | SM.overlaps vbuff mbuff =
+            error $! "The read and write inputs for: " ++ trsvName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = unsafeWithPrim mbuff $ \mp ->
+                      unsafeWithPrim vbuff $ \vp ->
+                        unsafePrimToPrim $! (if shouldCallFast x then trsvUnsafeFFI else trsvSafeFFI)
+                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo) (encodeFFITranspose tra)
+                          (encodeFFITriangleSort diag) (fromIntegral x) mp (fromIntegral mstride) vp
+                          (fromIntegral vstride)
 
