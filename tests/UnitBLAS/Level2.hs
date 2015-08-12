@@ -675,6 +675,50 @@ matmatTest1ZTBSV = do
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [2, 3, 2]
 
+-- [ 1 2 0]   [-2]   [4]
+-- [ 0 1 1] * [ 3] = [5]
+-- [ 0 0 1]   [ 2]   [2]
+matmatTest1STPMV:: IO ()
+matmatTest1STPMV = do
+    a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 0, 1, 1, 1] !! idx)
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [-2, 3, 2] !! idx)
+    BLAS.stpmv Matrix.SRow MatUpper NoTranspose MatUnit 3 a x 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [4, 5, 2]
+
+-- [1 1 0]   [-2]   [1]
+-- [0 1 1] * [ 3] = [5]
+-- [0 0 1]   [ 2]   [2]
+matmatTest1DTPMV:: IO ()
+matmatTest1DTPMV = do
+    a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 1, 0, 1, 1, 1] !! idx)
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [-2, 3, 2] !! idx)
+    BLAS.dtpmv Matrix.SColumn MatLower Transpose MatUnit 3 a x 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [1, 5, 2]
+
+-- [ 1:+0    0:+0    0:+0]   [-2]   [-2:+0   ]
+-- [ 2:+(-2) 1:+0    0:+0] * [ 3] = [-1:+4   ]
+-- [ 0:+0    1:+(-1) 1:+0]   [ 2]   [ 5:+(-3)]
+matmatTest1CTPMV:: IO ()
+matmatTest1CTPMV = do
+    a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+0, 2:+2, 0:+0, 1:+0, 1:+1, 1:+0] !! idx)
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [-2, 3, 2] !! idx)
+    BLAS.ctpmv Matrix.SRow MatUpper Matrix.ConjTranspose MatUnit 3 a x 1
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [(-2):+0, (-1):+4, 5:+(-3)]
+
+-- [1 1 0]   [2]   [5]
+-- [0 1 1] * [3] = [5]
+-- [0 0 1]   [2]   [2]
+matmatTest1ZTPMV:: IO ()
+matmatTest1ZTPMV = do
+    a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+0, 1:+0, 1:+0, 0:+0, 1:+0, 1:+0] !! idx)
+    x  <- Matrix.generateMutableDenseVector 3 (\idx -> [2, 3, 2] !! idx)
+    BLAS.ztpmv Matrix.SColumn MatUpper NoTranspose MatNonUnit 3 a x 1 -- TODO: NAN error when using Lower Transpose
+    resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
+    resList @?= [5, 5, 2]
+
 matmatTest1STRSV:: IO ()
 matmatTest1STRSV = do
     left  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (2,2)
@@ -788,6 +832,11 @@ unitTestLevel2BLAS = testGroup "BLAS Level 2 tests " [
     ,testCase "dtbsv on 3x3 lower trans (column oriented)" matmatTest1DTBSV
     ,testCase "ctbsv on 3x3 upper conj trans (row oriented)" matmatTest1CTBSV
     ,testCase "ztbsv on 3x3 lower no trans (row oriented)" matmatTest1ZTBSV
+----- tpmv tests
+    ,testCase "stpmv on 3x3 upper no trans (row oriented)" matmatTest1STPMV
+    ,testCase "dtpmv on 3x3 lower trans (column oriented)" matmatTest1DTPMV
+    ,testCase "ctpmv on 3x3 upper conj trans (row oriented)" matmatTest1CTPMV
+    ,testCase "ztpmv on 3x3 lower no trans (row oriented)" matmatTest1ZTPMV
 ----- trsv tests
     ,testCase "strsv on 2x2 upper 1s" matmatTest1STRSV
     ,testCase "dtrsv on 2x2 upper 1s" matmatTest1DTRSV

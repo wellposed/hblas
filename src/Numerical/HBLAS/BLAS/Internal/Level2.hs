@@ -18,8 +18,9 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,SymvFun
   ,SyrFun
   ,Syr2Fun
-  ,TbsvFun
   ,TbmvFun
+  ,TbsvFun
+  ,TpmvFun
 
   ,gbmvAbstraction
   ,gemvAbstraction
@@ -38,8 +39,9 @@ module Numerical.HBLAS.BLAS.Internal.Level2(
   ,symvAbstraction
   ,syrAbstraction
   ,syr2Abstraction
-  ,tbsvAbstraction
   ,tbmvAbstraction
+  ,tbsvAbstraction
+  ,tpmvAbstraction
 ) where
 
 import Numerical.HBLAS.Constants
@@ -89,6 +91,8 @@ type Syr2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int ->
 type TbmvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> m ()
 
 type TbsvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> m ()
+
+type TpmvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> m ()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -703,3 +707,30 @@ tbsvAbstraction tbsvName tbsvSafeFFI tbsvUnsafeFFI = tbsv
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then tbsvUnsafeFFI else tbsvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo) (encodeFFITranspose trans) (encodeFFITriangleSort diag)
                          (fromIntegral n) (fromIntegral k) ap (fromIntegral lda) xp (fromIntegral incx)
+
+-- To get x=A*x. A is array of (n * (n+1) / 2) length
+{-# NOINLINE tpmvAbstraction #-}
+tpmvAbstraction :: (SM.Storable el, PrimMonad m)
+                => String
+                -> TpmvFunFFI el
+                -> TpmvFunFFI el
+                -> forall orient . TpmvFun el orient (PrimState m) m
+tpmvAbstraction tpmvName tpmvSafeFFI tpmvUnsafeFFI = tpmv
+  where
+    shouldCallFast :: Int64 -> Bool
+    shouldCallFast n = flopsThreshold >= (n * n)
+    tpmv ornt uplo trans diag n
+      (MutableDenseVector _ adim _ abuff)
+      (MutableDenseVector _ xdim _ xbuff) incx
+        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo tpmvName "x vector" xdim n incx
+        | adim < (div (n * (n+1)) 2) = error $! tpmvName ++ ": array which has" ++ (show adim) ++ " elements must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
+        | SM.overlaps abuff xbuff =
+            error $! "The read and write inputs for: " ++ tpmvName ++ " overlap. This is a programmer error. Please fix."
+        | otherwise = call
+            where
+              call = unsafeWithPrim abuff $ \ap ->
+                     unsafeWithPrim xbuff $ \xp ->
+                       unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then tpmvUnsafeFFI else tpmvSafeFFI)
+                         (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo) (encodeFFITranspose trans) (encodeFFITriangleSort diag)
+                         (fromIntegral n) ap xp (fromIntegral incx)
+

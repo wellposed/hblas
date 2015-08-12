@@ -189,6 +189,11 @@ module Numerical.HBLAS.BLAS(
         ,ctbsv
         ,ztbsv
 
+        ,stpmv
+        ,dtpmv
+        ,ctpmv
+        ,ztpmv
+
         -- Level 3
         ,dgemm
         ,sgemm
@@ -514,6 +519,18 @@ ctbsv = tbsvAbstraction "ctbsv" cblas_ctbsv_safe cblas_ctbsv_unsafe
 
 ztbsv :: PrimMonad m => TbsvFun (Complex Double) orient (PrimState m) m
 ztbsv = tbsvAbstraction "ztbsv" cblas_ztbsv_safe cblas_ztbsv_unsafe
+
+stpmv :: PrimMonad m => TpmvFun Float orient (PrimState m) m
+stpmv = tpmvAbstraction "stpmv" cblas_stpmv_safe cblas_stpmv_unsafe
+
+dtpmv :: PrimMonad m => TpmvFun Double orient (PrimState m) m
+dtpmv = tpmvAbstraction "dtpmv" cblas_dtpmv_safe cblas_dtpmv_unsafe
+
+ctpmv :: PrimMonad m => TpmvFun (Complex Float) orient (PrimState m) m
+ctpmv = tpmvAbstraction "ctpmv" cblas_ctpmv_safe cblas_ctpmv_unsafe
+
+ztpmv :: PrimMonad m => TpmvFun (Complex Double) orient (PrimState m) m
+ztpmv = tpmvAbstraction "ztpmv" cblas_ztpmv_safe cblas_ztpmv_unsafe
 
 -- Level 3
 sgemm :: PrimMonad m=>  GemmFun Float  orient  (PrimState m) m

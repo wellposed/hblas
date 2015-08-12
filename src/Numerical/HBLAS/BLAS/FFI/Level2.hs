@@ -415,3 +415,36 @@ foreign import ccall safe "cblas_ztbsv"
 --void cblas_ztbsv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
 --                   CInt N,   CInt K,   Double *A,   CInt lda, Double *X,   CInt incX);
 
+
+-------------------------------------------------------------------------
+-- | matrix vector product Av, writes result into v, where A is a packed triangular nxn matrix
+-------------------------------------------------------------------------
+type TpmvFunFFI el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT ->
+                      CInt -> Ptr el -> Ptr el -> CInt -> IO ()
+foreign import ccall unsafe "cblas_stpmv"
+      cblas_stpmv_unsafe :: TpmvFunFFI Float
+foreign import ccall safe "cblas_stpmv"
+      cblas_stpmv_safe :: TpmvFunFFI Float
+
+foreign import ccall unsafe "cblas_dtpmv"
+      cblas_dtpmv_unsafe :: TpmvFunFFI Double
+foreign import ccall safe "cblas_dtpmv"
+      cblas_dtpmv_safe :: TpmvFunFFI Double
+
+foreign import ccall unsafe "cblas_ctpmv"
+      cblas_ctpmv_unsafe :: TpmvFunFFI (Complex Float)
+foreign import ccall safe "cblas_ctpmv"
+      cblas_ctpmv_safe :: TpmvFunFFI (Complex Float)
+
+foreign import ccall unsafe "cblas_ztpmv"
+      cblas_ztpmv_unsafe :: TpmvFunFFI (Complex Double)
+foreign import ccall safe "cblas_ztpmv"
+      cblas_ztpmv_safe :: TpmvFunFFI (Complex Double)
+--void cblas_stpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   Float *Ap, Float *X,   CInt incX);
+--void cblas_dtpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   Double *Ap, Double *X,   CInt incX);
+--void cblas_ctpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   Float *Ap, Float *X,   CInt incX);
+--void cblas_ztpmv(  enum CBLAS_ORDER order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,   enum CBLAS_DIAG Diag,
+--                   CInt N,   Double *Ap, Double *X,   CInt incX);
