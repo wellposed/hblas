@@ -174,6 +174,30 @@ matmatTest1ZHERK = do
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
     resList @?= [7:+0, 12:+4, 18:+6, 0:+0, 26:+0, 41:+2, 0:+0, 0:+0, 62:+0]
 
+-- [1 2]   [1 3 5]   [1:+0    1:+1    1:+1]   [6:+0 12:+1 18:+1]
+-- [3 4] * [2 4 6] + [1:+(-1) 1:+0    2:+2] = [0:+0 26:+0 41:+2]
+-- [5 6]             [1:+(-1) 2:+(-2) 1:+0]   [0:+0 0:+0  62:+0]
+matmatTest1CHER2K :: IO ()
+matmatTest1CHER2K = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,3) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 2))
+    b <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,3) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 2))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3,3) (\(x, y) -> [1:+0, 1:+1, 1:+1, 0:+0, 1:+0, 2:+2, 0:+0, 0:+0, 1:+0] !! (x + y * 3))
+    BLAS.cher2k Matrix.MatUpper Matrix.NoTranspose 1.0 1.0 a b c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [11:+0, 23:+1, 35:+1, 0:+0, 51:+0, 80:+2, 0:+0, 0:+0, 123:+0]
+
+-- [1:-1 2]   [1:+1 3 5]   [1:+0 1:+(-1) 1:+(-1)]   [6:+0  0:+0  0:+0]
+-- [3    4] * [2    4 6] + [1:+1 1:+0    2:+(-2)] = [12:+1 26:+0 0:+0]
+-- [5    6]                [1:+1 2:+2    1:+0   ]   [18:+1 41:+2 62:+0]
+matmatTest1ZHER2K :: IO ()
+matmatTest1ZHER2K = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,2) (\(x, y) -> [1:+1, 3, 5, 2, 4, 6] !! (x + y * 3))
+    b <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,2) (\(x, y) -> [1:+1, 3, 5, 2, 4, 6] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,3) (\(x, y) -> [1:+0, 0:+0, 0:+0, 1:+1, 1:+0, 0:+0, 1:+1, 2:+2, 1:+0] !! (x + y * 3))
+    BLAS.zher2k Matrix.MatLower Matrix.ConjTranspose 1.0 1.0 a b c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [13:+0, 23:+7, 35:+11, 0:+0, 51:+0, 80:+2, 0:+0, 0:+0, 123:+0]
+
 matmatTest1SSYMM:: IO ()
 matmatTest1SSYMM = do
     left  <- Matrix.generateMutableUpperTriangular (Matrix.SRow)  (2,2) (const (1.0 :: Float))
@@ -259,6 +283,9 @@ unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
 
     ,testCase "cherk on 3x3 and 2x3 with leftside upper (row oriented)" $ matmatTest1CHERK
     ,testCase "zherk on 3x3 and 3x2 with rightside lower (column oriented)" $ matmatTest1ZHERK
+
+    ,testCase "cher2k on 3x3 and 2x3 with leftside upper (row oriented)" $ matmatTest1CHER2K
+    ,testCase "zher2k on 3x3 and 3x2 with rightside lower (column oriented)" $ matmatTest1ZHER2K
 
     ,testCase "ssymm on 2x2 upper all 1s" matmatTest1SSYMM
     ,testCase "dsymm on 2x2 upper all 1s" $ matmatTest1DSYMM Matrix.SRow Matrix.MatUpper

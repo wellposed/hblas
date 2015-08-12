@@ -221,6 +221,9 @@ module Numerical.HBLAS.BLAS(
         ,cherk
         ,zherk
 
+        ,cher2k
+        ,zher2k
+
         ,ssymm
         ,dsymm
         ,csymm
@@ -234,7 +237,6 @@ module Numerical.HBLAS.BLAS(
 
 
 import Numerical.HBLAS.UtilsFFI
-import Numerical.HBLAS.BLAS.FFI
 import Numerical.HBLAS.BLAS.FFI.Level1
 import Numerical.HBLAS.BLAS.FFI.Level2
 import Numerical.HBLAS.BLAS.FFI.Level3
@@ -609,6 +611,12 @@ cherk = herkAbstraction "cherk" cblas_cherk_safe cblas_cherk_unsafe (\x f -> f x
 
 zherk :: PrimMonad m=>  HerkFun Double (Complex Double) orient (PrimState m) m
 zherk = herkAbstraction "zherk" cblas_zherk_safe cblas_zherk_unsafe (\x f -> f x)
+
+cher2k :: PrimMonad m=>  Her2kFun Float (Complex Float) orient (PrimState m) m
+cher2k = her2kAbstraction "cher2k" cblas_cher2k_safe cblas_cher2k_unsafe withRStorable_
+
+zher2k :: PrimMonad m=>  Her2kFun Double (Complex Double) orient (PrimState m) m
+zher2k = her2kAbstraction "zher2k" cblas_zher2k_safe cblas_zher2k_unsafe withRStorable_
 
 ssymm :: PrimMonad m=>  SymmFun Float orient (PrimState m) m
 ssymm = symmAbstraction "ssymm" cblas_ssymm_safe cblas_ssymm_unsafe (\x f -> f x)

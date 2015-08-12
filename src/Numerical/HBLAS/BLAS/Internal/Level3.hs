@@ -5,16 +5,17 @@ module Numerical.HBLAS.BLAS.Internal.Level3(
     ,SymmFun
     ,HemmFun
     ,HerkFun
+    ,Her2kFun
 
     ,gemmAbstraction
     ,symmAbstraction
     ,hemmAbstraction
     ,herkAbstraction
+    ,her2kAbstraction
     ) where
 
 import Numerical.HBLAS.Constants
 import Numerical.HBLAS.UtilsFFI
-import Numerical.HBLAS.BLAS.FFI
 import Numerical.HBLAS.BLAS.FFI.Level3
 import Numerical.HBLAS.BLAS.Internal.Utility
 import Numerical.HBLAS.MatrixTypes
@@ -34,6 +35,9 @@ type HemmFun el orient s m = EquationSide -> MatUpLo -> el -> el -> MDenseMatrix
 
 type HerkFun scale el orient s m = MatUpLo -> Transpose -> scale -> scale -> MDenseMatrix s orient el
   -> MDenseMatrix s orient el -> m ()
+
+type Her2kFun scale el orient s m = MatUpLo -> Transpose -> el -> scale -> MDenseMatrix s orient el
+  -> MDenseMatrix s orient el -> MDenseMatrix s orient el -> m ()
 
 gemmComplexity :: Integral a => a -> a -> a -> Int64
 gemmComplexity a b c = fromIntegral a * fromIntegral b *fromIntegral c  -- this will be wrong by some constant factor, albeit a small one
@@ -217,3 +221,45 @@ herkAbstraction herkName herkSafeFFI herkUnsafeFFI constHandler = herk
                                  unsafePrimToPrim $!  (if shouldCallFast ax ay cx then herkUnsafeFFI  else herkSafeFFI)
                                      rawOrder rawUplo rawTrans (fromIntegral cy) (fromIntegral k)
                                          alphaPtr ap (fromIntegral astride) betaPtr cp (fromIntegral cstride)
+
+{-# NOINLINE her2kAbstraction #-}
+her2kAbstraction :: (SM.Storable el, PrimMonad m)
+                => String -> Her2kFunFFI scale el -> Her2kFunFFI scale el -> (el -> (Ptr el -> m ()) -> m ())
+                -> forall orient . Her2kFun scale el orient (PrimState m) m
+her2kAbstraction her2kName her2kSafeFFI her2kUnsafeFFI constHandler = her2k
+  where
+    isBadHer2kBothSide :: (Ord a, Num a) => a -> a -> a -> a -> a -> a -> Bool
+    isBadHer2kBothSide ax ay bx by cx cy = (minimum [ax, ay, bx, by, cx, cy] <= 0) || not (cx == cy && ax == bx && ay == by)
+
+    isBadHer2k :: (Ord a, Num a) => Transpose -> a -> a -> a -> a -> a -> a -> Bool
+    isBadHer2k NoTranspose ax ay bx by cx cy = isBadHer2kBothSide ax ay bx by cx cy || (ay /= cx)
+    isBadHer2k ConjTranspose ax ay bx by cx cy = isBadHer2kBothSide ax ay bx by cx cy || (ax /= ax)
+    isBadHer2k trans _ _ _ _ _ _ = error $ her2kName ++ ": trans " ++ show trans ++ " is invalid."
+
+    -- n * k * n
+    shouldCallFast :: Int -> Int -> Int -> Bool
+    shouldCallFast ax ay cx = flopsThreshold >= (fromIntegral ax :: Int64)
+                                              * (fromIntegral ay :: Int64)
+                                              * (fromIntegral cx :: Int64)
+                                              * 2
+
+    her2k uplo trans alpha beta
+        (MutableDenseMatrix ornta ax ay astride abuff)
+        (MutableDenseMatrix _ bx by bstride bbuff)
+        (MutableDenseMatrix _ cx cy cstride cbuff)
+            | isBadHer2k trans ax ay bx by cx cy = error $! "bad dimension args to " ++ her2kName ++ ": ax ay cx cy side: " ++ show [ax, ay, bx, by, cx ,cy] ++ " " ++ show trans
+            | SM.overlaps abuff cbuff =
+                    error $ "the read and write inputs for: " ++ her2kName ++ " overlap. This is a programmer error. Please fix."
+            | otherwise = call
+                where
+                  k = if (trans == NoTranspose) then ax else ay
+                  call = unsafeWithPrim abuff $ \ap ->
+                         unsafeWithPrim bbuff $ \bp  ->
+                         unsafeWithPrim cbuff $ \cp  ->
+                         constHandler alpha $  \alphaPtr ->
+                             do  let rawOrder = encodeNiceOrder ornta
+                                 let rawUplo  = encodeFFIMatrixHalf uplo
+                                 let rawTrans = encodeFFITranspose trans
+                                 unsafePrimToPrim $!  (if shouldCallFast ax ay cx then her2kUnsafeFFI  else her2kSafeFFI)
+                                     rawOrder rawUplo rawTrans (fromIntegral cy) (fromIntegral k)
+                                         alphaPtr ap (fromIntegral astride) bp (fromIntegral bstride) beta cp (fromIntegral cstride)

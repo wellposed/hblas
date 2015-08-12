@@ -254,15 +254,18 @@ foreign  import ccall safe "cblas_zherk"
 --void cblas_zherk(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
 --                   Double alpha,   Double *A,   CInt lda,   Double beta, Double *C,   CInt ldc);
 
-type Her2kFunFFI scale el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_TRANSPOSET ->
-     CInt -> CInt -> Ptr el  -> Ptr el -> CInt -> Ptr el -> CInt ->scale ->Ptr el -> CInt -> IO ()
+type Her2kFunFFI scale el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET ->
+     CInt -> CInt -> Ptr el  -> Ptr el -> CInt -> Ptr el -> CInt -> scale ->Ptr el -> CInt -> IO ()
 
 foreign  import ccall unsafe "cblas_cher2k"
     cblas_cher2k_unsafe :: Her2kFunFFI  Float  (Complex Float)
 foreign  import ccall unsafe "cblas_zher2k"
     cblas_zher2k_unsafe :: Her2kFunFFI  Double  (Complex Double)
 
-
+foreign  import ccall safe "cblas_cher2k"
+    cblas_cher2k_safe :: Her2kFunFFI Float (Complex Float)
+foreign  import ccall safe "cblas_zher2k"
+    cblas_zher2k_safe :: Her2kFunFFI Double (Complex Double)
 --void cblas_cher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
 --                    Float *alpha,   Float *A,   CInt lda,   Float *B,   CInt ldb,   Float beta, Float *C,   CInt ldc);
 --void cblas_zher2k(  enum CBLAS_ORDER Order,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE Trans,   CInt N,   CInt K,
