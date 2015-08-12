@@ -1,32 +1,42 @@
 {-# LANGUAGE BangPatterns , RankNTypes, GADTs, DataKinds #-}
 
-module Numerical.HBLAS.BLAS.Internal(
+module Numerical.HBLAS.BLAS.Internal.Level3(
     GemmFun
     ,SymmFun
+    ,HemmFun
+    ,HerkFun
 
     ,gemmAbstraction
     ,symmAbstraction
+    ,hemmAbstraction
+    ,herkAbstraction
     ) where
 
 import Numerical.HBLAS.Constants
 import Numerical.HBLAS.UtilsFFI
 import Numerical.HBLAS.BLAS.FFI
-import Numerical.HBLAS.BLAS.FFI.Level2
+import Numerical.HBLAS.BLAS.FFI.Level3
 import Numerical.HBLAS.BLAS.Internal.Utility
 import Numerical.HBLAS.MatrixTypes
 import Control.Monad.Primitive
 import qualified Data.Vector.Storable.Mutable as SM
 import Data.Int
+import Foreign.Ptr
 
-type GemmFun el orient s m = Transpose ->Transpose ->  el -> el  -> MDenseMatrix s orient el
+type GemmFun el orient s m = Transpose -> Transpose ->  el -> el  -> MDenseMatrix s orient el
   ->   MDenseMatrix s orient el  ->  MDenseMatrix s orient el -> m ()
 
 type SymmFun el orient s m = EquationSide -> MatUpLo -> el -> el -> MDenseMatrix s orient el
   -> MDenseMatrix s orient el -> MDenseMatrix s orient el -> m ()
 
+type HemmFun el orient s m = EquationSide -> MatUpLo -> el -> el -> MDenseMatrix s orient el
+  -> MDenseMatrix s orient el -> MDenseMatrix s orient el -> m ()
+
+type HerkFun scale el orient s m = MatUpLo -> Transpose -> scale -> scale -> MDenseMatrix s orient el
+  -> MDenseMatrix s orient el -> m ()
+
 gemmComplexity :: Integral a => a -> a -> a -> Int64
 gemmComplexity a b c = fromIntegral a * fromIntegral b *fromIntegral c  -- this will be wrong by some constant factor, albeit a small one
-
 
 -- this covers the ~6 cases for checking the dimensions for GEMM quite nicely
 isBadGemm :: (Ord a, Num a) =>
@@ -130,3 +140,80 @@ symmAbstraction symmName symmSafeFFI symmUnsafeFFI constHandler = symm
                             rawOrder rawSide rawUplo (fromIntegral cy) (fromIntegral cx)
                                 alphaPtr ap (fromIntegral astride) bp (fromIntegral bstride) betaPtr cp (fromIntegral cstride)
 
+{-# NOINLINE hemmAbstraction #-}
+hemmAbstraction :: (SM.Storable el, PrimMonad m)
+                => String -> HemmFunFFI el -> HemmFunFFI el -> (el -> (Ptr el -> m ()) -> m ())
+                -> forall orient . HemmFun el orient (PrimState m) m
+hemmAbstraction hemmName hemmSafeFFI hemmUnsafeFFI constHandler = hemm
+  where
+    isBadHemmBothSide :: (Ord a, Num a) => a -> a -> a -> a -> a -> a -> Bool
+    isBadHemmBothSide ax ay bx by cx cy = (minimum [ax, ay, bx, by, cx, cy] <= 0) || not (ax == ay && bx == cx && by == cy)
+
+    isBadHemm :: (Ord a, Num a) => EquationSide -> a -> a -> a -> a -> a -> a -> Bool
+    isBadHemm LeftSide ax ay bx by cx cy = isBadHemmBothSide ax ay bx by cx cy || (ax /= by)
+    isBadHemm RightSide ax ay bx by cx cy = isBadHemmBothSide ax ay bx by cx cy || (bx /= ay)
+
+    shouldCallFast :: Int -> Int -> Int -> Bool
+    shouldCallFast cy cx ax = flopsThreshold >= (fromIntegral cx :: Int64)
+                                              * (fromIntegral cy :: Int64)
+                                              * (fromIntegral ax :: Int64)
+
+    hemm side uplo alpha beta
+        (MutableDenseMatrix ornta ax ay astride abuff)
+        (MutableDenseMatrix _ bx by bstride bbuff)
+        (MutableDenseMatrix _ cx cy cstride cbuff)
+            | isBadHemm side ax ay bx by cx cy = error $! "bad dimension args to hemm: ax ay bx by cx cy side: " ++ show [ax, ay, bx, by, cx ,cy] ++ " " ++ show side
+            | SM.overlaps abuff cbuff || SM.overlaps bbuff cbuff =
+                    error $ "the read and write inputs for: " ++ hemmName ++ " overlap. This is a programmer error. Please fix."
+            | otherwise  =
+                unsafeWithPrim abuff $ \ap ->
+                unsafeWithPrim bbuff $ \bp ->
+                unsafeWithPrim cbuff $ \cp  ->
+                constHandler alpha $  \alphaPtr ->
+                constHandler beta $ \betaPtr ->
+                    do  let rawOrder = encodeNiceOrder ornta
+                        let rawUplo = encodeFFIMatrixHalf uplo
+                        let rawSide = encodeFFISide side
+                        unsafePrimToPrim $!  (if shouldCallFast cy cx ax then hemmUnsafeFFI  else hemmSafeFFI)
+                            rawOrder rawSide rawUplo (fromIntegral cy) (fromIntegral cx)
+                                alphaPtr ap (fromIntegral astride) bp (fromIntegral bstride) betaPtr cp (fromIntegral cstride)
+
+{-# NOINLINE herkAbstraction #-}
+herkAbstraction :: (SM.Storable el, PrimMonad m)
+                => String -> HerkFunFFI scalePtr el -> HerkFunFFI scalePtr el -> (scale -> (scalePtr -> m ()) -> m ())
+                -> forall orient . HerkFun scale el orient (PrimState m) m
+herkAbstraction herkName herkSafeFFI herkUnsafeFFI constHandler = herk
+  where
+    isBadHerkBothSide :: (Ord a, Num a) => a -> a -> a -> a -> Bool
+    isBadHerkBothSide ax ay cx cy = (minimum [ax, ay, cx, cy] <= 0) || (cx /= cy)
+
+    isBadHerk :: (Ord a, Num a) => Transpose -> a -> a -> a -> a -> Bool
+    isBadHerk NoTranspose ax ay cx cy = isBadHerkBothSide ax ay cx cy || (ay /= cx)
+    isBadHerk ConjTranspose ax ay cx cy = isBadHerkBothSide ax ay cx cy || (ax /= ax)
+    isBadHerk trans _ _ _ _ = error $ herkName ++ ": trans " ++ show trans ++ " is invalid."
+
+    -- n * k * n
+    shouldCallFast :: Int -> Int -> Int -> Bool
+    shouldCallFast ax ay cx = flopsThreshold >= (fromIntegral ax :: Int64)
+                                              * (fromIntegral ay :: Int64)
+                                              * (fromIntegral cx :: Int64)
+
+    herk uplo trans alpha beta
+        (MutableDenseMatrix ornta ax ay astride abuff)
+        (MutableDenseMatrix _ cx cy cstride cbuff)
+            | isBadHerk trans ax ay cx cy = error $! "bad dimension args to " ++ herkName ++ ": ax ay cx cy side: " ++ show [ax, ay, cx ,cy] ++ " " ++ show trans
+            | SM.overlaps abuff cbuff =
+                    error $ "the read and write inputs for: " ++ herkName ++ " overlap. This is a programmer error. Please fix."
+            | otherwise = call
+                where
+                  k = if (trans == NoTranspose) then ax else ay
+                  call = unsafeWithPrim abuff $ \ap ->
+                         unsafeWithPrim cbuff $ \cp  ->
+                         constHandler alpha $  \alphaPtr ->
+                         constHandler beta $ \betaPtr ->
+                             do  let rawOrder = encodeNiceOrder ornta
+                                 let rawUplo  = encodeFFIMatrixHalf uplo
+                                 let rawTrans = encodeFFITranspose trans
+                                 unsafePrimToPrim $!  (if shouldCallFast ax ay cx then herkUnsafeFFI  else herkSafeFFI)
+                                     rawOrder rawUplo rawTrans (fromIntegral cy) (fromIntegral k)
+                                         alphaPtr ap (fromIntegral astride) betaPtr cp (fromIntegral cstride)

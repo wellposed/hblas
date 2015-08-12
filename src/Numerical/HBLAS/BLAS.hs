@@ -215,6 +215,12 @@ module Numerical.HBLAS.BLAS(
         ,cgemm
         ,zgemm
 
+        ,chemm
+        ,zhemm
+
+        ,cherk
+        ,zherk
+
         ,ssymm
         ,dsymm
         ,csymm
@@ -229,11 +235,12 @@ module Numerical.HBLAS.BLAS(
 
 import Numerical.HBLAS.UtilsFFI
 import Numerical.HBLAS.BLAS.FFI
-import Numerical.HBLAS.BLAS.Internal
 import Numerical.HBLAS.BLAS.FFI.Level1
 import Numerical.HBLAS.BLAS.FFI.Level2
+import Numerical.HBLAS.BLAS.FFI.Level3
 import Numerical.HBLAS.BLAS.Internal.Level1
 import Numerical.HBLAS.BLAS.Internal.Level2
+import Numerical.HBLAS.BLAS.Internal.Level3
 import Control.Monad.Primitive
 import Data.Complex
 
@@ -590,6 +597,18 @@ cgemm = gemmAbstraction "cgemm" cblas_cgemm_safe cblas_cgemm_unsafe  withRStorab
 
 zgemm :: PrimMonad m=>  GemmFun (Complex Double) orient  (PrimState m) m
 zgemm = gemmAbstraction "zgemm"  cblas_zgemm_safe cblas_zgemm_unsafe withRStorable_
+
+chemm :: PrimMonad m=>  HemmFun (Complex Float) orient (PrimState m) m
+chemm = hemmAbstraction "chemm" cblas_chemm_safe cblas_chemm_unsafe withRStorable_
+
+zhemm :: PrimMonad m=>  HemmFun (Complex Double) orient (PrimState m) m
+zhemm = hemmAbstraction "zhemm" cblas_zhemm_safe cblas_zhemm_unsafe withRStorable_
+
+cherk :: PrimMonad m=>  HerkFun Float (Complex Float) orient (PrimState m) m
+cherk = herkAbstraction "cherk" cblas_cherk_safe cblas_cherk_unsafe (\x f -> f x)
+
+zherk :: PrimMonad m=>  HerkFun Double (Complex Double) orient (PrimState m) m
+zherk = herkAbstraction "zherk" cblas_zherk_safe cblas_zherk_unsafe (\x f -> f x)
 
 ssymm :: PrimMonad m=>  SymmFun Float orient (PrimState m) m
 ssymm = symmAbstraction "ssymm" cblas_ssymm_safe cblas_ssymm_unsafe (\x f -> f x)
