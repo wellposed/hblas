@@ -117,7 +117,7 @@ foreign import ccall  "cblas_zsymm"
 --         const blasint N, const blasint K, const double *alpha, const double *A, const blasint lda, const double *beta, double *C, const blasint ldc);
 
 type SyrkFunFFI scale el = CBLAS_ORDERT -> CBLAS_UPLOT -> CBLAS_TRANSPOSET ->
-     CInt->CInt  -> scale -> Ptr el -> CInt -> Ptr el -> CInt ->scale -> Ptr el -> CInt -> IO ()
+     CInt -> CInt  -> scale -> Ptr el -> CInt -> scale -> Ptr el -> CInt -> IO ()
 foreign import ccall unsafe "cblas_ssyrk"
     cblas_ssyrk_unsafe :: SyrkFunFFI Float Float
 foreign import ccall unsafe "cblas_dsyrk"
@@ -127,6 +127,14 @@ foreign import ccall unsafe "cblas_csyrk"
 foreign import ccall unsafe "cblas_zsyrk"
     cblas_zsyrk_unsafe :: SyrkFunFFI (Ptr(Complex Double)) (Complex Double)
 
+foreign import ccall safe "cblas_ssyrk"
+    cblas_ssyrk_safe :: SyrkFunFFI Float Float
+foreign import ccall safe "cblas_dsyrk"
+    cblas_dsyrk_safe :: SyrkFunFFI Double Double
+foreign import ccall safe "cblas_csyrk"
+    cblas_csyrk_safe :: SyrkFunFFI (Ptr(Complex Float)) (Complex Float)
+foreign import ccall safe "cblas_zsyrk"
+    cblas_zsyrk_safe :: SyrkFunFFI (Ptr(Complex Double)) (Complex Double)
 ----------------------
 ----- | Symmetric Rank 2k matrix update, C= alpha* A*B' + alpha* B*A' + beta * C
 ----- or C= alpha* A'*B + alpha* B'*A + beta * C
@@ -151,11 +159,18 @@ foreign  import ccall unsafe "cblas_ssyr2k"
 foreign import ccall unsafe "cblas_dsyr2k"
     cblas_dsyr2k_unsafe :: Syr2kFunFFI Double Double
 foreign  import ccall unsafe "cblas_csyr2k"
-    cblas_csyr2k_unsafe :: Syr2kFunFFI (Ptr (Complex Float)) Float
+    cblas_csyr2k_unsafe :: Syr2kFunFFI (Ptr (Complex Float)) (Complex Float)
 foreign  import ccall unsafe "cblas_zsyr2k"
-    cblas_zsyr2k_unsafe :: Syr2kFunFFI (Ptr (Complex Double)) Double
+    cblas_zsyr2k_unsafe :: Syr2kFunFFI (Ptr (Complex Double)) (Complex Double)
 
-
+foreign  import ccall safe "cblas_ssyr2k"
+    cblas_ssyr2k_safe :: Syr2kFunFFI Float Float
+foreign import ccall safe "cblas_dsyr2k"
+    cblas_dsyr2k_safe :: Syr2kFunFFI Double Double
+foreign  import ccall safe "cblas_csyr2k"
+    cblas_csyr2k_safe :: Syr2kFunFFI (Ptr (Complex Float)) (Complex Float)
+foreign  import ccall safe "cblas_zsyr2k"
+    cblas_zsyr2k_safe :: Syr2kFunFFI (Ptr (Complex Double)) (Complex Double)
 
 -------------------------------
 --------  |  matrix matrix product for triangular matrices

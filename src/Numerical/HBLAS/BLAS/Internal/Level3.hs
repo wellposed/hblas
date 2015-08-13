@@ -2,16 +2,20 @@
 
 module Numerical.HBLAS.BLAS.Internal.Level3(
     GemmFun
-    ,SymmFun
     ,HemmFun
     ,HerkFun
     ,Her2kFun
+    ,SymmFun
+    ,SyrkFun
+    ,Syr2kFun
 
     ,gemmAbstraction
-    ,symmAbstraction
     ,hemmAbstraction
     ,herkAbstraction
     ,her2kAbstraction
+    ,symmAbstraction
+    ,syrkAbstraction
+    ,syr2kAbstraction
     ) where
 
 import Numerical.HBLAS.Constants
@@ -37,6 +41,12 @@ type HerkFun scale el orient s m = MatUpLo -> Transpose -> scale -> scale -> MDe
   -> MDenseMatrix s orient el -> m ()
 
 type Her2kFun scale el orient s m = MatUpLo -> Transpose -> el -> scale -> MDenseMatrix s orient el
+  -> MDenseMatrix s orient el -> MDenseMatrix s orient el -> m ()
+
+type SyrkFun el orient s m = MatUpLo -> Transpose -> el -> el -> MDenseMatrix s orient el
+  -> MDenseMatrix s orient el -> m ()
+
+type Syr2kFun el orient s m = MatUpLo -> Transpose -> el -> el -> MDenseMatrix s orient el
   -> MDenseMatrix s orient el -> MDenseMatrix s orient el -> m ()
 
 gemmComplexity :: Integral a => a -> a -> a -> Int64
@@ -193,7 +203,7 @@ herkAbstraction herkName herkSafeFFI herkUnsafeFFI constHandler = herk
 
     isBadHerk :: (Ord a, Num a) => Transpose -> a -> a -> a -> a -> Bool
     isBadHerk NoTranspose ax ay cx cy = isBadHerkBothSide ax ay cx cy || (ay /= cx)
-    isBadHerk ConjTranspose ax ay cx cy = isBadHerkBothSide ax ay cx cy || (ax /= ax)
+    isBadHerk ConjTranspose ax ay cx cy = isBadHerkBothSide ax ay cx cy || (ax /= cx)
     isBadHerk trans _ _ _ _ = error $ herkName ++ ": trans " ++ show trans ++ " is invalid."
 
     -- n * k * n
@@ -233,7 +243,7 @@ her2kAbstraction her2kName her2kSafeFFI her2kUnsafeFFI constHandler = her2k
 
     isBadHer2k :: (Ord a, Num a) => Transpose -> a -> a -> a -> a -> a -> a -> Bool
     isBadHer2k NoTranspose ax ay bx by cx cy = isBadHer2kBothSide ax ay bx by cx cy || (ay /= cx)
-    isBadHer2k ConjTranspose ax ay bx by cx cy = isBadHer2kBothSide ax ay bx by cx cy || (ax /= ax)
+    isBadHer2k ConjTranspose ax ay bx by cx cy = isBadHer2kBothSide ax ay bx by cx cy || (ax /= cx)
     isBadHer2k trans _ _ _ _ _ _ = error $ her2kName ++ ": trans " ++ show trans ++ " is invalid."
 
     -- n * k * n
@@ -263,3 +273,88 @@ her2kAbstraction her2kName her2kSafeFFI her2kUnsafeFFI constHandler = her2k
                                  unsafePrimToPrim $!  (if shouldCallFast ax ay cx then her2kUnsafeFFI  else her2kSafeFFI)
                                      rawOrder rawUplo rawTrans (fromIntegral cy) (fromIntegral k)
                                          alphaPtr ap (fromIntegral astride) bp (fromIntegral bstride) beta cp (fromIntegral cstride)
+
+{-# NOINLINE syrkAbstraction #-}
+syrkAbstraction :: (SM.Storable el, PrimMonad m)
+                => String -> SyrkFunFFI scale el -> SyrkFunFFI scale el -> (el -> (scale -> m ()) -> m ())
+                -> forall orient . SyrkFun el orient (PrimState m) m
+syrkAbstraction syrkName syrkSafeFFI syrkUnsafeFFI constHandler = syrk
+  where
+    isBadSyrkBothSide :: (Ord a, Num a) => a -> a -> a -> a -> Bool
+    isBadSyrkBothSide ax ay cx cy = (minimum [ax, ay, cx, cy] <= 0) || (cx /= cy)
+
+    isBadSyrk :: (Ord a, Num a) => Transpose -> a -> a -> a -> a -> Bool
+    isBadSyrk NoTranspose ax ay cx cy = isBadSyrkBothSide ax ay cx cy || (ay /= cx)
+    isBadSyrk Transpose ax ay cx cy = isBadSyrkBothSide ax ay cx cy || (ax /= cx)
+    isBadSyrk ConjTranspose ax ay cx cy = isBadSyrkBothSide ax ay cx cy || (ax /= cx)
+    isBadSyrk trans _ _ _ _ = error $ syrkName ++ ": trans " ++ show trans ++ " is invalid."
+
+    -- n * k * n
+    shouldCallFast :: Int -> Int -> Int -> Bool
+    shouldCallFast ax ay cx = flopsThreshold >= (fromIntegral ax :: Int64)
+                                              * (fromIntegral ay :: Int64)
+                                              * (fromIntegral cx :: Int64)
+
+    syrk uplo trans alpha beta
+        (MutableDenseMatrix ornta ax ay astride abuff)
+        (MutableDenseMatrix _ cx cy cstride cbuff)
+            | isBadSyrk trans ax ay cx cy = error $! "bad dimension args to " ++ syrkName ++ ": ax ay cx cy side: " ++ show [ax, ay, cx ,cy] ++ " " ++ show trans
+            | SM.overlaps abuff cbuff =
+                    error $ "the read and write inputs for: " ++ syrkName ++ " overlap. This is a programmer error. Please fix."
+            | otherwise = call
+                where
+                  k = if (trans == NoTranspose) then ax else ay
+                  call = unsafeWithPrim abuff $ \ap ->
+                         unsafeWithPrim cbuff $ \cp  ->
+                         constHandler alpha $  \alphaPtr ->
+                         constHandler beta $ \betaPtr ->
+                             do  let rawOrder = encodeNiceOrder ornta
+                                 let rawUplo  = encodeFFIMatrixHalf uplo
+                                 let rawTrans = encodeFFITranspose trans
+                                 unsafePrimToPrim $!  (if shouldCallFast ax ay cx then syrkUnsafeFFI  else syrkSafeFFI)
+                                     rawOrder rawUplo rawTrans (fromIntegral cy) (fromIntegral k)
+                                         alphaPtr ap (fromIntegral astride) betaPtr cp (fromIntegral cstride)
+
+{-# NOINLINE syr2kAbstraction #-}
+syr2kAbstraction :: (SM.Storable el, PrimMonad m)
+                => String -> Syr2kFunFFI scale el -> Syr2kFunFFI scale el -> (el -> (scale -> m ()) -> m ())
+                -> forall orient . Syr2kFun el orient (PrimState m) m
+syr2kAbstraction syr2kName syr2kSafeFFI syr2kUnsafeFFI constHandler = syr2k
+  where
+    isBadSyr2kBothSide :: (Ord a, Num a) => a -> a -> a -> a -> a -> a -> Bool
+    isBadSyr2kBothSide ax ay bx by cx cy = (minimum [ax, ay, bx, by, cx, cy] <= 0) || not (cx == cy && ax == bx && ay == by)
+
+    isBadSyr2k :: (Ord a, Num a) => Transpose -> a -> a -> a -> a -> a -> a -> Bool
+    isBadSyr2k NoTranspose ax ay bx by cx cy = isBadSyr2kBothSide ax ay bx by cx cy || (ay /= cx)
+    isBadSyr2k Transpose ax ay bx by cx cy = isBadSyr2kBothSide ax ay bx by cx cy || (ax /= cx)
+    isBadSyr2k ConjTranspose ax ay bx by cx cy = isBadSyr2kBothSide ax ay bx by cx cy || (ax /= cx)
+    isBadSyr2k trans _ _ _ _ _ _ = error $ syr2kName ++ ": trans " ++ show trans ++ " is invalid."
+
+    -- n * k * n
+    shouldCallFast :: Int -> Int -> Int -> Bool
+    shouldCallFast ax ay cx = flopsThreshold >= (fromIntegral ax :: Int64)
+                                              * (fromIntegral ay :: Int64)
+                                              * (fromIntegral cx :: Int64)
+                                              * 2
+
+    syr2k uplo trans alpha beta
+        (MutableDenseMatrix ornta ax ay astride abuff)
+        (MutableDenseMatrix _ bx by bstride bbuff)
+        (MutableDenseMatrix _ cx cy cstride cbuff)
+            | isBadSyr2k trans ax ay bx by cx cy = error $! "bad dimension args to " ++ syr2kName ++ ": ax ay cx cy side: " ++ show [ax, ay, bx, by, cx ,cy] ++ " " ++ show trans
+            | SM.overlaps abuff cbuff =
+                    error $ "the read and write inputs for: " ++ syr2kName ++ " overlap. This is a programmer error. Please fix."
+            | otherwise = call
+                where
+                  k = if (trans == NoTranspose) then ax else ay
+                  call = unsafeWithPrim abuff $ \ap ->
+                         unsafeWithPrim bbuff $ \bp  ->
+                         unsafeWithPrim cbuff $ \cp  ->
+                         constHandler alpha $ \alphaPtr ->
+                         constHandler beta $ \betaPtr ->
+                             do  let rawOrder = encodeNiceOrder ornta
+                                 let rawUplo  = encodeFFIMatrixHalf uplo
+                                 let rawTrans = encodeFFITranspose trans
+                                 unsafePrimToPrim $!  (if shouldCallFast ax ay cx then syr2kUnsafeFFI  else syr2kSafeFFI)
+                                     rawOrder rawUplo rawTrans (fromIntegral cy) (fromIntegral k)
+                                         alphaPtr ap (fromIntegral astride) bp (fromIntegral bstride) betaPtr cp (fromIntegral cstride)

@@ -163,9 +163,9 @@ matmatTest1CHERK = do
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
     resList @?= [6:+0, 12:+1, 18:+1, 0:+0, 26:+0, 41:+2, 0:+0, 0:+0, 62:+0]
 
--- [1:-1 2]   [1:+1 3 5]   [1:+0 1:+(-1) 1:+(-1)]   [6:+0  0:+0  0:+0]
--- [3    4] * [2    4 6] + [1:+1 1:+0    2:+(-2)] = [12:+1 26:+0 0:+0]
--- [5    6]                [1:+1 2:+2    1:+0   ]   [18:+1 41:+2 62:+0]
+-- [1:-1 2]   [1:+1 3 5]   [1:+0 1:+(-1) 1:+(-1)]   [7:+0  0:+0  0:+0]
+-- [3    4] * [2    4 6] + [1:+1 1:+0    2:+(-2)] = [12:+4 26:+0 0:+0]
+-- [5    6]                [1:+1 2:+2    1:+0   ]   [18:+6 41:+2 62:+0]
 matmatTest1ZHERK :: IO ()
 matmatTest1ZHERK = do
     a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,2) (\(x, y) -> [1:+1, 3, 5, 2, 4, 6] !! (x + y * 3))
@@ -174,9 +174,9 @@ matmatTest1ZHERK = do
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
     resList @?= [7:+0, 12:+4, 18:+6, 0:+0, 26:+0, 41:+2, 0:+0, 0:+0, 62:+0]
 
--- [1 2]   [1 3 5]   [1:+0    1:+1    1:+1]   [6:+0 12:+1 18:+1]
--- [3 4] * [2 4 6] + [1:+(-1) 1:+0    2:+2] = [0:+0 26:+0 41:+2]
--- [5 6]             [1:+(-1) 2:+(-2) 1:+0]   [0:+0 0:+0  62:+0]
+-- [1 2]   [1 3 5]       [1:+0    1:+1    1:+1]   [11:+0 23:+1  35:+1]
+-- [3 4] * [2 4 6] * 2 + [1:+(-1) 1:+0    2:+2] = [0:+0  51:+0  80:+2]
+-- [5 6]                 [1:+(-1) 2:+(-2) 1:+0]   [0:+0  0:+0  123:+0]
 matmatTest1CHER2K :: IO ()
 matmatTest1CHER2K = do
     a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,3) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 2))
@@ -186,9 +186,9 @@ matmatTest1CHER2K = do
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
     resList @?= [11:+0, 23:+1, 35:+1, 0:+0, 51:+0, 80:+2, 0:+0, 0:+0, 123:+0]
 
--- [1:-1 2]   [1:+1 3 5]   [1:+0 1:+(-1) 1:+(-1)]   [6:+0  0:+0  0:+0]
--- [3    4] * [2    4 6] + [1:+1 1:+0    2:+(-2)] = [12:+1 26:+0 0:+0]
--- [5    6]                [1:+1 2:+2    1:+0   ]   [18:+1 41:+2 62:+0]
+-- [1:-1 2]   [1:+1 3 5]       [1:+0 1:+(-1) 1:+(-1)]   [13:+0  0:+0    0:+0]
+-- [3    4] * [2    4 6] * 2 + [1:+1 1:+0    2:+(-2)] = [23:+7  51:+0   0:+0]
+-- [5    6]                    [1:+1 2:+2    1:+0   ]   [35:+11 80:+2 123:+0]
 matmatTest1ZHER2K :: IO ()
 matmatTest1ZHER2K = do
     a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,2) (\(x, y) -> [1:+1, 3, 5, 2, 4, 6] !! (x + y * 3))
@@ -255,6 +255,98 @@ matmatTest1ZSYMM = do
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat res
     resList @?= [2.0,2.0,2.0,2.0]
 
+-- [1 2]   [1 3 5]   [1 1 1]   [6 12 18]
+-- [3 4] * [2 4 6] + [1 1 2] = [0 26 41]
+-- [5 6]             [1 2 1]   [0 0  62]
+matmatTest1SSYRK :: IO ()
+matmatTest1SSYRK = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,3) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 2))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3,3) (\(x, y) -> [1, 1, 1, 0, 1, 2, 0, 0, 1] !! (x + y * 3))
+    BLAS.ssyrk Matrix.MatUpper Matrix.NoTranspose 1.0 1.0 a c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [6, 12, 18, 0, 26, 41, 0, 0, 62]
+
+-- [1 2]   [1 3 5]   [1 1 1]   [6  0  0 ]
+-- [3 4] * [2 4 6] + [1 1 2] = [12 26 0 ]
+-- [5 6]             [1 2 1]   [18 41 62]
+matmatTest1DSYRK :: IO ()
+matmatTest1DSYRK = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,2) (\(x, y) -> [1, 3, 5, 2, 4, 6] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,3) (\(x, y) -> [1, 0, 0, 1, 1, 0, 1, 2, 1] !! (x + y * 3))
+    BLAS.dsyrk Matrix.MatLower Matrix.Transpose 1.0 1.0 a c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [6, 12, 18, 0, 26, 41, 0, 0, 62]
+
+-- [1 2]   [1 3 5]   [1:+0 1:+1 1:+1]   [6:+0 12:+1 18:+1]
+-- [3 4] * [2 4 6] + [1:+1 1:+0 2:+2] = [0:+0 26:+0 41:+2]
+-- [5 6]             [1:+1 2:+2 1:+0]   [0:+0 0:+0  62:+0]
+matmatTest1CSYRK :: IO ()
+matmatTest1CSYRK = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,3) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 2))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3,3) (\(x, y) -> [1:+0, 1:+1, 1:+1, 0:+0, 1:+0, 2:+2, 0:+0, 0:+0, 1:+0] !! (x + y * 3))
+    BLAS.csyrk Matrix.MatUpper Matrix.NoTranspose 1.0 1.0 a c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [6:+0, 12:+1, 18:+1, 0:+0, 26:+0, 41:+2, 0:+0, 0:+0, 62:+0]
+
+-- [1:+1 2]   [1:+1 3 5]   [1:+0 1:+1 1:+1]   [6:+0  0:+0  0:+0]
+-- [3    4] * [2    4 6] + [1:+1 1:+0 2:+2] = [12:+1 26:+0 0:+0]
+-- [5    6]                [1:+1 2:+2 1:+0]   [18:+1 41:+2 62:+0]
+matmatTest1ZSYRK :: IO ()
+matmatTest1ZSYRK = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,2) (\(x, y) -> [1:+1, 3, 5, 2, 4, 6] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,3) (\(x, y) -> [1:+0, 0:+0, 0:+0, 1:+1, 1:+0, 0:+0, 1:+1, 2:+2, 1:+0] !! (x + y * 3))
+    BLAS.zsyrk Matrix.MatLower Matrix.Transpose 1.0 1.0 a c -- TODO: Matrix.ConjTranspose is invalid to pass to cblas_zsyrk
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [5:+2, 12:+4, 18:+6, 0:+0, 26:+0, 41:+2, 0:+0, 0:+0, 62:+0]
+
+-- [1 2]   [1 3 5]       [1 1 1]   [11 23  35]
+-- [3 4] * [2 4 6] * 2 + [1 1 2] = [0  51  80]
+-- [5 6]                 [1 2 1]   [0  0  123]
+matmatTest1SSYR2K :: IO ()
+matmatTest1SSYR2K = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,3) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 2))
+    b <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,3) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 2))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3,3) (\(x, y) -> [1, 1, 1, 0, 1, 2, 0, 0, 1] !! (x + y * 3))
+    BLAS.ssyr2k Matrix.MatUpper Matrix.NoTranspose 1.0 1.0 a b c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [11, 23, 35, 0, 51, 80, 0, 0, 123]
+
+-- [1 2]   [1 3 5]       [1 1 1]   [11 0  0  ]
+-- [3 4] * [2 4 6] * 2 + [1 1 2] = [23 51 0  ]
+-- [5 6]                 [1 2 1]   [35 80 123]
+matmatTest1DSYR2K :: IO ()
+matmatTest1DSYR2K = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,2) (\(x, y) -> [1, 3, 5, 2, 4, 6] !! (x + y * 3))
+    b <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,2) (\(x, y) -> [1, 3, 5, 2, 4, 6] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,3) (\(x, y) -> [1, 0, 0, 1, 1, 0, 1, 2, 1] !! (x + y * 3))
+    BLAS.dsyr2k Matrix.MatLower Matrix.Transpose 1.0 1.0 a b c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [11, 23, 35, 0, 51, 80, 0, 0, 123]
+
+-- [1 2]   [1 3 5]       [1:+0 1:+1 1:+1]   [11:+0 23:+1 35:+1 ]
+-- [3 4] * [2 4 6] * 2 + [1:+1 1:+0 2:+2] = [0:+0  51:+0 80:+2 ]
+-- [5 6]                 [1:+1 2:+2 1:+0]   [0:+0  0:+0  123:+0]
+matmatTest1CSYR2K :: IO ()
+matmatTest1CSYR2K = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,3) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 2))
+    b <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2,3) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 2))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3,3) (\(x, y) -> [1:+0, 1:+1, 1:+1, 0:+0, 1:+0, 2:+2, 0:+0, 0:+0, 1:+0] !! (x + y * 3))
+    BLAS.csyr2k Matrix.MatUpper Matrix.NoTranspose 1.0 1.0 a b c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [11:+0, 23:+1, 35:+1, 0:+0, 51:+0, 80:+2, 0:+0, 0:+0, 123:+0]
+
+-- [1:+1 2]   [1:+1 3 5]       [1:+0 1:+1 1:+1]   [9:+4   0:+0  0:+0  ]
+-- [3    4] * [2    4 6] * 2 + [1:+1 1:+0 2:+2] = [23:+7  51:+0 0:+0  ]
+-- [5    6]                    [1:+1 2:+2 1:+0]   [35:+11 80:+2 123:+0]
+matmatTest1ZSYR2K :: IO ()
+matmatTest1ZSYR2K = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,2) (\(x, y) -> [1:+1, 3, 5, 2, 4, 6] !! (x + y * 3))
+    b <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,2) (\(x, y) -> [1:+1, 3, 5, 2, 4, 6] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3,3) (\(x, y) -> [1:+0, 0:+0, 0:+0, 1:+1, 1:+0, 0:+0, 1:+1, 2:+2, 1:+0] !! (x + y * 3))
+    BLAS.zsyr2k Matrix.MatLower Matrix.Transpose 1.0 1.0 a b c -- TODO: Matrix.ConjTranspose is invalid to pass to cblas_zsyr2k
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [9:+4, 23:+7, 35:+11, 0:+0, 51:+0, 80:+2, 0:+0, 0:+0, 123:+0]
+
 unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
     testCase "sgemm on 2x2 all 1s"    matmatTest1SGEMM
     ,testCase "dgemm on 2x2 all 1s" $ matmatTest1DGEMM Matrix.SRow
@@ -281,11 +373,11 @@ unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
     ,testCase "chemm on 3x3 and 2x3 with leftside upper (row oriented)" $ matmatTest1CHEMM
     ,testCase "zhemm on 3x3 and 3x2 with rightside lower (column oriented)" $ matmatTest1ZHEMM
 
-    ,testCase "cherk on 3x3 and 2x3 with leftside upper (row oriented)" $ matmatTest1CHERK
-    ,testCase "zherk on 3x3 and 3x2 with rightside lower (column oriented)" $ matmatTest1ZHERK
+    ,testCase "cherk on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1CHERK
+    ,testCase "zherk on 3x3 and 3x2 with lower conjtranspose (column oriented)" $ matmatTest1ZHERK
 
-    ,testCase "cher2k on 3x3 and 2x3 with leftside upper (row oriented)" $ matmatTest1CHER2K
-    ,testCase "zher2k on 3x3 and 3x2 with rightside lower (column oriented)" $ matmatTest1ZHER2K
+    ,testCase "cher2k on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1CHER2K
+    ,testCase "zher2k on 3x3 and 3x2 with lower conjtranspose (column oriented)" $ matmatTest1ZHER2K
 
     ,testCase "ssymm on 2x2 upper all 1s" matmatTest1SSYMM
     ,testCase "dsymm on 2x2 upper all 1s" $ matmatTest1DSYMM Matrix.SRow Matrix.MatUpper
@@ -302,6 +394,16 @@ unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
     ,testCase "dsymm on 2x5 and 2x2 lower all 1s (column oriented)" $ matmatTest3DSYMM Matrix.SColumn Matrix.MatLower
     ,testCase "csymm on 2x2 all 1s" matmatTest1CSYMM
     ,testCase "zsymm on 2x2 all 1s" matmatTest1ZSYMM
+
+    ,testCase "ssyrk on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1SSYRK
+    ,testCase "dsyrk on 3x3 and 3x2 with lower transpose (column oriented)" $ matmatTest1DSYRK
+    ,testCase "csyrk on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1CSYRK
+    ,testCase "zsyrk on 3x3 and 3x2 with lower transpose (column oriented)" $ matmatTest1ZSYRK
+
+    ,testCase "ssyr2k on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1SSYR2K
+    ,testCase "dsyr2k on 3x3 and 3x2 with lower transpose (column oriented)" $ matmatTest1DSYR2K
+    ,testCase "csyr2k on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1CSYR2K
+    ,testCase "zsyr2k on 3x3 and 3x2 with lower conjtranspose (column oriented)" $ matmatTest1ZSYR2K
     ]
 
 ----unitTestShape = testGroup "Shape Unit tests"

@@ -229,6 +229,16 @@ module Numerical.HBLAS.BLAS(
         ,csymm
         ,zsymm
 
+        ,ssyrk
+        ,dsyrk
+        ,csyrk
+        ,zsyrk
+
+        ,ssyr2k
+        ,dsyr2k
+        ,csyr2k
+        ,zsyr2k
+
         ,sgemv
         ,dgemv
         ,cgemv
@@ -629,6 +639,30 @@ csymm = symmAbstraction "csymm" cblas_csymm_safe cblas_csymm_unsafe withRStorabl
 
 zsymm :: PrimMonad m=>  SymmFun (Complex Double) orient (PrimState m) m
 zsymm = symmAbstraction "zsymm" cblas_zsymm_safe cblas_zsymm_unsafe withRStorable_
+
+ssyrk :: PrimMonad m=>  SyrkFun Float orient (PrimState m) m
+ssyrk = syrkAbstraction "ssyrk" cblas_ssyrk_safe cblas_ssyrk_unsafe (\x f -> f x)
+
+dsyrk :: PrimMonad m=>  SyrkFun Double orient (PrimState m) m
+dsyrk = syrkAbstraction "dsyrk" cblas_dsyrk_safe cblas_dsyrk_unsafe (\x f -> f x)
+
+csyrk :: PrimMonad m=>  SyrkFun (Complex Float) orient (PrimState m) m
+csyrk = syrkAbstraction "csyrk" cblas_csyrk_safe cblas_csyrk_unsafe withRStorable_
+
+zsyrk :: PrimMonad m=>  SyrkFun (Complex Double) orient (PrimState m) m
+zsyrk = syrkAbstraction "zsyrk" cblas_zsyrk_safe cblas_zsyrk_unsafe withRStorable_
+
+ssyr2k :: PrimMonad m=>  Syr2kFun Float orient (PrimState m) m
+ssyr2k = syr2kAbstraction "ssyr2k" cblas_ssyr2k_safe cblas_ssyr2k_unsafe (\x f -> f x)
+
+dsyr2k :: PrimMonad m=>  Syr2kFun Double orient (PrimState m) m
+dsyr2k = syr2kAbstraction "dsyr2k" cblas_dsyr2k_safe cblas_dsyr2k_unsafe (\x f -> f x)
+
+csyr2k :: PrimMonad m=>  Syr2kFun (Complex Float) orient (PrimState m) m
+csyr2k = syr2kAbstraction "csyr2k" cblas_csyr2k_safe cblas_csyr2k_unsafe withRStorable_
+
+zsyr2k :: PrimMonad m=>  Syr2kFun (Complex Double) orient (PrimState m) m
+zsyr2k = syr2kAbstraction "zsyr2k" cblas_zsyr2k_safe cblas_zsyr2k_unsafe withRStorable_
 
 sgemv :: PrimMonad m => GemvFun Float orient (PrimState m) m
 sgemv = gemvAbstraction "sgemv" cblas_sgemv_safe cblas_sgemv_unsafe (flip ($))
