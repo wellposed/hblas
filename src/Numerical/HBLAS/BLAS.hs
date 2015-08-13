@@ -239,6 +239,16 @@ module Numerical.HBLAS.BLAS(
         ,csyr2k
         ,zsyr2k
 
+        ,strmm
+        ,dtrmm
+        ,ctrmm
+        ,ztrmm
+
+        ,strsm
+        ,dtrsm
+        ,ctrsm
+        ,ztrsm
+
         ,sgemv
         ,dgemv
         ,cgemv
@@ -663,6 +673,30 @@ csyr2k = syr2kAbstraction "csyr2k" cblas_csyr2k_safe cblas_csyr2k_unsafe withRSt
 
 zsyr2k :: PrimMonad m=>  Syr2kFun (Complex Double) orient (PrimState m) m
 zsyr2k = syr2kAbstraction "zsyr2k" cblas_zsyr2k_safe cblas_zsyr2k_unsafe withRStorable_
+
+strmm :: PrimMonad m=> TrmmFun Float orient (PrimState m) m
+strmm = trmmAbstraction "strmm" cblas_strmm_safe cblas_strmm_unsafe (\x f -> f x)
+
+dtrmm :: PrimMonad m=> TrmmFun Double orient (PrimState m) m
+dtrmm = trmmAbstraction "dtrmm" cblas_dtrmm_safe cblas_dtrmm_unsafe (\x f -> f x)
+
+ctrmm :: PrimMonad m=> TrmmFun (Complex Float) orient (PrimState m) m
+ctrmm = trmmAbstraction "ctrmm" cblas_ctrmm_safe cblas_ctrmm_unsafe withRStorable_
+
+ztrmm :: PrimMonad m=> TrmmFun (Complex Double) orient (PrimState m) m
+ztrmm = trmmAbstraction "ztrmm" cblas_ztrmm_safe cblas_ztrmm_unsafe withRStorable_
+
+strsm :: PrimMonad m=> TrsmFun Float orient (PrimState m) m
+strsm = trsmAbstraction "strsm" cblas_strsm_safe cblas_strsm_unsafe (\x f -> f x)
+
+dtrsm :: PrimMonad m=> TrsmFun Double orient (PrimState m) m
+dtrsm = trsmAbstraction "dtrsm" cblas_dtrsm_safe cblas_dtrsm_unsafe (\x f -> f x)
+
+ctrsm :: PrimMonad m=> TrsmFun (Complex Float) orient (PrimState m) m
+ctrsm = trsmAbstraction "ctrsm" cblas_ctrsm_safe cblas_ctrsm_unsafe withRStorable_
+
+ztrsm :: PrimMonad m=> TrsmFun (Complex Double) orient (PrimState m) m
+ztrsm = trsmAbstraction "ztrsm" cblas_ztrsm_safe cblas_ztrsm_unsafe withRStorable_
 
 sgemv :: PrimMonad m => GemvFun Float orient (PrimState m) m
 sgemv = gemvAbstraction "sgemv" cblas_sgemv_safe cblas_sgemv_unsafe (flip ($))

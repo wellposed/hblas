@@ -347,6 +347,94 @@ matmatTest1ZSYR2K = do
     resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
     resList @?= [9:+4, 23:+7, 35:+11, 0:+0, 51:+0, 80:+2, 0:+0, 0:+0, 123:+0]
 
+-- [1 1 1]   [1 4]   [6 15]
+-- [0 1 2] * [2 5] = [8 17]
+-- [0 0 1]   [3 6]   [3 6 ]
+matmatTest1STRMM :: IO ()
+matmatTest1STRMM = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 3) (\(x, y) -> [1, 1, 1, 0, 1, 2, 0, 0, 1] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 3) (\(x, y) -> [1, 4, 2, 5, 3, 6] !! (x + y * 2))
+    BLAS.strmm Matrix.LeftSide Matrix.MatUpper Matrix.NoTranspose Matrix.MatUnit 1.0 a c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [6, 15, 8, 17, 3, 6]
+
+-- [1 2 3]   [2 1 1]   [2 5  11]
+-- [4 5 6] * [0 2 2] = [8 14 26]
+--           [0 0 2]
+matmatTest1DTRMM :: IO ()
+matmatTest1DTRMM = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 3) (\(x, y) -> [2, 0, 0, 1, 2, 0, 1, 2, 2] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 2) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 3))
+    BLAS.dtrmm Matrix.RightSide Matrix.MatLower Matrix.Transpose Matrix.MatNonUnit 1.0 a c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [2, 8, 5, 14, 11, 26]
+
+-- [1:+0 1:+1 1:+1]   [1 2]   [9:+8   12:+10]
+-- [0:+0 1:+0 2:+2] * [3 4] = [13:+10 16:+12]
+-- [0:+0 0:+0 1:+0]   [5 6]   [5:+0   6:+0  ]
+matmatTest1CTRMM :: IO ()
+matmatTest1CTRMM = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 3) (\(x, y) -> [1:+0, 1:+1, 1:+1, 0:+0, 1:+0, 2:+2, 0:+0, 0:+0, 1:+0] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 3) (\(x, y) -> [1, 2, 3, 4, 5, 6] !! (x + y * 2))
+    BLAS.ctrmm Matrix.LeftSide Matrix.MatUpper Matrix.NoTranspose Matrix.MatUnit 1.0 a c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [9:+8, 12:+10, 13:+10, 16:+12, 5:+0, 6:+0]
+
+-- [1:+1 3 5]   [1:+0 1:+1 1:+1]   [1:+1 3:+2 11:+8 ]
+-- [2    4 6] + [0:+0 1:+0 2:+2] = [2:+0 6:+2 16:+10]
+--              [0:+0 0:+0 1:+0]
+matmatTest1ZTRMM :: IO ()
+matmatTest1ZTRMM = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 3) (\(x, y) -> [1:+0, 0:+0, 0:+0, 1:+(-1), 1:+0, 0:+0, 1:+(-1), 2:+(-2), 1:+0] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 2) (\(x, y) -> [1:+1, 3, 5, 2, 4, 6] !! (x + y * 3))
+    BLAS.ztrmm Matrix.RightSide Matrix.MatLower Matrix.ConjTranspose Matrix.MatNonUnit 1.0 a c -- TODO: Matrix.ConjTranspose is invalid to pass to cblas_zsyr2k
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [1:+1, 2:+0, 3:+2, 6:+2, 11:+8, 16:+10]
+
+-- [1 1 1]   [1 4]   [6 15]
+-- [0 1 2] * [2 5] = [8 17]
+-- [0 0 1]   [3 6]   [3 6 ]
+matmatTest1STRSM :: IO ()
+matmatTest1STRSM = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 3) (\(x, y) -> [1, 1, 1, 0, 1, 2, 0, 0, 1] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 3) (\(x, y) -> [6, 15, 8, 17, 3, 6] !! (x + y * 2))
+    BLAS.strsm Matrix.LeftSide Matrix.MatUpper Matrix.NoTranspose Matrix.MatUnit 1.0 a c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [1, 4, 2, 5, 3, 6]
+
+-- [1 2 3]   [2 1 1]   [2 5  11]
+-- [4 5 6] * [0 2 2] = [8 14 26]
+--           [0 0 2]
+matmatTest1DTRSM :: IO ()
+matmatTest1DTRSM = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 3) (\(x, y) -> [2, 0, 0, 1, 2, 0, 1, 2, 2] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 2) (\(x, y) -> [2, 5, 11, 8, 14, 26] !! (x + y * 3))
+    BLAS.dtrsm Matrix.RightSide Matrix.MatLower Matrix.Transpose Matrix.MatNonUnit 1.0 a c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [1, 4, 2, 5, 3, 6]
+
+-- [1:+0 1:+1 1:+1]   [1 2]   [9:+8   12:+10]
+-- [0:+0 1:+0 2:+2] * [3 4] = [13:+10 16:+12]
+-- [0:+0 0:+0 1:+0]   [5 6]   [5:+0   6:+0  ]
+matmatTest1CTRSM :: IO ()
+matmatTest1CTRSM = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 3) (\(x, y) -> [1:+0, 1:+1, 1:+1, 0:+0, 1:+0, 2:+2, 0:+0, 0:+0, 1:+0] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 3) (\(x, y) -> [9:+8, 12:+10, 13:+10, 16:+12, 5:+0, 6:+0] !! (x + y * 2))
+    BLAS.ctrsm Matrix.LeftSide Matrix.MatUpper Matrix.NoTranspose Matrix.MatUnit 1.0 a c
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [1, 2, 3, 4, 5, 6]
+
+-- [1:+1 3 5]   [1:+0 1:+1 1:+1]   [1:+1 3:+2 11:+8 ]
+-- [2    4 6] + [0:+0 1:+0 2:+2] = [2:+0 6:+2 16:+10]
+--              [0:+0 0:+0 1:+0]
+matmatTest1ZTRSM :: IO ()
+matmatTest1ZTRSM = do
+    a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 3) (\(x, y) -> [1:+0, 0:+0, 0:+0, 1:+(-1), 1:+0, 0:+0, 1:+(-1), 2:+(-2), 1:+0] !! (x + y * 3))
+    c <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 2) (\(x, y) -> [1:+1, 3:+2, 11:+8, 2:+0, 6:+2, 16:+10] !! (x + y * 3))
+    BLAS.ztrsm Matrix.RightSide Matrix.MatLower Matrix.ConjTranspose Matrix.MatNonUnit 1.0 a c -- TODO: Matrix.ConjTranspose is invalid to pass to cblas_zsyr2k
+    resList <- Matrix.mutableVectorToList $ _bufferDenMutMat c
+    resList @?= [1:+1, 2, 3, 4, 5, 6]
+
 unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
     testCase "sgemm on 2x2 all 1s"    matmatTest1SGEMM
     ,testCase "dgemm on 2x2 all 1s" $ matmatTest1DGEMM Matrix.SRow
@@ -404,6 +492,16 @@ unitTestLevel3BLAS = testGroup "BLAS Level 3 tests " [
     ,testCase "dsyr2k on 3x3 and 3x2 with lower transpose (column oriented)" $ matmatTest1DSYR2K
     ,testCase "csyr2k on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1CSYR2K
     ,testCase "zsyr2k on 3x3 and 3x2 with lower conjtranspose (column oriented)" $ matmatTest1ZSYR2K
+
+    ,testCase "strmm on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1STRMM
+    ,testCase "dtrmm on 3x3 and 3x2 with lower transpose (column oriented)" $ matmatTest1DTRMM
+    ,testCase "ctrmm on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1CTRMM
+    ,testCase "ztrmm on 3x3 and 3x2 with lower conjtranspose (column oriented)" $ matmatTest1ZTRMM
+
+    ,testCase "strsm on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1STRSM
+    ,testCase "dtrsm on 3x3 and 3x2 with lower transpose (column oriented)" $ matmatTest1DTRSM
+    ,testCase "ctrsm on 3x3 and 2x3 with upper no transpose (row oriented)" $ matmatTest1CTRSM
+    ,testCase "ztrsm on 3x3 and 3x2 with lower conjtranspose (column oriented)" $ matmatTest1ZTRSM
     ]
 
 ----unitTestShape = testGroup "Shape Unit tests"

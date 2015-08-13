@@ -176,12 +176,8 @@ foreign  import ccall safe "cblas_zsyr2k"
 --------  |  matrix matrix product for triangular matrices
 ------------------------------
 
-
-
-
-
 type TrmmFunFFI scale el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT ->
-     CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+     CInt -> CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas_strmm"
     cblas_strmm_unsafe :: TrmmFunFFI Float Float
 foreign  import ccall unsafe "cblas_dtrmm"
@@ -191,6 +187,14 @@ foreign  import ccall unsafe "cblas_ctrmm"
 foreign  import ccall unsafe "cblas_ztrmm"
     cblas_ztrmm_unsafe :: TrmmFunFFI (Ptr (Complex Double )) (Complex Double)
 
+foreign  import ccall safe "cblas_strmm"
+    cblas_strmm_safe :: TrmmFunFFI Float Float
+foreign  import ccall safe "cblas_dtrmm"
+    cblas_dtrmm_safe :: TrmmFunFFI Double Double
+foreign  import ccall safe "cblas_ctrmm"
+    cblas_ctrmm_safe :: TrmmFunFFI (Ptr (Complex Float )) (Complex Float)
+foreign  import ccall safe "cblas_ztrmm"
+    cblas_ztrmm_safe :: TrmmFunFFI (Ptr (Complex Double )) (Complex Double)
 --void cblas_strmm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   Float alpha,   Float *A,   CInt lda, Float *B,   CInt ldb);
 --void cblas_dtrmm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
@@ -211,16 +215,24 @@ foreign  import ccall unsafe "cblas_ztrmm"
 -- A is a unit, or non-unit, upper or lower triangular matrix
 ----
 type TrsmFunFFI scale el = CBLAS_ORDERT -> CBLAS_SIDET -> CBLAS_UPLOT -> CBLAS_TRANSPOSET -> CBLAS_DIAGT ->
-     CInt->CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
+     CInt -> CInt -> scale -> Ptr el -> CInt -> Ptr el -> CInt -> IO ()
 foreign  import ccall unsafe "cblas_strsm"
-    cblas_strsm_unsafe :: TrmmFunFFI Float Float
+    cblas_strsm_unsafe :: TrsmFunFFI Float Float
 foreign  import ccall unsafe "cblas_dtrsm"
-    cblas_dtrsm_unsafe :: TrmmFunFFI Double Double
+    cblas_dtrsm_unsafe :: TrsmFunFFI Double Double
 foreign  import ccall unsafe "cblas_ctrsm"
-    cblas_ctrsm_unsafe :: TrmmFunFFI (Ptr (Complex Float )) (Complex Float)
+    cblas_ctrsm_unsafe :: TrsmFunFFI (Ptr (Complex Float )) (Complex Float)
 foreign  import ccall unsafe "cblas_ztrsm"
-    cblas_ztrsm_unsafe :: TrmmFunFFI (Ptr (Complex Double )) (Complex Double)
+    cblas_ztrsm_unsafe :: TrsmFunFFI (Ptr (Complex Double )) (Complex Double)
 
+foreign  import ccall safe "cblas_strsm"
+    cblas_strsm_safe :: TrsmFunFFI Float Float
+foreign  import ccall safe "cblas_dtrsm"
+    cblas_dtrsm_safe :: TrsmFunFFI Double Double
+foreign  import ccall safe "cblas_ctrsm"
+    cblas_ctrsm_safe :: TrsmFunFFI (Ptr (Complex Float )) (Complex Float)
+foreign  import ccall safe "cblas_ztrsm"
+    cblas_ztrsm_safe :: TrsmFunFFI (Ptr (Complex Double )) (Complex Double)
 --void cblas_strsm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,
 --                   enum CBLAS_DIAG Diag,   CInt M,   CInt N,   Float alpha,   Float *A,   CInt lda, Float *B,   CInt ldb);
 --void cblas_dtrsm(  enum CBLAS_ORDER Order,   enum CBLAS_SIDE Side,   enum CBLAS_UPLO Uplo,   enum CBLAS_TRANSPOSE TransA,

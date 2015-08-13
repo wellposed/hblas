@@ -8,6 +8,8 @@ module Numerical.HBLAS.BLAS.Internal.Level3(
     ,SymmFun
     ,SyrkFun
     ,Syr2kFun
+    ,TrmmFun
+    ,TrsmFun
 
     ,gemmAbstraction
     ,hemmAbstraction
@@ -16,6 +18,8 @@ module Numerical.HBLAS.BLAS.Internal.Level3(
     ,symmAbstraction
     ,syrkAbstraction
     ,syr2kAbstraction
+    ,trmmAbstraction
+    ,trsmAbstraction
     ) where
 
 import Numerical.HBLAS.Constants
@@ -47,6 +51,12 @@ type SyrkFun el orient s m = MatUpLo -> Transpose -> el -> el -> MDenseMatrix s 
   -> MDenseMatrix s orient el -> m ()
 
 type Syr2kFun el orient s m = MatUpLo -> Transpose -> el -> el -> MDenseMatrix s orient el
+  -> MDenseMatrix s orient el -> MDenseMatrix s orient el -> m ()
+
+type TrmmFun el orient s m = EquationSide -> MatUpLo -> Transpose -> MatDiag -> el
+  -> MDenseMatrix s orient el -> MDenseMatrix s orient el -> m ()
+
+type TrsmFun el orient s m = EquationSide -> MatUpLo -> Transpose -> MatDiag -> el
   -> MDenseMatrix s orient el -> MDenseMatrix s orient el -> m ()
 
 gemmComplexity :: Integral a => a -> a -> a -> Int64
@@ -176,7 +186,7 @@ hemmAbstraction hemmName hemmSafeFFI hemmUnsafeFFI constHandler = hemm
         (MutableDenseMatrix ornta ax ay astride abuff)
         (MutableDenseMatrix _ bx by bstride bbuff)
         (MutableDenseMatrix _ cx cy cstride cbuff)
-            | isBadHemm side ax ay bx by cx cy = error $! "bad dimension args to hemm: ax ay bx by cx cy side: " ++ show [ax, ay, bx, by, cx ,cy] ++ " " ++ show side
+            | isBadHemm side ax ay bx by cx cy = error $! "bad dimension args to hemm: ax ay bx by cx cy trans: " ++ show [ax, ay, bx, by, cx ,cy] ++ " " ++ show side
             | SM.overlaps abuff cbuff || SM.overlaps bbuff cbuff =
                     error $ "the read and write inputs for: " ++ hemmName ++ " overlap. This is a programmer error. Please fix."
             | otherwise  =
@@ -215,7 +225,7 @@ herkAbstraction herkName herkSafeFFI herkUnsafeFFI constHandler = herk
     herk uplo trans alpha beta
         (MutableDenseMatrix ornta ax ay astride abuff)
         (MutableDenseMatrix _ cx cy cstride cbuff)
-            | isBadHerk trans ax ay cx cy = error $! "bad dimension args to " ++ herkName ++ ": ax ay cx cy side: " ++ show [ax, ay, cx ,cy] ++ " " ++ show trans
+            | isBadHerk trans ax ay cx cy = error $! "bad dimension args to " ++ herkName ++ ": ax ay cx cy trans: " ++ show [ax, ay, cx ,cy] ++ " " ++ show trans
             | SM.overlaps abuff cbuff =
                     error $ "the read and write inputs for: " ++ herkName ++ " overlap. This is a programmer error. Please fix."
             | otherwise = call
@@ -257,7 +267,7 @@ her2kAbstraction her2kName her2kSafeFFI her2kUnsafeFFI constHandler = her2k
         (MutableDenseMatrix ornta ax ay astride abuff)
         (MutableDenseMatrix _ bx by bstride bbuff)
         (MutableDenseMatrix _ cx cy cstride cbuff)
-            | isBadHer2k trans ax ay bx by cx cy = error $! "bad dimension args to " ++ her2kName ++ ": ax ay cx cy side: " ++ show [ax, ay, bx, by, cx ,cy] ++ " " ++ show trans
+            | isBadHer2k trans ax ay bx by cx cy = error $! "bad dimension args to " ++ her2kName ++ ": ax ay cx cy trans: " ++ show [ax, ay, bx, by, cx ,cy] ++ " " ++ show trans
             | SM.overlaps abuff cbuff =
                     error $ "the read and write inputs for: " ++ her2kName ++ " overlap. This is a programmer error. Please fix."
             | otherwise = call
@@ -298,7 +308,7 @@ syrkAbstraction syrkName syrkSafeFFI syrkUnsafeFFI constHandler = syrk
     syrk uplo trans alpha beta
         (MutableDenseMatrix ornta ax ay astride abuff)
         (MutableDenseMatrix _ cx cy cstride cbuff)
-            | isBadSyrk trans ax ay cx cy = error $! "bad dimension args to " ++ syrkName ++ ": ax ay cx cy side: " ++ show [ax, ay, cx ,cy] ++ " " ++ show trans
+            | isBadSyrk trans ax ay cx cy = error $! "bad dimension args to " ++ syrkName ++ ": ax ay cx cy trans: " ++ show [ax, ay, cx ,cy] ++ " " ++ show trans
             | SM.overlaps abuff cbuff =
                     error $ "the read and write inputs for: " ++ syrkName ++ " overlap. This is a programmer error. Please fix."
             | otherwise = call
@@ -341,7 +351,7 @@ syr2kAbstraction syr2kName syr2kSafeFFI syr2kUnsafeFFI constHandler = syr2k
         (MutableDenseMatrix ornta ax ay astride abuff)
         (MutableDenseMatrix _ bx by bstride bbuff)
         (MutableDenseMatrix _ cx cy cstride cbuff)
-            | isBadSyr2k trans ax ay bx by cx cy = error $! "bad dimension args to " ++ syr2kName ++ ": ax ay cx cy side: " ++ show [ax, ay, bx, by, cx ,cy] ++ " " ++ show trans
+            | isBadSyr2k trans ax ay bx by cx cy = error $! "bad dimension args to " ++ syr2kName ++ ": ax ay cx cy trans: " ++ show [ax, ay, bx, by, cx ,cy] ++ " " ++ show trans
             | SM.overlaps abuff cbuff =
                     error $ "the read and write inputs for: " ++ syr2kName ++ " overlap. This is a programmer error. Please fix."
             | otherwise = call
@@ -358,3 +368,81 @@ syr2kAbstraction syr2kName syr2kSafeFFI syr2kUnsafeFFI constHandler = syr2k
                                  unsafePrimToPrim $!  (if shouldCallFast ax ay cx then syr2kUnsafeFFI  else syr2kSafeFFI)
                                      rawOrder rawUplo rawTrans (fromIntegral cy) (fromIntegral k)
                                          alphaPtr ap (fromIntegral astride) bp (fromIntegral bstride) betaPtr cp (fromIntegral cstride)
+
+{-# NOINLINE trmmAbstraction #-}
+trmmAbstraction :: (SM.Storable el, PrimMonad m)
+                => String -> TrmmFunFFI scale el -> TrmmFunFFI scale el -> (el -> (scale -> m ()) -> m ())
+                -> forall orient . TrmmFun el orient (PrimState m) m
+trmmAbstraction trmmName trmmSafeFFI trmmUnsafeFFI constHandler = trmm
+  where
+    isBadTrmmBothSide :: (Ord a, Num a) => a -> a -> a -> a -> Bool
+    isBadTrmmBothSide ax ay cx cy = (minimum [ax, ay, cx, cy] <= 0) || not (ax == ay)
+
+    isBadTrmm :: (Ord a, Num a) => EquationSide -> a -> a -> a -> a -> Bool
+    isBadTrmm LeftSide ax ay cx cy = isBadTrmmBothSide ax ay cx cy || (ax /= cy)
+    isBadTrmm RightSide ax ay cx cy = isBadTrmmBothSide ax ay cx cy || (ax /= cx)
+
+    -- n * k * n
+    shouldCallFast :: Int -> Int -> Int -> Bool
+    shouldCallFast ax cx cy = flopsThreshold >= (fromIntegral ax :: Int64)
+                                              * (fromIntegral cx :: Int64)
+                                              * (fromIntegral cy :: Int64)
+
+    trmm side uplo trans diag alpha
+        (MutableDenseMatrix ornta ax ay astride abuff)
+        (MutableDenseMatrix _ cx cy cstride cbuff)
+            | isBadTrmm side ax ay cx cy = error $! "bad dimension args to " ++ trmmName ++ ": ax ay cx cy side: " ++ show [ax, ay, cx ,cy] ++ " " ++ show side
+            | SM.overlaps abuff cbuff =
+                    error $ "the read and write inputs for: " ++ trmmName ++ " overlap. This is a programmer error. Please fix."
+            | otherwise = call
+                where
+                  call = unsafeWithPrim abuff $ \ap ->
+                         unsafeWithPrim cbuff $ \cp  ->
+                         constHandler alpha $ \alphaPtr ->
+                             do  let rawOrder = encodeNiceOrder ornta
+                                 let rawSide  = encodeFFISide side
+                                 let rawUplo  = encodeFFIMatrixHalf uplo
+                                 let rawTrans = encodeFFITranspose trans
+                                 let rawDiag  = encodeFFITriangleSort diag
+                                 unsafePrimToPrim $!  (if shouldCallFast ax ay cx then trmmUnsafeFFI  else trmmSafeFFI)
+                                     rawOrder rawSide rawUplo rawTrans rawDiag (fromIntegral cy) (fromIntegral cx)
+                                         alphaPtr ap (fromIntegral astride) cp (fromIntegral cstride)
+
+{-# NOINLINE trsmAbstraction #-}
+trsmAbstraction :: (SM.Storable el, PrimMonad m)
+                => String -> TrsmFunFFI scale el -> TrsmFunFFI scale el -> (el -> (scale -> m ()) -> m ())
+                -> forall orient . TrsmFun el orient (PrimState m) m
+trsmAbstraction trsmName trsmSafeFFI trsmUnsafeFFI constHandler = trsm
+  where
+    isBadTrsmBothSide :: (Ord a, Num a) => a -> a -> a -> a -> Bool
+    isBadTrsmBothSide ax ay cx cy = (minimum [ax, ay, cx, cy] <= 0) || not (ax == ay)
+
+    isBadTrsm :: (Ord a, Num a) => EquationSide -> a -> a -> a -> a -> Bool
+    isBadTrsm LeftSide ax ay cx cy = isBadTrsmBothSide ax ay cx cy || (ax /= cy)
+    isBadTrsm RightSide ax ay cx cy = isBadTrsmBothSide ax ay cx cy || (ax /= cx)
+
+    -- n * k * n
+    shouldCallFast :: Int -> Int -> Int -> Bool
+    shouldCallFast ax cx cy = flopsThreshold >= (fromIntegral ax :: Int64)
+                                              * (fromIntegral cx :: Int64)
+                                              * (fromIntegral cy :: Int64)
+
+    trsm side uplo trans diag alpha
+        (MutableDenseMatrix ornta ax ay astride abuff)
+        (MutableDenseMatrix _ cx cy cstride cbuff)
+            | isBadTrsm side ax ay cx cy = error $! "bad dimension args to " ++ trsmName ++ ": ax ay cx cy side: " ++ show [ax, ay, cx ,cy] ++ " " ++ show side
+            | SM.overlaps abuff cbuff =
+                    error $ "the read and write inputs for: " ++ trsmName ++ " overlap. This is a programmer error. Please fix."
+            | otherwise = call
+                where
+                  call = unsafeWithPrim abuff $ \ap ->
+                         unsafeWithPrim cbuff $ \cp  ->
+                         constHandler alpha $ \alphaPtr ->
+                             do  let rawOrder = encodeNiceOrder ornta
+                                 let rawSide  = encodeFFISide side
+                                 let rawUplo  = encodeFFIMatrixHalf uplo
+                                 let rawTrans = encodeFFITranspose trans
+                                 let rawDiag  = encodeFFITriangleSort diag
+                                 unsafePrimToPrim $!  (if shouldCallFast ax ay cx then trsmUnsafeFFI  else trsmSafeFFI)
+                                     rawOrder rawSide rawUplo rawTrans rawDiag (fromIntegral cy) (fromIntegral cx)
+                                         alphaPtr ap (fromIntegral astride) cp (fromIntegral cstride)
