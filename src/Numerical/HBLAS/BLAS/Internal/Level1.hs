@@ -41,6 +41,8 @@ import Numerical.HBLAS.BLAS.Internal.Utility
 import Numerical.HBLAS.MatrixTypes
 import Control.Monad.Primitive
 import qualified Data.Vector.Storable.Mutable as SM
+import Foreign.C.Types
+import Foreign.Ptr
 
 type AsumFun el s m res = Int -> MDenseVector s Direct el -> m res
 type AxpyFun el s m = Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
@@ -128,9 +130,9 @@ noScalarDotAbstraction dotName dotSafeFFI dotUnsafeFFI = dot
 
 {-# NOINLINE scalarDotAbstraction #-}
 scalarDotAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
-  ScalarDotFunFFI el res -> ScalarDotFunFFI el res ->
+  SdsdotFortranFunFFI el res -> SdsdotFortranFunFFI el res -> (CInt -> (Ptr CInt -> m res) -> m res) -> (el -> (Ptr el -> m res) -> m res) ->
   ScalarDotFun el (PrimState m) m res
-scalarDotAbstraction dotName dotSafeFFI dotUnsafeFFI = dot
+scalarDotAbstraction dotName dotSafeFFI dotUnsafeFFI intConstHandler scaleConstHandler = dot
   where
     shouldCallFast :: Int -> Bool
     shouldCallFast n = flopsThreshold >= fromIntegral n
@@ -142,7 +144,11 @@ scalarDotAbstraction dotName dotSafeFFI dotUnsafeFFI = dot
         | otherwise =
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
-            do unsafePrimToPrim $! (if shouldCallFast n then dotUnsafeFFI else dotSafeFFI) (fromIntegral n) sb ap (fromIntegral astride) bp (fromIntegral bstride)
+          intConstHandler (fromIntegral n) $ \nPtr ->
+          intConstHandler (fromIntegral astride) $ \incaPtr ->
+          intConstHandler (fromIntegral bstride) $ \incbPtr ->
+          scaleConstHandler sb $ \sbPtr ->
+            do unsafePrimToPrim $! (if shouldCallFast n then dotUnsafeFFI else dotSafeFFI) nPtr sbPtr ap incaPtr bp incbPtr
 
 {-# NOINLINE complexDotAbstraction #-}
 complexDotAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
