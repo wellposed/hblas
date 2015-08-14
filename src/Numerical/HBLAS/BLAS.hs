@@ -134,6 +134,11 @@ module Numerical.HBLAS.BLAS(
         ,cgbmv
         ,zgbmv
 
+        ,sgemv
+        ,dgemv
+        ,cgemv
+        ,zgemv
+
         ,sger
         ,dger
         ,cgerc
@@ -248,11 +253,6 @@ module Numerical.HBLAS.BLAS(
         ,dtrsm
         ,ctrsm
         ,ztrsm
-
-        ,sgemv
-        ,dgemv
-        ,cgemv
-        ,zgemv
             ) where
 
 
@@ -432,6 +432,18 @@ cgbmv = gbmvAbstraction "cgbmv" cblas_cgbmv_safe cblas_cgbmv_unsafe withRStorabl
 
 zgbmv :: PrimMonad m => GbmvFun (Complex Double) orient (PrimState m) m
 zgbmv = gbmvAbstraction "zgbmv" cblas_zgbmv_safe cblas_zgbmv_unsafe withRStorable_
+
+sgemv :: PrimMonad m => GemvFun Float orient (PrimState m) m
+sgemv = gemvAbstraction "sgemv" cblas_sgemv_safe cblas_sgemv_unsafe (flip ($))
+
+dgemv :: PrimMonad m => GemvFun Double orient (PrimState m) m
+dgemv = gemvAbstraction "dgemv" cblas_dgemv_safe cblas_dgemv_unsafe (flip ($))
+
+cgemv :: PrimMonad m => GemvFun (Complex Float) orient (PrimState m) m
+cgemv = gemvAbstraction "cgemv" cblas_cgemv_safe cblas_cgemv_unsafe withRStorable_
+
+zgemv :: PrimMonad m => GemvFun (Complex Double) orient (PrimState m) m
+zgemv = gemvAbstraction "zgemv" cblas_zgemv_safe cblas_zgemv_unsafe withRStorable_
 
 sger :: PrimMonad m => GerFun Float orient (PrimState m) m
 sger = gerAbstraction "sger" cblas_sger_safe cblas_sger_unsafe (\x f -> f x)
@@ -697,15 +709,3 @@ ctrsm = trsmAbstraction "ctrsm" cblas_ctrsm_safe cblas_ctrsm_unsafe withRStorabl
 
 ztrsm :: PrimMonad m=> TrsmFun (Complex Double) orient (PrimState m) m
 ztrsm = trsmAbstraction "ztrsm" cblas_ztrsm_safe cblas_ztrsm_unsafe withRStorable_
-
-sgemv :: PrimMonad m => GemvFun Float orient (PrimState m) m
-sgemv = gemvAbstraction "sgemv" cblas_sgemv_safe cblas_sgemv_unsafe (flip ($))
-
-dgemv :: PrimMonad m => GemvFun Double orient (PrimState m) m
-dgemv = gemvAbstraction "dgemv" cblas_dgemv_safe cblas_dgemv_unsafe (flip ($))
-
-cgemv :: PrimMonad m => GemvFun (Complex Float) orient (PrimState m) m
-cgemv = gemvAbstraction "cgemv" cblas_cgemv_safe cblas_cgemv_unsafe withRStorable_
-
-zgemv :: PrimMonad m => GemvFun (Complex Double) orient (PrimState m) m
-zgemv = gemvAbstraction "zgemv" cblas_zgemv_safe cblas_zgemv_unsafe withRStorable_

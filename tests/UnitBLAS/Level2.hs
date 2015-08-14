@@ -34,7 +34,7 @@ matvecTest1SGBMV = do
     a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 5) (\_ -> (1.0))
     x <- Matrix.generateMutableDenseVector 5 (\_ -> (1.0))
     res <- Matrix.generateMutableDenseVector 5 (\_ -> (1.0))
-    BLAS.sgbmv Matrix.NoTranspose 5 5 1 1 1.0 a x 1 0.0 res 1
+    BLAS.sgbmv Matrix.NoTranspose 5 5 1 1 1.0 a x 0.0 res
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
     resList @?= [2, 3, 3, 3, 2]
 
@@ -43,7 +43,7 @@ matvecTest1DGBMV = do
     a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 5) (\_ -> (1.0))
     x <- Matrix.generateMutableDenseVector 5 (\_ -> (1.0))
     res <- Matrix.generateMutableDenseVector 10 (\_ -> (1.0))
-    BLAS.dgbmv Matrix.NoTranspose 10 5 1 1 1.0 a x 1 1.0 res 1
+    BLAS.dgbmv Matrix.NoTranspose 10 5 1 1 1.0 a x 1.0 res
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
     resList @?= [3, 4, 4, 4, 3, 1, 1, 1, 1, 1]
     -- not [3, 4, 4, 4, 3, 2, 1, 1, 1, 1]
@@ -53,7 +53,7 @@ matvecTest1CGBMV = do
     a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 4) (\(x, y) -> [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 0] !! (x * 4 + y))
     x <- Matrix.generateMutableDenseVector 4 (\_ -> (1.0:+1.0))
     res <- Matrix.generateMutableDenseVector 4 (\_ -> (1.0:+1.0))
-    BLAS.cgbmv Matrix.NoTranspose 4 4 0 1 1.0 a x 1 0.0 res 1
+    BLAS.cgbmv Matrix.NoTranspose 4 4 0 1 1.0 a x 0.0 res
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
     resList @?= [0:+4.0, 0:+4.0, 0:+4.0, 0:+2.0]
 
@@ -62,7 +62,7 @@ matvecTest2CGBMV = do
     a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 4) (\(x, y) -> [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 0] !! (x * 4 + y))
     x <- Matrix.generateMutableDenseVector 4 (\_ -> (1.0:+1.0))
     res <- Matrix.generateMutableDenseVector 4 (\_ -> (1.0:+1.0))
-    BLAS.cgbmv Matrix.ConjNoTranspose 4 4 0 1 1.0 a x 1 0.0 res 1
+    BLAS.cgbmv Matrix.ConjNoTranspose 4 4 0 1 1.0 a x 0.0 res
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
     resList @?= [4.0:+0, 4.0:+0, 4.0:+0, 2.0:+0]
 
@@ -71,7 +71,7 @@ matvecTest1ZGBMV = do
     a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 10) (\_ -> (1.0:+1.0))
     x <- Matrix.generateMutableDenseVector 10 (\_ -> (1.0:+1.0))
     res <- Matrix.generateMutableDenseVector 5 (\_ -> (1.0:+1.0))
-    BLAS.cgbmv Matrix.Transpose 10 5 1 0 2.0 a x 1 0.0 res 1
+    BLAS.cgbmv Matrix.Transpose 10 5 1 0 2.0 a x 0.0 res
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
     resList @?= [0:+8.0, 0:+8.0, 0:+8.0, 0:+8.0, 0:+8.0]
     -- not [0:+8.0, 0:+8.0, 0:+8.0, 0:+8.0, 0:+4.0]
@@ -81,7 +81,7 @@ matvecTest2ZGBMV = do
     a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (2, 10) (\_ -> (1.0:+1.0))
     x <- Matrix.generateMutableDenseVector 10 (\_ -> (1.0:+1.0))
     res <- Matrix.generateMutableDenseVector 5 (\_ -> (1.0:+1.0))
-    BLAS.cgbmv Matrix.ConjTranspose 10 5 1 0 2.0 a x 1 0.0 res 1
+    BLAS.cgbmv Matrix.ConjTranspose 10 5 1 0 2.0 a x 0.0 res
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector res
     resList @?= [8.0:+0, 8.0:+0, 8.0:+0, 8.0:+0, 8.0:+0]
     -- not [0:+8.0, 0:+8.0, 0:+8.0, 0:+8.0, 0:+4.0]
@@ -205,7 +205,7 @@ matvectTest1CHBMV = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 3) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
-  BLAS.chbmv Matrix.MatUpper 2 1.0 a x 1 0.0 y 1
+  BLAS.chbmv Matrix.MatUpper 2 1.0 a x 0.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [1.0:+5.0, 3.0:+5.0, 5.0:+3.0, 5.0:+1.0]
 
@@ -214,7 +214,7 @@ matvectTest2CHBMV = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (4, 3) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
-  BLAS.chbmv Matrix.MatUpper 2 1.0 a x 1 0.0 y 1
+  BLAS.chbmv Matrix.MatUpper 2 1.0 a x 0.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [1.0:+5.0, 3.0:+5.0, 5.0:+3.0, 5.0:+1.0]
 
@@ -232,7 +232,7 @@ matvectTest1ZHBMV = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 3) (\_ -> 1.0:+(-1.0))
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
-  BLAS.zhbmv Matrix.MatLower 2 1.0 a x 1 0.0 y 1
+  BLAS.zhbmv Matrix.MatLower 2 1.0 a x 0.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [1.0:+5.0, 3.0:+5.0, 5.0:+3.0, 5.0:+1.0]
 
@@ -250,7 +250,7 @@ matvectTest1CHEMV = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
-  BLAS.chemv Matrix.MatUpper 1.0 a x 1 0.0 y 1
+  BLAS.chemv Matrix.MatUpper 1.0 a x 0.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [1.0:+7.0, 3.0:+5.0, 5.0:+3.0, 7.0:+1.0]
 
@@ -259,7 +259,7 @@ matvectTest2CHEMV = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (4, 4) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
-  BLAS.chemv Matrix.MatUpper 1.0 a x 1 0.0 y 1
+  BLAS.chemv Matrix.MatUpper 1.0 a x 0.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [1.0:+7.0, 3.0:+5.0, 5.0:+3.0, 7.0:+1.0]
 
@@ -268,7 +268,7 @@ matvectTest1ZHEMV = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+(-1.0))
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1.0:+1.0)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 0.0:+0.0)
-  BLAS.zhemv Matrix.MatLower 1.0 a x 1 0.0 y 1
+  BLAS.zhemv Matrix.MatLower 1.0 a x 0.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [1.0:+7.0, 3.0:+5.0, 5.0:+3.0, 7.0:+1.0]
 
@@ -276,7 +276,7 @@ matvectTest1CHER :: IO ()
 matvectTest1CHER = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
-  BLAS.cher Matrix.MatUpper 1.0 x 1 a
+  BLAS.cher Matrix.MatUpper 1.0 x a
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
   resList @?= [3.0:+0.0, 5.0:+1.0,  7.0:+1.0,  9.0:+1.0,
                1.0:+1.0, 9.0:+0.0, 13.0:+1.0, 17.0:+1.0,
@@ -287,7 +287,7 @@ matvectTest1ZHER :: IO ()
 matvectTest1ZHER = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
-  BLAS.zher Matrix.MatLower 1.0 x 1 a
+  BLAS.zher Matrix.MatLower 1.0 x a
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
   resList @?= [3.0:+0.0,  1.0:+1.0,  1.0:+1.0,  1.0:+1.0,
                5.0:+1.0,  9.0:+0.0,  1.0:+1.0,  1.0:+1.0,
@@ -299,7 +299,7 @@ matvectTest1CHER2 = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
   y <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
-  BLAS.cher2 Matrix.MatUpper 1.0 x 1 y 1 a
+  BLAS.cher2 Matrix.MatUpper 1.0 x y a
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
   resList @?= [5.0:+0.0,  9.0:+1.0, 13.0:+1.0, 17.0:+1.0,
                1.0:+1.0, 17.0:+0.0, 25.0:+1.0, 33.0:+1.0,
@@ -311,7 +311,7 @@ matvectTest1ZHER2 = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 4) (\_ -> 1.0:+1.0)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
   y <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
-  BLAS.zher2 Matrix.MatLower 1.0 x 1 y 1 a
+  BLAS.zher2 Matrix.MatLower 1.0 x y a
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
   resList @?= [ 5.0:+0.0,  1.0:+1.0,  1.0:+1.0,  1.0:+1.0,
                 9.0:+1.0, 17.0:+0.0,  1.0:+1.0,  1.0:+1.0,
@@ -337,7 +337,7 @@ matvectTest1CHPMV = do
   a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+0.0, 1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0, 5.0:+5.0, 6.0:+6.0, 7.0:+7.0, 8.0:+8.0, 9.0:+9.0] !! idx)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [2.0:+2.0, 2.0:+2.0, 2.0:+2.0, 2.0:+2.0] !! idx)
   y <- Matrix.generateMutableDenseVector 4 (\idx -> [3.0:+3.0, 3.0:+3.0, 3.0:+3.0, 3.0:+3.0] !! idx)
-  BLAS.chpmv Matrix.SRow Matrix.MatUpper 4 1.0 a x 1 1.0 y 1
+  BLAS.chpmv Matrix.SRow Matrix.MatUpper 4 1.0 a x 1.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [ 3.0:+27.0, 15.0:+55.0, 45.0:+49.0, 89.0:+21.0]
 
@@ -360,7 +360,7 @@ matvectTest1ZHPMV = do
   a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+0.0, 1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0, 5.0:+5.0, 6.0:+6.0, 7.0:+7.0, 8.0:+8.0, 9.0:+9.0] !! idx)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [2.0:+2.0, 2.0:+2.0, 2.0:+2.0, 2.0:+2.0] !! idx)
   y <- Matrix.generateMutableDenseVector 4 (\idx -> [3.0:+3.0, 3.0:+3.0, 3.0:+3.0, 3.0:+3.0] !! idx)
-  BLAS.zhpmv Matrix.SColumn Matrix.MatUpper 4 1.0 a x 1 2.0 y 1
+  BLAS.zhpmv Matrix.SColumn Matrix.MatUpper 4 1.0 a x 2.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [ 6.0:+46.0, 14.0:+54.0, 44.0:+48.0, 108.0:+24.0]
 
@@ -387,7 +387,7 @@ matvectTest1CHPR :: IO ()
 matvectTest1CHPR = do
   a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+0.0, 1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0, 5.0:+5.0, 6.0:+6.0, 7.0:+7.0, 8.0:+8.0, 9.0:+9.0] !! idx)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
-  BLAS.chpr Matrix.SColumn Matrix.MatUpper 4 1.0 x 1 a
+  BLAS.chpr Matrix.SColumn Matrix.MatUpper 4 1.0 x a
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
   resList @?= [2.0:+0.0, 5.0:+1.0, 10.0:+0.0, 9.0:+3.0, 16.0:+4.0, 23.0:+0.0, 14.0:+6.0, 23.0:+7.0,  32.0:+8.0, 41.0:+0.0]
 
@@ -414,7 +414,7 @@ matvectTest1ZHPR :: IO ()
 matvectTest1ZHPR = do
   a <- Matrix.generateMutableDenseVector 10 (\idx -> [0.0:+(-0.0), 1.0:+(-1.0), 2.0:+(-2.0), 3.0:+(-3.0), 4.0:+(-4.0), 5.0:+(-5.0), 6.0:+(-6.0), 7.0:+(-7.0), 8.0:+(-8.0), 9.0:+(-9.0)] !! idx)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 2.0:+2.0, 3.0:+3.0, 4.0:+4.0] !! idx)
-  BLAS.zhpr Matrix.SRow Matrix.MatLower 4 1.0 x 1 a
+  BLAS.zhpr Matrix.SRow Matrix.MatLower 4 1.0 x a
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
   resList @?= [2.0:+0.0, 5.0:+(-1.0), 10.0:+0.0, 9.0:+(-3.0), 16.0:+(-4.0), 23.0:+0.0, 14.0:+(-6.0), 23.0:+(-7.0), 32.0:+(-8.0), 41.0:+0.0]
 
@@ -428,7 +428,7 @@ matvectTest1CHPR2 = do
   a <- Matrix.generateMutableDenseVector 10 (\_ -> 0.0:+0.0)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0] !! idx)
   y <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+2.0, 1.0:+2.0, 1.0:+2.0, 1.0:+2.0] !! idx)
-  BLAS.chpr2 Matrix.SColumn Matrix.MatUpper 4 2.0 x 1 y 1 a
+  BLAS.chpr2 Matrix.SColumn Matrix.MatUpper 4 2.0 x y a
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
   resList @?= [12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0]
 
@@ -437,7 +437,7 @@ matvectTest1ZHPR2 = do
   a <- Matrix.generateMutableDenseVector 10 (\_ -> 0.0:+0.0)
   x <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+1.0, 1.0:+1.0, 1.0:+1.0, 1.0:+1.0] !! idx)
   y <- Matrix.generateMutableDenseVector 4 (\idx -> [1.0:+2.0, 1.0:+2.0, 1.0:+2.0, 1.0:+2.0] !! idx)
-  BLAS.zhpr2 Matrix.SColumn Matrix.MatUpper 4 2.0 x 1 y 1 a
+  BLAS.zhpr2 Matrix.SColumn Matrix.MatUpper 4 2.0 x y a
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
   resList @?= [12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0, 12.0:+0.0]
 
@@ -461,7 +461,7 @@ matvectTest1SSBMV = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (4, 2) (\(x, y) -> [1, 2, 3, 4, 5, 6, 7, 0] !! (y * 4 + x))
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 2)
-  BLAS.ssbmv Matrix.MatUpper 1 1.0 a x 1 1.0 y 1
+  BLAS.ssbmv Matrix.MatUpper 1 1.0 a x 1.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [5, 11, 17, 15]
 
@@ -473,7 +473,7 @@ matvectTest1DSBMV = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (4, 2) (\(x, y) -> [1, 3, 5, 7, 2, 4, 6, 0] !! (y * 4 + x))
   x <- Matrix.generateMutableDenseVector 4 (\_ -> 1)
   y <- Matrix.generateMutableDenseVector 4 (\_ -> 2)
-  BLAS.dsbmv Matrix.MatLower 1 1.0 a x 1 1.0 y 1
+  BLAS.dsbmv Matrix.MatLower 1 1.0 a x 1.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [5, 11, 17, 15]
 
@@ -482,7 +482,7 @@ matvectTest1SSPMV = do
   a <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
   y <- Matrix.generateMutableDenseVector 3 (\_ -> 2)
-  BLAS.sspmv Matrix.SRow Matrix.MatUpper 3 1.0 a x 1 1.0 y 1
+  BLAS.sspmv Matrix.SRow Matrix.MatUpper 3 1.0 a x 1.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [8, 13, 16]
 
@@ -491,7 +491,7 @@ matvectTest1DSPMV = do
   a <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
   y <- Matrix.generateMutableDenseVector 3 (\_ -> 2)
-  BLAS.dspmv Matrix.SColumn Matrix.MatLower 3 1.0 a x 1 1.0 y 1
+  BLAS.dspmv Matrix.SColumn Matrix.MatLower 3 1.0 a x 1.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [8, 13, 16]
 
@@ -499,7 +499,7 @@ matvectTest1SSPR :: IO ()
 matvectTest1SSPR = do
   a <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
-  BLAS.sspr Matrix.SRow Matrix.MatUpper 3 1.0 x 1 a
+  BLAS.sspr Matrix.SRow Matrix.MatUpper 3 1.0 x a
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
   resList @?= [2, 3, 4, 5, 6, 7]
 
@@ -507,7 +507,7 @@ matvectTest1DSPR :: IO ()
 matvectTest1DSPR = do
   a <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
-  BLAS.dspr Matrix.SRow Matrix.MatUpper 3 1.0 x 1 a
+  BLAS.dspr Matrix.SRow Matrix.MatUpper 3 1.0 x a
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
   resList @?= [2, 3, 4, 5, 6, 7]
 
@@ -516,7 +516,7 @@ matvectTest1SSPR2 = do
   a <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
   y <- Matrix.generateMutableDenseVector 3 (\idx -> [1, 2, 3] !! idx)
-  BLAS.sspr2 Matrix.SRow Matrix.MatUpper 3 1.0 x 1 y 1 a
+  BLAS.sspr2 Matrix.SRow Matrix.MatUpper 3 1.0 x y a
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
   resList @?= [3, 5, 7, 8, 10, 12]
 
@@ -525,7 +525,7 @@ matvectTest1DSPR2 = do
   a <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
   y <- Matrix.generateMutableDenseVector 3 (\idx -> [1, 2, 3] !! idx)
-  BLAS.dspr2 Matrix.SRow Matrix.MatUpper 3 1.0 x 1 y 1 a
+  BLAS.dspr2 Matrix.SRow Matrix.MatUpper 3 1.0 x y a
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector a
   resList @?= [3, 5, 7, 8, 10, 12]
 
@@ -537,7 +537,7 @@ matvectTest1SSYMV = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 3) (\(x, y) -> [1, 2, 3, 0, 5, 6, 0, 0, 7] !! (y * 3 + x))
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
   y <- Matrix.generateMutableDenseVector 3 (\_ -> 2)
-  BLAS.ssymv Matrix.MatUpper 1.0 a x 1 1.0 y 1
+  BLAS.ssymv Matrix.MatUpper 1.0 a x 1.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [8, 15, 18]
 
@@ -546,7 +546,7 @@ matvectTest1DSYMV = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 3) (\(x, y) -> [1, 0, 0, 2, 5, 0, 3, 6, 7] !! (y * 3 + x))
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
   y <- Matrix.generateMutableDenseVector 3 (\_ -> 2)
-  BLAS.dsymv Matrix.MatLower 1.0 a x 1 1.0 y 1
+  BLAS.dsymv Matrix.MatLower 1.0 a x 1.0 y
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resList @?= [8, 15, 18]
 
@@ -557,7 +557,7 @@ matvectTest1SSYR :: IO ()
 matvectTest1SSYR = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 3) (\(x, y) -> [1, 2, 3, 0, 5, 6, 0, 0, 7] !! (y * 3 + x))
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
-  BLAS.ssyr Matrix.MatUpper 1.0 x 1 a
+  BLAS.ssyr Matrix.MatUpper 1.0 x a
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
   resList @?= [2, 3, 4, 0, 6, 7, 0, 0, 8]
 
@@ -565,7 +565,7 @@ matvectTest1DSYR :: IO ()
 matvectTest1DSYR = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 3) (\(x, y) -> [1, 0, 0, 2, 5, 0, 3, 6, 7] !! (y * 3 + x))
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
-  BLAS.dsyr Matrix.MatLower 1.0 x 1 a
+  BLAS.dsyr Matrix.MatLower 1.0 x a
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
   resList @?= [2, 3, 4, 0, 6, 7, 0, 0, 8]
 
@@ -574,7 +574,7 @@ matvectTest1SSYR2 = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SRow) (3, 3) (\(x, y) -> [1, 2, 3, 0, 5, 6, 0, 0, 7] !! (y * 3 + x))
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
   y <- Matrix.generateMutableDenseVector 3 (\idx -> [1, 2, 3] !! idx)
-  BLAS.ssyr2 Matrix.MatUpper 1.0 x 1 y 1 a
+  BLAS.ssyr2 Matrix.MatUpper 1.0 x y a
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
   resList @?= [3, 5, 7, 0, 9, 11, 0, 0, 13]
 
@@ -583,7 +583,7 @@ matvectTest1DSYR2 = do
   a <- Matrix.generateMutableDenseMatrix (Matrix.SColumn) (3, 3) (\(x, y) -> [1, 0, 0, 2, 5, 0, 3, 6, 7] !! (y * 3 + x))
   x <- Matrix.generateMutableDenseVector 3 (\_ -> 1)
   y <- Matrix.generateMutableDenseVector 3 (\idx -> [1, 2, 3] !! idx)
-  BLAS.dsyr2 Matrix.MatLower 1.0 x 1 y 1 a
+  BLAS.dsyr2 Matrix.MatLower 1.0 x y a
   resList <- Matrix.mutableVectorToList $ _bufferDenMutMat a
   resList @?= [3, 5, 7, 0, 9, 11, 0, 0, 13]
 
@@ -594,7 +594,7 @@ matmatTest1STBMV:: IO ()
 matmatTest1STBMV = do
     a  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (3, 2) (\(x, y) -> [0, 2, 1, 1, 1, 1] !! (y * 3 + x))
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [-2, 3, 2] !! idx)
-    BLAS.stbmv MatUpper NoTranspose MatUnit 1 a x 1
+    BLAS.stbmv MatUpper NoTranspose MatUnit 1 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [4, 5, 2]
 
@@ -605,7 +605,7 @@ matmatTest1DTBMV:: IO ()
 matmatTest1DTBMV = do
     a  <- Matrix.generateMutableDenseMatrix (Matrix.SColumn)  (3, 2) (\(x, y) -> [0, 1, 1, 1, 1, 1] !! (y * 3 + x))
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [-2, 3, 2] !! idx)
-    BLAS.dtbmv MatLower Transpose MatUnit 1 a x 1
+    BLAS.dtbmv MatLower Transpose MatUnit 1 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [1, 5, 2]
 
@@ -616,7 +616,7 @@ matmatTest1CTBMV:: IO ()
 matmatTest1CTBMV = do
     a  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (3, 2) (\(x, y) -> [0:+0, 2:+2, 1:+1, 1:+1, 1:+1, 1:+1] !! (y * 3 + x))
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [-2, 3, 2] !! idx)
-    BLAS.ctbmv MatUpper Matrix.ConjTranspose MatUnit 1 a x 1
+    BLAS.ctbmv MatUpper Matrix.ConjTranspose MatUnit 1 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [(-2):+0, (-1):+4, 5:+(-3)]
 
@@ -627,7 +627,7 @@ matmatTest1ZTBMV:: IO ()
 matmatTest1ZTBMV = do
     a  <- Matrix.generateMutableDenseMatrix (Matrix.SColumn)  (3, 2) (\(x, y) -> [0:+0, 1:+0, 1:+0, 1:+0, 1:+0, 1:+0] !! (y * 3 + x))
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [2, 3, 2] !! idx)
-    BLAS.ztbmv MatUpper NoTranspose MatNonUnit 1 a x 1 -- TODO: NAN error when using Lower Transpose
+    BLAS.ztbmv MatUpper NoTranspose MatNonUnit 1 a x -- TODO: NAN error when using Lower Transpose
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [5, 5, 2]
 
@@ -638,7 +638,7 @@ matmatTest1STBSV:: IO ()
 matmatTest1STBSV = do
     a  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (3, 2) (\(x, y) -> [0, 2, 1, 1, 1, 1] !! (y * 3 + x))
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [4, 5, 2] !! idx)
-    BLAS.stbsv MatUpper NoTranspose MatUnit 1 a x 1
+    BLAS.stbsv MatUpper NoTranspose MatUnit 1 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [-2, 3, 2]
 
@@ -649,7 +649,7 @@ matmatTest1DTBSV:: IO ()
 matmatTest1DTBSV = do
     a  <- Matrix.generateMutableDenseMatrix (Matrix.SColumn)  (3, 2) (\(x, y) -> [0, 1, 1, 1, 1, 1] !! (y * 3 + x))
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [1, 5, 2] !! idx)
-    BLAS.dtbsv MatLower Transpose MatUnit 1 a x 1
+    BLAS.dtbsv MatLower Transpose MatUnit 1 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [-2, 3, 2]
 
@@ -660,7 +660,7 @@ matmatTest1CTBSV:: IO ()
 matmatTest1CTBSV = do
     a  <- Matrix.generateMutableDenseMatrix (Matrix.SRow)  (3, 2) (\(x, y) -> [0:+0, 2:+2, 1:+1, 1:+1, 1:+1, 1:+1] !! (y * 3 + x))
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [(-2):+0, (-1):+4, 5:+(-3)] !! idx)
-    BLAS.ctbsv MatUpper Matrix.ConjTranspose MatUnit 1 a x 1
+    BLAS.ctbsv MatUpper Matrix.ConjTranspose MatUnit 1 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [-2, 3, 2]
 
@@ -671,7 +671,7 @@ matmatTest1ZTBSV:: IO ()
 matmatTest1ZTBSV = do
     a  <- Matrix.generateMutableDenseMatrix (Matrix.SColumn)  (3, 2) (\(x, y) -> [0:+0, 1:+0, 1:+0, 1:+0, 1:+0, 1:+0] !! (y * 3 + x))
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [5, 5, 2] !! idx)
-    BLAS.ztbsv MatUpper NoTranspose MatNonUnit 1 a x 1 -- TODO: NAN error when using Lower Transpose
+    BLAS.ztbsv MatUpper NoTranspose MatNonUnit 1 a x -- TODO: NAN error when using Lower Transpose
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [2, 3, 2]
 
@@ -682,7 +682,7 @@ matmatTest1STPMV:: IO ()
 matmatTest1STPMV = do
     a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 0, 1, 1, 1] !! idx)
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [-2, 3, 2] !! idx)
-    BLAS.stpmv Matrix.SRow MatUpper NoTranspose MatUnit 3 a x 1
+    BLAS.stpmv Matrix.SRow MatUpper NoTranspose MatUnit 3 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [4, 5, 2]
 
@@ -693,7 +693,7 @@ matmatTest1DTPMV:: IO ()
 matmatTest1DTPMV = do
     a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 1, 0, 1, 1, 1] !! idx)
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [-2, 3, 2] !! idx)
-    BLAS.dtpmv Matrix.SColumn MatLower Transpose MatUnit 3 a x 1
+    BLAS.dtpmv Matrix.SColumn MatLower Transpose MatUnit 3 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [1, 5, 2]
 
@@ -704,7 +704,7 @@ matmatTest1CTPMV:: IO ()
 matmatTest1CTPMV = do
     a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+0, 2:+2, 0:+0, 1:+0, 1:+1, 1:+0] !! idx)
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [-2, 3, 2] !! idx)
-    BLAS.ctpmv Matrix.SRow MatUpper Matrix.ConjTranspose MatUnit 3 a x 1
+    BLAS.ctpmv Matrix.SRow MatUpper Matrix.ConjTranspose MatUnit 3 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [(-2):+0, (-1):+4, 5:+(-3)]
 
@@ -715,7 +715,7 @@ matmatTest1ZTPMV:: IO ()
 matmatTest1ZTPMV = do
     a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+0, 1:+0, 1:+0, 0:+0, 1:+0, 1:+0] !! idx)
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [2, 3, 2] !! idx)
-    BLAS.ztpmv Matrix.SColumn MatUpper NoTranspose MatNonUnit 3 a x 1 -- TODO: NAN error when using Lower Transpose
+    BLAS.ztpmv Matrix.SColumn MatUpper NoTranspose MatNonUnit 3 a x -- TODO: NAN error when using Lower Transpose
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [5, 5, 2]
 
@@ -726,7 +726,7 @@ matmatTest1STPSV:: IO ()
 matmatTest1STPSV = do
     a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 0, 1, 1, 1] !! idx)
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [4, 5, 2] !! idx)
-    BLAS.stpsv Matrix.SRow MatUpper NoTranspose MatUnit 3 a x 1
+    BLAS.stpsv Matrix.SRow MatUpper NoTranspose MatUnit 3 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [-2, 3, 2]
 
@@ -737,7 +737,7 @@ matmatTest1DTPSV:: IO ()
 matmatTest1DTPSV = do
     a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 1, 0, 1, 1, 1] !! idx)
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [1, 5, 2] !! idx)
-    BLAS.dtpsv Matrix.SColumn MatLower Transpose MatUnit 3 a x 1
+    BLAS.dtpsv Matrix.SColumn MatLower Transpose MatUnit 3 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [-2, 3, 2]
 
@@ -748,7 +748,7 @@ matmatTest1CTPSV:: IO ()
 matmatTest1CTPSV = do
     a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+0, 2:+2, 0:+0, 1:+0, 1:+1, 1:+0] !! idx)
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [(-2):+0, (-1):+4, 5:+(-3)]!! idx)
-    BLAS.ctpsv Matrix.SRow MatUpper Matrix.ConjTranspose MatUnit 3 a x 1
+    BLAS.ctpsv Matrix.SRow MatUpper Matrix.ConjTranspose MatUnit 3 a x
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [-2, 3, 2]
 
@@ -759,7 +759,7 @@ matmatTest1ZTPSV:: IO ()
 matmatTest1ZTPSV = do
     a  <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+0, 1:+0, 1:+0, 0:+0, 1:+0, 1:+0] !! idx)
     x  <- Matrix.generateMutableDenseVector 3 (\idx -> [5, 5, 2] !! idx)
-    BLAS.ztpsv Matrix.SColumn MatUpper NoTranspose MatNonUnit 3 a x 1 -- TODO: NAN error when using Lower Transpose
+    BLAS.ztpsv Matrix.SColumn MatUpper NoTranspose MatNonUnit 3 a x -- TODO: NAN error when using Lower Transpose
     resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
     resList @?= [2, 3, 2]
 

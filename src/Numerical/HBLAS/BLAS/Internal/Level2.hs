@@ -60,47 +60,47 @@ import qualified Data.Vector.Storable.Mutable as SM
 import Data.Int
 
 -- In gbmv, only n is stored in a. So m and n are need to provided in the arguments.
-type GbmvFun el orient s m = Transpose -> Int -> Int -> Int -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
+type GbmvFun el orient s m = Transpose -> Int -> Int -> Int -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m ()
 
 type GemvFun el orient s m = Transpose -> el -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
 
 type GerFun el orient s m = el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
 
-type HbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
+type HbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m ()
 
-type HemvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
+type HemvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m ()
 
-type HerFun scale el orient s m = MatUpLo -> scale -> MDenseVector s Direct el -> Int -> MDenseMatrix s orient el -> m ()
+type HerFun scale el orient s m = MatUpLo -> scale -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
 
-type Her2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseMatrix s orient el -> m ()
+type Her2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
 
-type HpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
+type HpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m ()
 
-type HprFun scale el orient s m = SOrientation orient -> MatUpLo -> Int -> scale -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
+type HprFun scale el orient s m = SOrientation orient -> MatUpLo -> Int -> scale -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
 
-type Hpr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m()
+type Hpr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
 
-type SbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m()
+type SbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m()
 
-type SpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m()
+type SpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m()
 
-type SprFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m ()
+type SprFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
 
-type Spr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> m ()
+type Spr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
 
-type SymvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> el -> MDenseVector s Direct el -> Int -> m ()
+type SymvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m ()
 
-type SyrFun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int -> MDenseMatrix s orient el -> m ()
+type SyrFun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
 
-type Syr2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> Int -> MDenseVector s Direct el -> Int -> MDenseMatrix s orient el -> m ()
+type Syr2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
 
-type TbmvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> m ()
+type TbmvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
 
-type TbsvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> Int -> m ()
+type TbsvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
 
-type TpmvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> m ()
+type TpmvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
 
-type TpsvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> Int -> m ()
+type TpsvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
 
 type TrmvFun el orient s m =  MatUpLo -> Transpose -> MatDiag -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
 
@@ -120,18 +120,18 @@ gbmvAbstraction gbmvName gbmvSafeFFI gbmvUnsafeFFI constHandler = gbmv
 
     gbmv trans m n kl ku alpha
       (MutableDenseMatrix ornta ax ay astride abuff)
-      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseVector _ xdim xstride xbuff)
       beta
-      (MutableDenseVector _ ydim _ ybuff) incy
-        | isVectorBadWithNIncrement xdim srcVecLen incx = error $! vectorBadInfo gbmvName "input vector" xdim srcVecLen incx
-        | isVectorBadWithNIncrement ydim dstVecLen incy = error $! vectorBadInfo gbmvName "output vector" ydim dstVecLen incy
+      (MutableDenseVector _ ydim ystride ybuff)
+        | isVectorBadWithNIncrement xdim srcVecLen xstride = error $! vectorBadInfo gbmvName "input vector" xdim srcVecLen xstride
+        | isVectorBadWithNIncrement ydim dstVecLen ystride = error $! vectorBadInfo gbmvName "output vector" ydim dstVecLen ystride
         | otherwise =
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim xbuff $ \xp ->
           unsafeWithPrim ybuff $ \yp ->
           constHandler alpha $ \alphaPtr ->
           constHandler beta $ \betaPtr ->
-            do unsafePrimToPrim $! (if shouldCallFast ax ay then gbmvUnsafeFFI else gbmvSafeFFI) (encodeNiceOrder ornta) (encodeFFITranspose trans) (fromIntegral m) (fromIntegral n) (fromIntegral kl) (fromIntegral ku) alphaPtr ap (fromIntegral astride) xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
+            do unsafePrimToPrim $! (if shouldCallFast ax ay then gbmvUnsafeFFI else gbmvSafeFFI) (encodeNiceOrder ornta) (encodeFFITranspose trans) (fromIntegral m) (fromIntegral n) (fromIntegral kl) (fromIntegral ku) alphaPtr ap (fromIntegral astride) xp (fromIntegral xstride) betaPtr yp (fromIntegral ystride)
         where srcVecLen = snd $ coordSwapper trans (m, n)
               dstVecLen = fst $ coordSwapper trans (m, n)
 
@@ -251,10 +251,10 @@ hbmvAbstraction hbmvName hbmvSafeFFI hbmvUnsafeFFI constHandler = hbmv
     shouldCallFast a b = flopsThreshold >= (fromIntegral a) * (fromIntegral b)
     hbmv uplo k alpha
       (MutableDenseMatrix ornta ax ay _ abuff) -- (n, lda)
-      (MutableDenseVector _ xdim _ xbuff) incx beta
-      (MutableDenseVector _ ydim _ ybuff) incy
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo hbmvName "x vector" xdim n incx
-        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo hbmvName "y vector" ydim n incy
+      (MutableDenseVector _ xdim xstride xbuff) beta
+      (MutableDenseVector _ ydim ystride ybuff)
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo hbmvName "x vector" xdim n xstride
+        | isVectorBadWithNIncrement ydim n ystride = error $! vectorBadInfo hbmvName "y vector" ydim n ystride
         | lda < k + 1 = error $! hbmvName ++ ": lda " ++ (show lda) ++ " should be greater than k " ++ (show k) ++ "."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ hbmvName ++ " overlap. This is a programmer error. Please fix."
@@ -270,7 +270,7 @@ hbmvAbstraction hbmvName hbmvSafeFFI hbmvUnsafeFFI constHandler = hbmv
                        unsafePrimToPrim $! (if shouldCallFast n k then hbmvUnsafeFFI else hbmvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
                          (fromIntegral n) (fromIntegral k) alphaPtr ap (fromIntegral lda) xp
-                         (fromIntegral incx) betaPtr yp (fromIntegral incy)
+                         (fromIntegral xstride) betaPtr yp (fromIntegral ystride)
 
 {-# NOINLINE hemvAbstraction #-}
 hemvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -285,10 +285,10 @@ hemvAbstraction hemvName hemvSafeFFI hemvUnsafeFFI constHandler = hemv
     shouldCallFast a b = flopsThreshold >= (fromIntegral a) * (fromIntegral b)
     hemv uplo alpha
       (MutableDenseMatrix ornta ax ay astride abuff)
-      (MutableDenseVector _ xdim _ xbuff) incx beta
-      (MutableDenseVector _ ydim _ ybuff) incy
-        | isVectorBadWithNIncrement xdim ay incx = error $! vectorBadInfo hemvName "x vector" xdim ay incx
-        | isVectorBadWithNIncrement ydim ay incy = error $! vectorBadInfo hemvName "y vector" ydim ay incy
+      (MutableDenseVector _ xdim xstride xbuff) beta
+      (MutableDenseVector _ ydim ystride ybuff)
+        | isVectorBadWithNIncrement xdim ay xstride = error $! vectorBadInfo hemvName "x vector" xdim ay xstride
+        | isVectorBadWithNIncrement ydim ay ystride = error $! vectorBadInfo hemvName "y vector" ydim ay ystride
         | astride < ay = error $! hemvName ++ ": lda " ++ (show astride) ++ " should be greater than or equal with n " ++ (show ay) ++ "."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ hemvName ++ " overlap. This is a programmer error. Please fix."
@@ -302,7 +302,7 @@ hemvAbstraction hemvName hemvSafeFFI hemvUnsafeFFI constHandler = hemv
                        unsafePrimToPrim $! (if shouldCallFast ax ay then hemvUnsafeFFI else hemvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
                          (fromIntegral ay) alphaPtr ap (fromIntegral astride) xp
-                         (fromIntegral incx) betaPtr yp (fromIntegral incy)
+                         (fromIntegral xstride) betaPtr yp (fromIntegral ystride)
 
 {-# NOINLINE herAbstraction #-}
 herAbstraction :: (SM.Storable el, PrimMonad m)
@@ -316,9 +316,9 @@ herAbstraction herName herSafeFFI herUnsafeFFI constHandler = her
     shouldCallFast :: Int -> Int  -> Bool
     shouldCallFast a b = flopsThreshold >= (fromIntegral a) * (fromIntegral b)
     her uplo alpha
-      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseVector _ xdim xstride xbuff)
       (MutableDenseMatrix ornta _ ay astride abuff)
-        | isVectorBadWithNIncrement xdim ay incx = error $! vectorBadInfo herName "x vector" xdim ay incx
+        | isVectorBadWithNIncrement xdim ay xstride = error $! vectorBadInfo herName "x vector" xdim ay xstride
         | astride < ay = error $! herName ++ ": lda " ++ (show astride) ++ " should be greater than or equal with n " ++ (show ay) ++ "."
         | SM.overlaps abuff xbuff =
             error $! "The read and write inputs for: " ++ herName ++ " overlap. This is a programmer error. Please fix."
@@ -329,7 +329,7 @@ herAbstraction herName herSafeFFI herUnsafeFFI constHandler = her
                      constHandler alpha $ \alphaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast ay ay then herUnsafeFFI else herSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral ay) alphaPtr xp (fromIntegral incx) ap (fromIntegral astride)
+                         (fromIntegral ay) alphaPtr xp (fromIntegral xstride) ap (fromIntegral astride)
 
 {-# NOINLINE her2Abstraction #-}
 her2Abstraction :: (SM.Storable el, PrimMonad m)
@@ -343,11 +343,11 @@ her2Abstraction her2Name her2SafeFFI her2UnsafeFFI constHandler = her2
     shouldCallFast :: Int -> Int  -> Bool
     shouldCallFast a b = flopsThreshold >= (fromIntegral a) * (fromIntegral b)
     her2 uplo alpha
-      (MutableDenseVector _ xdim _ xbuff) incx
-      (MutableDenseVector _ ydim _ ybuff) incy
+      (MutableDenseVector _ xdim xstride xbuff)
+      (MutableDenseVector _ ydim ystride ybuff)
       (MutableDenseMatrix ornta _ ay astride abuff)
-        | isVectorBadWithNIncrement xdim ay incx = error $! vectorBadInfo her2Name "x vector" xdim ay incx
-        | isVectorBadWithNIncrement ydim ay incy = error $! vectorBadInfo her2Name "y vector" ydim ay incy
+        | isVectorBadWithNIncrement xdim ay xstride = error $! vectorBadInfo her2Name "x vector" xdim ay xstride
+        | isVectorBadWithNIncrement ydim ay ystride = error $! vectorBadInfo her2Name "y vector" ydim ay ystride
         | astride < ay = error $! her2Name ++ ": lda " ++ (show astride) ++ " should be greater than or equal with n " ++ (show ay) ++ "."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ her2Name ++ " overlap. This is a programmer error. Please fix."
@@ -359,7 +359,7 @@ her2Abstraction her2Name her2SafeFFI her2UnsafeFFI constHandler = her2
                      constHandler alpha $ \alphaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast ay ay then her2UnsafeFFI else her2SafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral ay) alphaPtr xp (fromIntegral incx) yp (fromIntegral incy) ap (fromIntegral astride)
+                         (fromIntegral ay) alphaPtr xp (fromIntegral xstride) yp (fromIntegral ystride) ap (fromIntegral astride)
 
 {-# NOINLINE hpmvAbstraction #-}
 hpmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -374,10 +374,10 @@ hpmvAbstraction hpmvName hpmvSafeFFI hpmvUnsafeFFI constHandler = hpmv
     shouldCallFast n = flopsThreshold >= (n * n + n)
     hpmv ornt uplo n alpha
       (MutableDenseVector _ adim _ abuff)
-      (MutableDenseVector _ xdim _ xbuff) incx beta
-      (MutableDenseVector _ ydim _ ybuff) incy
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo hpmvName "x vector" xdim n incx
-        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo hpmvName "y vector" ydim n incy
+      (MutableDenseVector _ xdim xstride xbuff) beta
+      (MutableDenseVector _ ydim ystride ybuff)
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo hpmvName "x vector" xdim n xstride
+        | isVectorBadWithNIncrement ydim n ystride = error $! vectorBadInfo hpmvName "y vector" ydim n ystride
         | adim < (div (n * (n+1)) 2) = error $! hpmvName ++ ": array must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ hpmvName ++ " overlap. This is a programmer error. Please fix."
@@ -390,7 +390,7 @@ hpmvAbstraction hpmvName hpmvSafeFFI hpmvUnsafeFFI constHandler = hpmv
                      constHandler beta $ \betaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then hpmvUnsafeFFI else hpmvSafeFFI)
                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral n) alphaPtr ap xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
+                         (fromIntegral n) alphaPtr ap xp (fromIntegral xstride) betaPtr yp (fromIntegral ystride)
 
 {-# NOINLINE hprAbstraction #-}
 hprAbstraction :: (SM.Storable el, PrimMonad m)
@@ -404,9 +404,9 @@ hprAbstraction hprName hprSafeFFI hprUnsafeFFI constHandler = hpr
     shouldCallFast :: Int64 -> Bool
     shouldCallFast n = flopsThreshold >= (n * n + n)
     hpr ornt uplo n alpha
-      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseVector _ xdim xstride xbuff)
       (MutableDenseVector _ adim _ abuff)
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo hprName "x vector" xdim n incx
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo hprName "x vector" xdim n xstride
         | adim < (div (n * (n+1)) 2) = error $! hprName ++ ": array must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
         | SM.overlaps abuff xbuff =
             error $! "The read and write inputs for: " ++ hprName ++ " overlap. This is a programmer error. Please fix."
@@ -417,7 +417,7 @@ hprAbstraction hprName hprSafeFFI hprUnsafeFFI constHandler = hpr
                      constHandler alpha $ \alphaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then hprUnsafeFFI else hprSafeFFI)
                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral n) alphaPtr xp (fromIntegral incx) ap
+                         (fromIntegral n) alphaPtr xp (fromIntegral xstride) ap
 
 {-# NOINLINE hpr2Abstraction #-}
 hpr2Abstraction :: (SM.Storable el, PrimMonad m)
@@ -431,11 +431,11 @@ hpr2Abstraction hpr2Name hpr2SafeFFI hpr2UnsafeFFI constHandler = hpr2
     shouldCallFast :: Int64 -> Bool
     shouldCallFast n = flopsThreshold >= (n * n + n)
     hpr2 ornt uplo n alpha
-      (MutableDenseVector _ xdim _ xbuff) incx
-      (MutableDenseVector _ ydim _ ybuff) incy
+      (MutableDenseVector _ xdim xstride xbuff)
+      (MutableDenseVector _ ydim ystride ybuff)
       (MutableDenseVector _ adim _ abuff)
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo hpr2Name "x vector" xdim n incx
-        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo hpr2Name "y vector" ydim n incy
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo hpr2Name "x vector" xdim n xstride
+        | isVectorBadWithNIncrement ydim n ystride = error $! vectorBadInfo hpr2Name "y vector" ydim n ystride
         | adim < (div (n * (n+1)) 2) = error $! hpr2Name ++ ": array must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ hpr2Name ++ " overlap. This is a programmer error. Please fix."
@@ -447,7 +447,7 @@ hpr2Abstraction hpr2Name hpr2SafeFFI hpr2UnsafeFFI constHandler = hpr2
                      constHandler alpha $ \alphaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then hpr2UnsafeFFI else hpr2SafeFFI)
                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral n) alphaPtr xp (fromIntegral incx) yp (fromIntegral incy) ap
+                         (fromIntegral n) alphaPtr xp (fromIntegral xstride) yp (fromIntegral ystride) ap
 
 {-# NOINLINE sbmvAbstraction #-}
 sbmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -462,10 +462,10 @@ sbmvAbstraction sbmvName sbmvSafeFFI sbmvUnsafeFFI constHandler = sbmv
     shouldCallFast n k = flopsThreshold >= (fromIntegral n) * (fromIntegral k)
     sbmv uplo k alpha
       (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
-      (MutableDenseVector _ xdim _ xbuff) incx beta
-      (MutableDenseVector _ ydim _ ybuff) incy
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo sbmvName "x vector" xdim n incx
-        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo sbmvName "y vector" ydim n incy
+      (MutableDenseVector _ xdim xstride xbuff) beta
+      (MutableDenseVector _ ydim ystride ybuff)
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo sbmvName "x vector" xdim n xstride
+        | isVectorBadWithNIncrement ydim n ystride = error $! vectorBadInfo sbmvName "y vector" ydim n ystride
         | lda < k+1 = error $! sbmvName ++ ": lda (" ++ (show lda) ++ ") must be greater than k (" ++ (show k) ++ ") + 1."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ sbmvName ++ " overlap. This is a programmer error. Please fix."
@@ -480,7 +480,7 @@ sbmvAbstraction sbmvName sbmvSafeFFI sbmvUnsafeFFI constHandler = sbmv
                      constHandler beta $ \betaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast n k then sbmvUnsafeFFI else sbmvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral n) (fromIntegral k) alphaPtr ap (fromIntegral lda) xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
+                         (fromIntegral n) (fromIntegral k) alphaPtr ap (fromIntegral lda) xp (fromIntegral xstride) betaPtr yp (fromIntegral ystride)
 
 {-# NOINLINE spmvAbstraction #-}
 spmvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -495,10 +495,10 @@ spmvAbstraction spmvName spmvSafeFFI spmvUnsafeFFI constHandler = spmv
     shouldCallFast n = flopsThreshold >= (fromIntegral n) * (fromIntegral n)
     spmv ornta uplo n alpha
       (MutableDenseVector _ adim _ abuff)
-      (MutableDenseVector _ xdim _ xbuff) incx beta
-      (MutableDenseVector _ ydim _ ybuff) incy
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo spmvName "x vector" xdim n incx
-        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo spmvName "y vector" ydim n incy
+      (MutableDenseVector _ xdim xstride xbuff) beta
+      (MutableDenseVector _ ydim ystride ybuff)
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo spmvName "x vector" xdim n xstride
+        | isVectorBadWithNIncrement ydim n ystride = error $! vectorBadInfo spmvName "y vector" ydim n ystride
         | adim < (div (n * (n+1)) 2) = error $! spmvName ++ ": array which has" ++ (show adim) ++ " elements must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ spmvName ++ " overlap. This is a programmer error. Please fix."
@@ -511,7 +511,7 @@ spmvAbstraction spmvName spmvSafeFFI spmvUnsafeFFI constHandler = spmv
                      constHandler beta $ \betaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast n then spmvUnsafeFFI else spmvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral n) alphaPtr ap xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
+                         (fromIntegral n) alphaPtr ap xp (fromIntegral xstride) betaPtr yp (fromIntegral ystride)
 
 {-# NOINLINE sprAbstraction #-}
 sprAbstraction :: (SM.Storable el, PrimMonad m)
@@ -525,9 +525,9 @@ sprAbstraction sprName sprSafeFFI sprUnsafeFFI constHandler = spr
     shouldCallFast :: Int64 -> Bool
     shouldCallFast n = flopsThreshold >= (n * n)
     spr ornt uplo n alpha
-      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseVector _ xdim xstride xbuff)
       (MutableDenseVector _ adim _ abuff)
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo sprName "x vector" xdim n incx
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo sprName "x vector" xdim n xstride
         | adim < (div (n * (n+1)) 2) = error $! sprName ++ ": array which has" ++ (show adim) ++ " elements must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
         | SM.overlaps abuff xbuff =
             error $! "The read and write inputs for: " ++ sprName ++ " overlap. This is a programmer error. Please fix."
@@ -538,7 +538,7 @@ sprAbstraction sprName sprSafeFFI sprUnsafeFFI constHandler = spr
                      constHandler alpha $ \alphaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then sprUnsafeFFI else sprSafeFFI)
                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral n) alphaPtr xp (fromIntegral incx) ap
+                         (fromIntegral n) alphaPtr xp (fromIntegral xstride) ap
 
 {-# NOINLINE spr2Abstraction #-}
 spr2Abstraction :: (SM.Storable el, PrimMonad m)
@@ -552,11 +552,11 @@ spr2Abstraction spr2Name spr2SafeFFI spr2UnsafeFFI constHandler = spr2
     shouldCallFast :: Int64 -> Bool
     shouldCallFast n = flopsThreshold >= (n * n * 2)
     spr2 ornt uplo n alpha
-      (MutableDenseVector _ xdim _ xbuff) incx
-      (MutableDenseVector _ ydim _ ybuff) incy
+      (MutableDenseVector _ xdim xstride xbuff)
+      (MutableDenseVector _ ydim ystride ybuff)
       (MutableDenseVector _ adim _ abuff)
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo spr2Name "x vector" xdim n incx
-        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo spr2Name "y vector" ydim n incy
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo spr2Name "x vector" xdim n xstride
+        | isVectorBadWithNIncrement ydim n ystride = error $! vectorBadInfo spr2Name "y vector" ydim n ystride
         | adim < (div (n * (n+1)) 2) = error $! spr2Name ++ ": array which has" ++ (show adim) ++ " elements must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ spr2Name ++ " overlap. This is a programmer error. Please fix."
@@ -568,7 +568,7 @@ spr2Abstraction spr2Name spr2SafeFFI spr2UnsafeFFI constHandler = spr2
                      constHandler alpha $ \alphaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then spr2UnsafeFFI else spr2SafeFFI)
                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral n) alphaPtr xp (fromIntegral incx) yp (fromIntegral incy) ap
+                         (fromIntegral n) alphaPtr xp (fromIntegral xstride) yp (fromIntegral ystride) ap
 
 {-# NOINLINE symvAbstraction #-}
 symvAbstraction :: (SM.Storable el, PrimMonad m)
@@ -583,10 +583,10 @@ symvAbstraction symvName symvSafeFFI symvUnsafeFFI constHandler = symv
     shouldCallFast n = flopsThreshold >= (n * n)
     symv uplo alpha
       (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
-      (MutableDenseVector _ xdim _ xbuff) incx beta
-      (MutableDenseVector _ ydim _ ybuff) incy
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo symvName "x vector" xdim n incx
-        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo symvName "y vector" ydim n incy
+      (MutableDenseVector _ xdim xstride xbuff) beta
+      (MutableDenseVector _ ydim ystride ybuff)
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo symvName "x vector" xdim n xstride
+        | isVectorBadWithNIncrement ydim n ystride = error $! vectorBadInfo symvName "y vector" ydim n ystride
         | lda < n = error $! symvName ++ ": lda (" ++ (show lda) ++ ") must be greater than or equal to n (" ++ (show n) ++ ")."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ symvName ++ " overlap. This is a programmer error. Please fix."
@@ -601,7 +601,7 @@ symvAbstraction symvName symvSafeFFI symvUnsafeFFI constHandler = symv
                      constHandler beta $ \betaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then symvUnsafeFFI else symvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral n) alphaPtr ap (fromIntegral lda) xp (fromIntegral incx) betaPtr yp (fromIntegral incy)
+                         (fromIntegral n) alphaPtr ap (fromIntegral lda) xp (fromIntegral xstride) betaPtr yp (fromIntegral ystride)
 
 {-# NOINLINE syrAbstraction #-}
 syrAbstraction :: (SM.Storable el, PrimMonad m)
@@ -615,9 +615,9 @@ syrAbstraction syrName syrSafeFFI syrUnsafeFFI constHandler = syr
     shouldCallFast :: Int64 -> Bool
     shouldCallFast n = flopsThreshold >= (n * n)
     syr uplo alpha
-      (MutableDenseVector _ xdim _ xbuff) incx
+      (MutableDenseVector _ xdim xstride xbuff)
       (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo syrName "x vector" xdim n incx
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo syrName "x vector" xdim n xstride
         | lda < n = error $! syrName ++ ": lda (" ++ (show lda) ++ ") must be greater than or equal to n (" ++ (show n) ++ ")."
         | SM.overlaps abuff xbuff =
             error $! "The read and write inputs for: " ++ syrName ++ " overlap. This is a programmer error. Please fix."
@@ -630,7 +630,7 @@ syrAbstraction syrName syrSafeFFI syrUnsafeFFI constHandler = syr
                      constHandler alpha $ \alphaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then syrUnsafeFFI else syrSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral n) alphaPtr xp (fromIntegral incx) ap (fromIntegral lda)
+                         (fromIntegral n) alphaPtr xp (fromIntegral xstride) ap (fromIntegral lda)
 
 {-# NOINLINE syr2Abstraction #-}
 syr2Abstraction :: (SM.Storable el, PrimMonad m)
@@ -644,11 +644,11 @@ syr2Abstraction syr2Name syr2SafeFFI syr2UnsafeFFI constHandler = syr2
     shouldCallFast :: Int64 -> Bool
     shouldCallFast n = flopsThreshold >= (n * n * 2)
     syr2 uplo alpha
-      (MutableDenseVector _ xdim _ xbuff) incx
-      (MutableDenseVector _ ydim _ ybuff) incy
+      (MutableDenseVector _ xdim xstride xbuff)
+      (MutableDenseVector _ ydim ystride ybuff)
       (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo syr2Name "x vector" xdim n incx
-        | isVectorBadWithNIncrement ydim n incy = error $! vectorBadInfo syr2Name "y vector" ydim n incy
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo syr2Name "x vector" xdim n xstride
+        | isVectorBadWithNIncrement ydim n ystride = error $! vectorBadInfo syr2Name "y vector" ydim n ystride
         | lda < n = error $! syr2Name ++ ": lda (" ++ (show lda) ++ ") must be greater than or equal to n (" ++ (show n) ++ ")."
         | SM.overlaps abuff xbuff || SM.overlaps abuff ybuff || SM.overlaps xbuff ybuff =
             error $! "The read and write inputs for: " ++ syr2Name ++ " overlap. This is a programmer error. Please fix."
@@ -662,7 +662,7 @@ syr2Abstraction syr2Name syr2SafeFFI syr2UnsafeFFI constHandler = syr2
                      constHandler alpha $ \alphaPtr ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then syr2UnsafeFFI else syr2SafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo)
-                         (fromIntegral n) alphaPtr xp (fromIntegral incx) yp (fromIntegral incy) ap (fromIntegral lda)
+                         (fromIntegral n) alphaPtr xp (fromIntegral xstride) yp (fromIntegral ystride) ap (fromIntegral lda)
 
 -- To get x=A*x.
 {-# NOINLINE tbmvAbstraction #-}
@@ -677,8 +677,8 @@ tbmvAbstraction tbmvName tbmvSafeFFI tbmvUnsafeFFI = tbmv
     shouldCallFast n = flopsThreshold >= (n * n)
     tbmv uplo trans diag k
       (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
-      (MutableDenseVector _ xdim _ xbuff) incx
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo tbmvName "x vector" xdim n incx
+      (MutableDenseVector _ xdim xstride xbuff)
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo tbmvName "x vector" xdim n xstride
         | lda < k + 1 = error $! tbmvName ++ ": lda " ++ (show lda) ++ " should be greater than k " ++ (show k) ++ "."
         | SM.overlaps abuff xbuff =
             error $! "The read and write inputs for: " ++ tbmvName ++ " overlap. This is a programmer error. Please fix."
@@ -690,7 +690,7 @@ tbmvAbstraction tbmvName tbmvSafeFFI tbmvUnsafeFFI = tbmv
                      unsafeWithPrim xbuff $ \xp ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then tbmvUnsafeFFI else tbmvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo) (encodeFFITranspose trans) (encodeFFITriangleSort diag)
-                         (fromIntegral n) (fromIntegral k) ap (fromIntegral lda) xp (fromIntegral incx)
+                         (fromIntegral n) (fromIntegral k) ap (fromIntegral lda) xp (fromIntegral xstride)
 
 -- To solve A*x = b to get x.
 {-# NOINLINE tbsvAbstraction #-}
@@ -705,8 +705,8 @@ tbsvAbstraction tbsvName tbsvSafeFFI tbsvUnsafeFFI = tbsv
     shouldCallFast n = flopsThreshold >= (n * n) -- TODO: to confirm the computation.
     tbsv uplo trans diag k
       (MutableDenseMatrix ornta ax ay _ abuff)  -- (n, lda)
-      (MutableDenseVector _ xdim _ xbuff) incx
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo tbsvName "x vector" xdim n incx
+      (MutableDenseVector _ xdim xstride xbuff)
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo tbsvName "x vector" xdim n xstride
         | lda < k + 1 = error $! tbsvName ++ ": lda " ++ (show lda) ++ " should be greater than k " ++ (show k) ++ "."
         | SM.overlaps abuff xbuff =
             error $! "The read and write inputs for: " ++ tbsvName ++ " overlap. This is a programmer error. Please fix."
@@ -718,7 +718,7 @@ tbsvAbstraction tbsvName tbsvSafeFFI tbsvUnsafeFFI = tbsv
                      unsafeWithPrim xbuff $ \xp ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then tbsvUnsafeFFI else tbsvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFIMatrixHalf uplo) (encodeFFITranspose trans) (encodeFFITriangleSort diag)
-                         (fromIntegral n) (fromIntegral k) ap (fromIntegral lda) xp (fromIntegral incx)
+                         (fromIntegral n) (fromIntegral k) ap (fromIntegral lda) xp (fromIntegral xstride)
 
 -- To get x=A*x. A is array of (n * (n+1) / 2) length
 {-# NOINLINE tpmvAbstraction #-}
@@ -733,8 +733,8 @@ tpmvAbstraction tpmvName tpmvSafeFFI tpmvUnsafeFFI = tpmv
     shouldCallFast n = flopsThreshold >= (n * n)
     tpmv ornt uplo trans diag n
       (MutableDenseVector _ adim _ abuff)
-      (MutableDenseVector _ xdim _ xbuff) incx
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo tpmvName "x vector" xdim n incx
+      (MutableDenseVector _ xdim xstride xbuff)
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo tpmvName "x vector" xdim n xstride
         | adim < (div (n * (n+1)) 2) = error $! tpmvName ++ ": array which has" ++ (show adim) ++ " elements must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
         | SM.overlaps abuff xbuff =
             error $! "The read and write inputs for: " ++ tpmvName ++ " overlap. This is a programmer error. Please fix."
@@ -744,7 +744,7 @@ tpmvAbstraction tpmvName tpmvSafeFFI tpmvUnsafeFFI = tpmv
                      unsafeWithPrim xbuff $ \xp ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then tpmvUnsafeFFI else tpmvSafeFFI)
                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo) (encodeFFITranspose trans) (encodeFFITriangleSort diag)
-                         (fromIntegral n) ap xp (fromIntegral incx)
+                         (fromIntegral n) ap xp (fromIntegral xstride)
 
 -- To solve A*x=b to get x. A is array of (n * (n+1) / 2) length
 {-# NOINLINE tpsvAbstraction #-}
@@ -759,8 +759,8 @@ tpsvAbstraction tpsvName tpsvSafeFFI tpsvUnsafeFFI = tpsv
     shouldCallFast n = flopsThreshold >= (n * n) -- TODO: to confirm the computation.
     tpsv ornt uplo trans diag n
       (MutableDenseVector _ adim _ abuff)
-      (MutableDenseVector _ xdim _ xbuff) incx
-        | isVectorBadWithNIncrement xdim n incx = error $! vectorBadInfo tpsvName "x vector" xdim n incx
+      (MutableDenseVector _ xdim xstride xbuff)
+        | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo tpsvName "x vector" xdim n xstride
         | adim < (div (n * (n+1)) 2) = error $! tpsvName ++ ": array which has" ++ (show adim) ++ " elements must contain at least (n*(n+1)/2) elements with n:" ++ (show n) ++ "."
         | SM.overlaps abuff xbuff =
             error $! "The read and write inputs for: " ++ tpsvName ++ " overlap. This is a programmer error. Please fix."
@@ -770,7 +770,7 @@ tpsvAbstraction tpsvName tpsvSafeFFI tpsvUnsafeFFI = tpsv
                      unsafeWithPrim xbuff $ \xp ->
                        unsafePrimToPrim $! (if shouldCallFast (fromIntegral n) then tpsvUnsafeFFI else tpsvSafeFFI)
                          (encodeNiceOrder ornt) (encodeFFIMatrixHalf uplo) (encodeFFITranspose trans) (encodeFFITriangleSort diag)
-                         (fromIntegral n) ap xp (fromIntegral incx)
+                         (fromIntegral n) ap xp (fromIntegral xstride)
 
 {-# NOINLINE trmvAbstraction #-}
 trmvAbstraction :: (SM.Storable el, PrimMonad m)

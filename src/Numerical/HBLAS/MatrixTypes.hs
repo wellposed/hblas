@@ -348,7 +348,7 @@ generateMutableUpperTriangular sor dims fun = do
     x <- unsafeThawDenseMatrix $! generateDenseMatrix sor dims trimFun
     return x
         where trimFun (x, y) = (if x>=y then fun (x, y) else (0 :: a))
-     
+
 {-# NOINLINE generateMutableLowerTriangular #-}
 generateMutableLowerTriangular :: forall a x m . (Num a, S.Storable a,PrimMonad m)=>
     SOrientation x -> (Int,Int)->((Int,Int)-> a) -> m  (MDenseMatrix (PrimState m) x a)
@@ -363,6 +363,19 @@ generateMutableDenseVector :: (S.Storable a,PrimMonad m) => Int -> (Int -> a) ->
 generateMutableDenseVector size init = do
     mv <- S.unsafeThaw $ S.generate size init
     return $! MutableDenseVector SDirect size 1 mv
+
+{-#NOINLINE generateMutableDenseVectorWithStride#-}
+generateMutableDenseVectorWithStride :: (S.Storable a,PrimMonad m) => Int -> Int -> (Int -> a) ->
+     m (MDenseVector (PrimState m ) Direct a)
+generateMutableDenseVectorWithStride size stride init = do
+    mv <- S.unsafeThaw $ S.generate size init
+    return $! MutableDenseVector SDirect size stride mv
+
+{-#NOINLINE changeMutableDenseVectorStride#-}
+changeMutableDenseVectorStride :: (S.Storable a, PrimMonad m) => MDenseVector (PrimState m) Direct a -> Int ->
+     m (MDenseVector (PrimState m ) Direct a)
+changeMutableDenseVectorStride (MutableDenseVector _ size _ mv) newStride = do
+    return $!  MutableDenseVector SDirect size newStride mv
 
 {-#NOINLINE generateMutableValue#-}
 generateMutableValue :: (S.Storable a, PrimMonad m) => a -> m (MValue (PrimState m) a)

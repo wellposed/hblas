@@ -23,39 +23,39 @@ import  Numerical.HBLAS.BLAS as BLAS
 
 vecTest1SASUM :: IO ()
 vecTest1SASUM = do
-  mat <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
-  res <- BLAS.sasum 6 mat 1
+  vec <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  res <- BLAS.sasum 6 vec
   res @?= 21.0
 
 vecTest2SASUM :: IO ()
 vecTest2SASUM = do
-  mat <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
-  res <- BLAS.sasum 6 mat 2
+  vec <- Matrix.generateMutableDenseVectorWithStride 12 2 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
+  res <- BLAS.sasum 6 vec
   res @?= 36.0
 
 vecTest1SAXPY :: IO ()
 vecTest1SAXPY = do
   input <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
   output <- Matrix.generateMutableDenseVector 6 (\idx -> [2.0, 3.0, 4.0, 3.0, 5.0, 6.0] !! idx)
-  BLAS.saxpy 6 (-1.0) input 1 output 1
+  BLAS.saxpy 6 (-1.0) input output
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector output
   resList @?= [1, 1, 1, -1, 0, 0]
 
 vecTest2SAXPY :: IO ()
 vecTest2SAXPY = do
-  input <- Matrix.generateMutableDenseVector 18 (\idx -> [2.0, 0.0, 0.0,
-                                                          3.0, 0.0, 0.0,
-                                                          -4.0, 0.0, 0.0,
-                                                          -3.0, 0.0, 0.0,
-                                                          -5.0, 0.0, 0.0,
-                                                          -6.0, 0.0, 0.0] !! idx)
-  output <- Matrix.generateMutableDenseVector 12 (\idx -> [-1.0, 0.0,
-                                                           -2.0, 0.0,
-                                                           3.0, 0.0,
-                                                           4.0, 0.0,
-                                                           5.0, 0.0,
-                                                           6.0, 0.0] !! idx)
-  BLAS.saxpy 6 2.0 input 3 output 2
+  input <- Matrix.generateMutableDenseVectorWithStride 18 3 (\idx -> [2.0, 0.0, 0.0,
+                                                              3.0, 0.0, 0.0,
+                                                              -4.0, 0.0, 0.0,
+                                                              -3.0, 0.0, 0.0,
+                                                              -5.0, 0.0, 0.0,
+                                                              -6.0, 0.0, 0.0] !! idx)
+  output <- Matrix.generateMutableDenseVectorWithStride 12 2 (\idx -> [-1.0, 0.0,
+                                                               -2.0, 0.0,
+                                                               3.0, 0.0,
+                                                               4.0, 0.0,
+                                                               5.0, 0.0,
+                                                               6.0, 0.0] !! idx)
+  BLAS.saxpy 6 2.0 input output
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector output
   resList @?= [3, 0, 4, 0, -5, 0, -2, 0, -5, 0, -6, 0]
 
@@ -63,81 +63,81 @@ vecTest1DCOPY :: IO ()
 vecTest1DCOPY = do
   input <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
   output <- Matrix.generateMutableDenseVector 6 (const 0.0)
-  BLAS.dcopy 6 input 1 output 1
+  BLAS.dcopy 6 input output
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector output
   resList @?= [1, 2, 3, 4, 5, 6]
 
 vecTest2DCOPY :: IO ()
 vecTest2DCOPY = do
-  input <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
-  output <- Matrix.generateMutableDenseVector 9 (const 0.0)
-  BLAS.dcopy 3 input 2 output 3
+  input <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  output <- Matrix.generateMutableDenseVectorWithStride 9 3 (const 0.0)
+  BLAS.dcopy 3 input output
   resList <- Matrix.mutableVectorToList $ _bufferMutDenseVector output
   resList @?= [1, 0, 0, 3, 0, 0, 5, 0, 0]
 
 vecTest1SDOT :: IO ()
 vecTest1SDOT = do
-  left <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
-  right <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
-  res <- sdot 3 left 2 right 4
+  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 12 4 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
+  res <- sdot 3 left right
   res @?= 1 + 15 + 45
 
 vecTest1DDOT :: IO ()
 vecTest1DDOT = do
-  left <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
-  right <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
-  res <- ddot 6 left 2 right 1
+  left <- Matrix.generateMutableDenseVectorWithStride 12 2 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 6 1 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  res <- ddot 6 left right
   res @?= 1 + 6 + 15 + 28 + 45 + 66
 
 vecTest1SDSDOT :: IO ()
 vecTest1SDSDOT = do
-  left <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
-  right <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
-  res <- sdsdot 3 2.0 left 2 right 4
+  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 12 4 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
+  res <- sdsdot 3 2.0 left right
   res @?= 2 + 1 + 15 + 45
 
 vecTest1DSDOT :: IO ()
 vecTest1DSDOT = do
-  left <- Matrix.generateMutableDenseVector 12 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
-  right <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
-  res <- dsdot 6 left 2 right 1
+  left <- Matrix.generateMutableDenseVectorWithStride 12 2 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 6 1 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  res <- dsdot 6 left right
   res @?= 1 + 6 + 15 + 28 + 45 + 66
 
 vecTest1CDOTU :: IO ()
 vecTest1CDOTU = do
-  left <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
-  right <- Matrix.generateMutableDenseVector 9 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
   res <- Matrix.generateMutableValue (1:+1)
-  cdotu 3 left 2 right 3 res
+  cdotu 3 left right res
   resValue <- Matrix.mutableValueToValue res
   resValue @?= 5:+1
 
 vecTest1CDOTC :: IO ()
 vecTest1CDOTC = do
-  left <- Matrix.generateMutableDenseVector 6 (\idx -> [2:+3, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
-  right <- Matrix.generateMutableDenseVector 9 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [2:+3, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
   res <- Matrix.generateMutableValue (1:+1)
-  cdotc 3 left 2 right 3 res
+  cdotc 3 left right res
   resValue <- Matrix.mutableValueToValue res
   resValue @?= (-2):+(-9)
 
 vecTest1SNRM2 :: IO ()
 vecTest1SNRM2 = do
   input <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, -2.0, 3.0, -4.0, 5.0, -6.0] !! idx)
-  res <- snrm2 6 input 1
+  res <- snrm2 6 input
   True @?= 1e-6 > (abs $ res - (sqrt $ sum $ fmap (\x->x^2) [1, 2, 3, 4, 5, 6]))
 
 vecTest1DZNRM2 :: IO ()
 vecTest1DZNRM2 = do
-  input <- Matrix.generateMutableDenseVector 8 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1] !! idx)
-  res <- dznrm2 4 input 2
+  input <- Matrix.generateMutableDenseVectorWithStride 8 2 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1] !! idx)
+  res <- dznrm2 4 input
   True @?= 1e-12 > (abs $ res - (sqrt $ sum $ fmap (\x->x^2) [1, 1, 2, 3, 3, 1, 4, 2]))
 
 vecTest1SROT :: IO ()
 vecTest1SROT = do
-  left <- Matrix.generateMutableDenseVector 6 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
-  right <- Matrix.generateMutableDenseVector 6 (\idx -> [6.0, 5.0, 4.0, 3.0, 2.0, 1.0] !! idx)
-  srot 3 left 2 right 2 (-1) 2
+  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [6.0, 5.0, 4.0, 3.0, 2.0, 1.0] !! idx)
+  srot 3 left right (-1) 2
   resLeft <- Matrix.mutableVectorToList $ _bufferMutDenseVector left
   resRight <- Matrix.mutableVectorToList $ _bufferMutDenseVector right
   resLeft @?= [11.0, 2.0, 5.0, 4.0, -1.0, 6.0]
@@ -145,9 +145,9 @@ vecTest1SROT = do
 
 vecTest1DROT :: IO ()
 vecTest1DROT = do
-  left <- Matrix.generateMutableDenseVector 4 (\idx -> [1, 2, 3, 4] !! idx)
-  right <- Matrix.generateMutableDenseVector 8 (\idx -> [8, 7, 6, 5, 4, 3, 2, 1] !! idx)
-  drot 4 left 1 right 2 0 (-2)
+  left <- Matrix.generateMutableDenseVectorWithStride 4 1 (\idx -> [1, 2, 3, 4] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 8 2 (\idx -> [8, 7, 6, 5, 4, 3, 2, 1] !! idx)
+  drot 4 left right 0 (-2)
   resLeft <- Matrix.mutableVectorToList $ _bufferMutDenseVector left
   resRight <- Matrix.mutableVectorToList $ _bufferMutDenseVector right
   resLeft @?= [-16, -12, -8, -4]
@@ -187,10 +187,10 @@ vecTest1DROTG = do
 
 vecTest1DROTM :: IO ()
 vecTest1DROTM = do
-  x <- Matrix.generateMutableDenseVector 4 (\idx -> [1, 2, 3, 4] !! idx)
-  y <- Matrix.generateMutableDenseVector 8 (\idx -> [8, 7, 6, 5, 4, 3, 2, 1] !! idx)
+  x <- Matrix.generateMutableDenseVectorWithStride 4 1 (\idx -> [1, 2, 3, 4] !! idx)
+  y <- Matrix.generateMutableDenseVectorWithStride 8 2 (\idx -> [8, 7, 6, 5, 4, 3, 2, 1] !! idx)
   param <- Matrix.generateMutableDenseVector 5 (\idx -> [-1, 0, -1, 1, 0] !! idx)
-  drotm 4 x 1 y 2 param
+  drotm 4 x y param
   resX <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
   resY <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resX @?= [8, 6, 4, 2]
@@ -198,10 +198,10 @@ vecTest1DROTM = do
 
 vecTest1SROTM :: IO ()
 vecTest1SROTM = do
-  x <- Matrix.generateMutableDenseVector 6 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
-  y <- Matrix.generateMutableDenseVector 9 (\idx -> [9, 8, 7, 6, 5, 4, 3, 2, 1] !! idx)
+  x <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1, 2, 3, 4, 5, 6] !! idx)
+  y <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [9, 8, 7, 6, 5, 4, 3, 2, 1] !! idx)
   param <- Matrix.generateMutableDenseVector 5 (\idx -> [1, 1, 2, -2, 1] !! idx)
-  srotm 3 x 2 y 3 param
+  srotm 3 x y param
   resX <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
   resY <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   resX @?= [10, 2, 9, 4, 8, 6]
@@ -226,30 +226,30 @@ vecTest1SROTMG = do
 
 vecTest1SSCAL :: IO ()
 vecTest1SSCAL = do
-  x <- Matrix.generateMutableDenseVector 8 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
-  sscal 4 (-2) x 2
+  x <- Matrix.generateMutableDenseVectorWithStride 8 2 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
+  sscal 4 (-2) x
   xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
   xRes @?= [-2, 2, -6, 4, -10, 6, -14, 8]
 
 vecTest1CSCAL :: IO ()
 vecTest1CSCAL = do
-  x <- Matrix.generateMutableDenseVector 8 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1] !! idx)
-  cscal 2 (2:+(-2)) x 4
+  x <- Matrix.generateMutableDenseVectorWithStride 8 4 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1] !! idx)
+  cscal 2 (2:+(-2)) x
   xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
   xRes @?= [4:+0, 1:+2, 2:+(-3), 2:+(-2), (-4):+8, (-3):+0, (-4):+2, (-4):+1]
 
 vecTest1CSSCAL :: IO ()
 vecTest1CSSCAL = do
   x <- Matrix.generateMutableDenseVector 8 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1] !! idx)
-  csscal 8 (-2) x 1
+  csscal 8 (-2) x
   xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
   xRes @?= [(-2):+(-2), (-2):+(-4), (-4):+6, (-4):+4, 6:+(-2), 6:+0, 8:+(-4), 8:+(-2)]
 
 vecTest1SSWAP :: IO ()
 vecTest1SSWAP = do
-  x <- Matrix.generateMutableDenseVector 8 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
-  y <- Matrix.generateMutableDenseVector 4 (\idx -> [-1, -2, -3, -4] !! idx)
-  sswap 4 x 2 y 1
+  x <- Matrix.generateMutableDenseVectorWithStride 8 2 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
+  y <- Matrix.generateMutableDenseVectorWithStride 4 1 (\idx -> [-1, -2, -3, -4] !! idx)
+  sswap 4 x y
   xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
   yRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   xRes @?= [-1, 2, -2, 4, -3, 6, -4, 8]
@@ -257,9 +257,9 @@ vecTest1SSWAP = do
 
 vecTest1CSWAP :: IO ()
 vecTest1CSWAP = do
-  x <- Matrix.generateMutableDenseVector 9 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1, 0:+9] !! idx)
-  y <- Matrix.generateMutableDenseVector 6 (\idx -> [1:+2, 1:+3, 3:+(-3), 2:+2, 3:+1, 3:+3] !! idx)
-  cswap 3 x 3 y 2
+  x <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1, 0:+9] !! idx)
+  y <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1:+2, 1:+3, 3:+(-3), 2:+2, 3:+1, 3:+3] !! idx)
+  cswap 3 x y
   xRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector x
   yRes <- Matrix.mutableVectorToList $ _bufferMutDenseVector y
   xRes @?= [1:+2, 1:+2, 2:+(-3), 3:+(-3), (-3):+1, (-3):+0, 3:+1, (-4):+1, 0:+9]
@@ -267,14 +267,14 @@ vecTest1CSWAP = do
 
 vecTest1ISAMAX :: IO ()
 vecTest1ISAMAX = do
-  x <- Matrix.generateMutableDenseVector 8 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
-  idx <- isamax 4 x 2
+  x <- Matrix.generateMutableDenseVectorWithStride 8 2 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
+  idx <- isamax 4 x
   idx @?= 3
 
 vecTest1ICAMAX :: IO ()
 vecTest1ICAMAX = do
   x <- Matrix.generateMutableDenseVector 9 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1, 0:+9] !! idx)
-  idx <- icamax 9 x 1
+  idx <- icamax 9 x
   idx @?= 8
 
 {-
