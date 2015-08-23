@@ -19,7 +19,7 @@ import qualified Data.Vector.Storable.Mutable as SMV
 import Data.Complex
 
 import  Numerical.HBLAS.MatrixTypes as Matrix
-import  Numerical.HBLAS.BLAS as BLAS
+import  Numerical.HBLAS.BLAS.Level2 as BLAS
 
 
 --unitTestShape = testGroup "Shape Unit tests"

@@ -18,7 +18,7 @@ import qualified Data.Vector.Storable.Mutable as SMV
 import Data.Complex
 
 import  Numerical.HBLAS.MatrixTypes as Matrix
-import  Numerical.HBLAS.BLAS as BLAS
+import  Numerical.HBLAS.BLAS.Level3 as BLAS
 
 matmatTest1SGEMM:: IO ()
 matmatTest1SGEMM = do

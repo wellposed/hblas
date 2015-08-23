@@ -103,7 +103,9 @@ library
     Numerical.HBLAS.BLAS.FFI.Level3
     Numerical.HBLAS.MatrixTypes
     Numerical.HBLAS.UtilsFFI
-    Numerical.HBLAS.BLAS
+    Numerical.HBLAS.BLAS.Level1
+    Numerical.HBLAS.BLAS.Level2
+    Numerical.HBLAS.BLAS.Level3
     Numerical.HBLAS.BLAS.Internal.Level1
     Numerical.HBLAS.BLAS.Internal.Level2
     Numerical.HBLAS.BLAS.Internal.Level3

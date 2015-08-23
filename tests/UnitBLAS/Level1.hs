@@ -19,7 +19,7 @@ import qualified Data.Vector.Storable.Mutable as SMV
 import Data.Complex
 
 import  Numerical.HBLAS.MatrixTypes as Matrix
-import  Numerical.HBLAS.BLAS as BLAS
+import  Numerical.HBLAS.BLAS.Level1 as BLAS
 
 vecTest1SASUM :: IO ()
 vecTest1SASUM = do
