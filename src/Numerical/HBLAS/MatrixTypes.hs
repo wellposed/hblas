@@ -102,7 +102,7 @@ sTranpose SColumn = SRow
 sTranpose SRow = SColumn
 
 
---- | May Blas and Lapack routines allow you to implicitly tranpose your argumments
+--- | Many Blas and Lapack routines allow you to implicitly tranpose your argumments
 data Transpose = NoTranspose | Transpose | ConjTranspose | ConjNoTranspose
     deriving(Typeable,Eq,Show)
 
@@ -132,12 +132,12 @@ type instance TransposeF Row = Column
 type instance TransposeF Column = Row
 
 
-data MValue :: * -> * -> * where
-    MutableValue :: { _bufferMutVector :: !(S.MVector s elem)
-                    } -> MValue s elem
-#if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
-    deriving (Typeable)
-#endif
+--data MValue :: * -> * -> * where
+--    MutableValue :: { _bufferMutVector :: !(S.MVector s elem)
+--                    } -> MValue s elem
+-- # if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
+--    deriving (Typeable)
+-- # endif
 
 
 data Variant = Direct | Implicit
@@ -149,8 +149,8 @@ data Variant = Direct | Implicit
 -- If you don't understand this parameter, just use 'SDirect' and 'Direct'
 -- as they will generally be the correct choice for most users.
 data SVariant :: Variant -> * where
-    SImplicit :: {_frontPadding ::{-UNPACK-} !Int, _endPadding:: {-#UNPACK#-} !Int } -> SVariant Implicit
-    SDirect :: SVariant Direct
+    SImplicit :: {_frontPadding ::{-UNPACK-} !Int, _endPadding:: {-#UNPACK#-} !Int } -> SVariant 'Implicit
+    SDirect :: SVariant 'Direct
 
 data DenseVector :: Variant -> * -> * where
     DenseVector :: { _VariantDenseVect ::  !(SVariant varnt)
@@ -194,11 +194,11 @@ mutableVectorToList mv =  do
         return (S.toList v )
 {-# NOINLINE mutableVectorToList #-}
 
-mutableValueToValue :: (PrimMonad m, S.Storable a) => MValue (PrimState m) a -> m a
-mutableValueToValue mv = do
-  listValue <- mutableVectorToList $ _bufferMutVector mv
-  return $ listValue !! 0
-{-# NOINLINE mutableValueToValue #-}
+--mutableValueToValue :: (PrimMonad m, S.Storable a) => MValue (PrimState m) a -> m a
+--mutableValueToValue mv = do
+--  listValue <- mutableVectorToList $ _bufferMutVector mv
+--  return $ listValue !! 0
+--{-# NOINLINE mutableValueToValue #-}
 
 {-
 need to handle rendering a slice differently than a direct matrix
@@ -359,29 +359,29 @@ generateMutableLowerTriangular sor dims fun = do
 
 {-#NOINLINE generateMutableDenseVector#-}
 generateMutableDenseVector :: (S.Storable a,PrimMonad m) => Int -> (Int -> a) ->
-     m (MDenseVector (PrimState m ) Direct a)
+     m (MDenseVector (PrimState m ) 'Direct a)
 generateMutableDenseVector size init = do
     mv <- S.unsafeThaw $ S.generate size init
     return $! MutableDenseVector SDirect size 1 mv
 
 {-#NOINLINE generateMutableDenseVectorWithStride#-}
 generateMutableDenseVectorWithStride :: (S.Storable a,PrimMonad m) => Int -> Int -> (Int -> a) ->
-     m (MDenseVector (PrimState m ) Direct a)
+     m (MDenseVector (PrimState m ) 'Direct a)
 generateMutableDenseVectorWithStride size stride init = do
     mv <- S.unsafeThaw $ S.generate size init
     return $! MutableDenseVector SDirect size stride mv
 
 {-#NOINLINE changeMutableDenseVectorStride#-}
-changeMutableDenseVectorStride :: (S.Storable a, PrimMonad m) => MDenseVector (PrimState m) Direct a -> Int ->
-     m (MDenseVector (PrimState m ) Direct a)
+changeMutableDenseVectorStride :: (S.Storable a, PrimMonad m) => MDenseVector (PrimState m) 'Direct a -> Int ->
+     m (MDenseVector (PrimState m ) 'Direct a)
 changeMutableDenseVectorStride (MutableDenseVector _ size _ mv) newStride = do
     return $!  MutableDenseVector SDirect size newStride mv
 
-{-#NOINLINE generateMutableValue#-}
-generateMutableValue :: (S.Storable a, PrimMonad m) => a -> m (MValue (PrimState m) a)
-generateMutableValue value = do
-    valVect <- SM.replicate 1 value
-    return $! MutableValue valVect
+--{-#NOINLINE generateMutableValue#-}
+--generateMutableValue :: (S.Storable a, PrimMonad m) => a -> m (MValue (PrimState m) a)
+--generateMutableValue value = do
+--    valVect <- SM.replicate 1 value
+--    return $! MutableValue valVect
 
 --- this (uncheckedMatrixSlice) will need to have its inlining quality checked
 

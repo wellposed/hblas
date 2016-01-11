@@ -49,12 +49,16 @@ type AxpyFun el s m = Int -> el -> MDenseVector s Direct el -> MDenseVector s Di
 type CopyFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
 type NoScalarDotFun el s m res = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> m res
 type ScalarDotFun el s m res = Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m res
-type ComplexDotFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> MValue (PrimState m) el -> m()
+type ComplexDotFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el ->  m el {-MValue (PrimState m) el -> m()-}
 type Nrm2Fun el s m res = Int -> MDenseVector s Direct el -> m res
 type RotFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> el -> el -> m()
+{-
+
 type RotgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> m()
 type RotmFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
 type RotmgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> el -> MDenseVector s Direct el -> m()
+
+-}
 type ScalFun scale el s m = Int -> scale -> MDenseVector s Direct el -> m()
 type SwapFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
 type IamaxFun el s m = Int -> MDenseVector s Direct el -> m Int
@@ -161,7 +165,7 @@ complexDotAbstraction dotName dotSafeFFI dotUnsafeFFI = dot
     dot n
       (MutableDenseVector _ adim astride abuff)
       (MutableDenseVector _ bdim bstride bbuff)
-      (MutableValue resbuff)
+      --(MutableValue resbuff)
         | isVectorBadWithNIncrement adim n astride = error $! vectorBadInfo dotName "first matrix" adim n astride
         | isVectorBadWithNIncrement bdim n bstride = error $! vectorBadInfo dotName "second matrix" bdim n bstride
         | otherwise =
@@ -203,7 +207,7 @@ rotAbstraction rotName rotSafeFFI rotUnsafeFFI = rot
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
             do unsafePrimToPrim $! (if shouldCallFast n then rotUnsafeFFI else rotSafeFFI) (fromIntegral n) ap (fromIntegral astride) bp (fromIntegral bstride) c s
-
+{-
 {-# NOINLINE rotgAbstraction #-}
 rotgAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
   RotgFunFFI el -> RotgFunFFI el ->
@@ -258,7 +262,7 @@ rotmgAbstraction rotmgName rotmgSafeFFI rotmgUnsafeFFI = rotmg
         unsafeWithPrim d2 $ \d2p ->
         unsafeWithPrim x1 $ \x1p ->
         unsafeWithPrim pbuff $ \pp ->
-          do unsafePrimToPrim $! (if shouldCallFast then rotmgUnsafeFFI else rotmgSafeFFI) d1p d2p x1p y1 pp
+          do unsafePrimToPrim $! (if shouldCallFast then rotmgUnsafeFFI else rotmgSafeFFI) d1p d2p x1p y1 pp-}
 
 {-# NOINLINE scalAbstraction #-}
 scalAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->

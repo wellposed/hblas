@@ -1,22 +1,48 @@
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Trustworthy, ExplicitForAll, ScopedTypeVariables #-}
 {- VERY TRUST WORTHY :) -}
-module Numerical.HBLAS.UtilsFFI where
+module Numerical.HBLAS.UtilsFFI( withAllocaPrim
+  , unsafeWithPrim
+  , withRStorable_
+  , storablePtrZero )  where
 
 
 
 import   Data.Vector.Storable.Mutable  as  M
 import Control.Monad.Primitive
-import Foreign.ForeignPtr.Safe
-import Foreign.ForeignPtr.Unsafe
+import Foreign.ForeignPtr
+import  qualified Foreign.ForeignPtr.Unsafe as FFU
 
 import Foreign.Storable.Complex()
 import Data.Vector.Storable as S
 import Foreign.Ptr
-
+import GHC.Ptr (Ptr(..))
+import Foreign.Storable
+import Foreign.Marshal (alloca)
+import Data.Primitive.Addr
+import Data.Word
 {-
 the IO version of these various utils is in Base.
 but would like to have the
 -}
+
+storablePtrZero :: forall a m .  (Storable a, PrimMonad m) => Ptr a -> m ()
+{-# INLINE storablePtrZero #-}
+storablePtrZero = \ (Ptr p ) -> let
+     x :: a
+     x = undefined
+     byteSize :: Int
+     byteSize = sizeOf x
+    in
+    if byteSize /= 0 then
+         do
+            let q = Addr p
+            setAddr q byteSize (0 :: Word8)
+          else return ()
+
+withAllocaPrim ::  (Storable a, PrimMonad m, PrimBase min) => (Ptr a -> min b) -> m b
+withAllocaPrim = \ f ->  unsafePrimToPrim $ alloca ( unsafePrimToIO . f )
+
+--withAllocaZerodPrim
 
 withRWStorable:: (Storable a, PrimMonad m)=> a -> (Ptr a -> m b) -> m a
 withRWStorable val fun = do
@@ -42,7 +68,7 @@ withRStorable_ val fun = do
 
 withForeignPtrPrim :: PrimMonad m => ForeignPtr a -> (Ptr a -> m b) -> m b
 withForeignPtrPrim  fo act
-  = do r <- act (unsafeForeignPtrToPtr fo)
+  = do r <- act (FFU.unsafeForeignPtrToPtr fo)
        touchForeignPtrPrim fo
        return r
 {-# INLINE withForeignPtrPrim #-}

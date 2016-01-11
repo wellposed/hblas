@@ -94,7 +94,7 @@ foreign import ccall unsafe "cblas_ddot" cblas_ddot_unsafe :: NoScalarDotFunFFI 
 --Float  cblas_sdot(  CInt n,   Float  *x,   CInt incx,   Float  *y,   CInt incy);
 --Double cblas_ddot(  CInt n,   Double *x,   CInt incx,   Double *y,   CInt incy);
 
---complex dot products
+--complex dot products that CONJUGATE end in C, others end in U
 type ComplexDotFunFFI el = CInt -> Ptr el -> CInt -> Ptr el -> CInt -> Ptr el -> IO ()
 foreign import ccall "cblas_cdotu_sub" cblas_cdotu_safe :: ComplexDotFunFFI (Complex Float)
 foreign import ccall "cblas_cdotc_sub" cblas_cdotc_safe :: ComplexDotFunFFI (Complex Float)
