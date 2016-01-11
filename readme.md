@@ -76,7 +76,7 @@ example_dgemm = do
     right <- constMatrix 2 (3 :: Double)
     out   <- constMatrix 2 (0 :: Double)
 
-    dgemm NoTranspose NoTranspose 1.0 1.0 left right res
+    dgemm NoTranspose NoTranspose 1.0 1.0 left right out
 
     resulting <- mutableVectorToList $ _bufferDenMutMat out
     print resulting
