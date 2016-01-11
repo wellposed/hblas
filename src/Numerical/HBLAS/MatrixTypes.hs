@@ -132,7 +132,12 @@ type instance TransposeF Row = Column
 type instance TransposeF Column = Row
 
 
-
+data MValue :: * -> * -> * where
+    MutableValue :: { _bufferMutVector :: !(S.MVector s elem)
+                    } -> MValue s elem
+#if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
+    deriving (Typeable)
+#endif
 
 
 data Variant = Direct | Implicit
@@ -188,6 +193,12 @@ mutableVectorToList mv =  do
         v <- S.unsafeFreeze mv
         return (S.toList v )
 {-# NOINLINE mutableVectorToList #-}
+
+mutableValueToValue :: (PrimMonad m, S.Storable a) => MValue (PrimState m) a -> m a
+mutableValueToValue mv = do
+  listValue <- mutableVectorToList $ _bufferMutVector mv
+  return $ listValue !! 0
+{-# NOINLINE mutableValueToValue #-}
 
 {-
 need to handle rendering a slice differently than a direct matrix
@@ -337,7 +348,7 @@ generateMutableUpperTriangular sor dims fun = do
     x <- unsafeThawDenseMatrix $! generateDenseMatrix sor dims trimFun
     return x
         where trimFun (x, y) = (if x>=y then fun (x, y) else (0 :: a))
-     
+
 {-# NOINLINE generateMutableLowerTriangular #-}
 generateMutableLowerTriangular :: forall a x m . (Num a, S.Storable a,PrimMonad m)=>
     SOrientation x -> (Int,Int)->((Int,Int)-> a) -> m  (MDenseMatrix (PrimState m) x a)
@@ -352,6 +363,25 @@ generateMutableDenseVector :: (S.Storable a,PrimMonad m) => Int -> (Int -> a) ->
 generateMutableDenseVector size init = do
     mv <- S.unsafeThaw $ S.generate size init
     return $! MutableDenseVector SDirect size 1 mv
+
+{-#NOINLINE generateMutableDenseVectorWithStride#-}
+generateMutableDenseVectorWithStride :: (S.Storable a,PrimMonad m) => Int -> Int -> (Int -> a) ->
+     m (MDenseVector (PrimState m ) Direct a)
+generateMutableDenseVectorWithStride size stride init = do
+    mv <- S.unsafeThaw $ S.generate size init
+    return $! MutableDenseVector SDirect size stride mv
+
+{-#NOINLINE changeMutableDenseVectorStride#-}
+changeMutableDenseVectorStride :: (S.Storable a, PrimMonad m) => MDenseVector (PrimState m) Direct a -> Int ->
+     m (MDenseVector (PrimState m ) Direct a)
+changeMutableDenseVectorStride (MutableDenseVector _ size _ mv) newStride = do
+    return $!  MutableDenseVector SDirect size newStride mv
+
+{-#NOINLINE generateMutableValue#-}
+generateMutableValue :: (S.Storable a, PrimMonad m) => a -> m (MValue (PrimState m) a)
+generateMutableValue value = do
+    valVect <- SM.replicate 1 value
+    return $! MutableValue valVect
 
 --- this (uncheckedMatrixSlice) will need to have its inlining quality checked
 

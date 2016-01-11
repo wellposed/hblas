@@ -98,10 +98,16 @@ library
 
   -- Modules exported by the library.
   exposed-modules:      Numerical.HBLAS.BLAS.FFI
+    Numerical.HBLAS.BLAS.FFI.Level1
+    Numerical.HBLAS.BLAS.FFI.Level2
+    Numerical.HBLAS.BLAS.FFI.Level3
     Numerical.HBLAS.MatrixTypes
     Numerical.HBLAS.UtilsFFI
     Numerical.HBLAS.BLAS
-    Numerical.HBLAS.BLAS.Internal
+    Numerical.HBLAS.BLAS.Internal.Level1
+    Numerical.HBLAS.BLAS.Internal.Level2
+    Numerical.HBLAS.BLAS.Internal.Level3
+    Numerical.HBLAS.BLAS.Internal.Utility
     Numerical.HBLAS.Lapack
     Numerical.HBLAS.Lapack.FFI
     Numerical.HBLAS.Constants
