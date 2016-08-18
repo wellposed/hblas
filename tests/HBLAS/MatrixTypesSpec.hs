@@ -1,12 +1,22 @@
-module UnitMatrixTypes.DenseMatrix(unitTestDenseMatrix) where
+module HBLAS.MatrixTypesSpec(main, spec) where
 
-import Test.Tasty
-import Test.Tasty.HUnit
+import Test.Hspec
 
 import qualified Data.Vector.Storable as SV
 
 import  Numerical.HBLAS.MatrixTypes as Matrix
 
+main :: IO ()
+main = hspec spec
+
+spec :: Spec
+spec = do
+  describe "Column Matrix" $
+    it "show on column oriented matrix"
+      pending
+  describe "Row Matrix" $
+    it "show on row oriented matrix"
+      pending
 
 {-
  -showColumnMatrixTest :: IO ()
@@ -19,11 +29,3 @@ import  Numerical.HBLAS.MatrixTypes as Matrix
  -    let matrix = Matrix.DenseMatrix Matrix.SRow 3 2 3 $ SV.fromList ([1..6] :: [Float])
  -    matrix @?= DenseMatrix SRow  3 2 3 (SV.fromList [1.0,2.0,3.0,4.0,5.0,6.0])
  -}
-
-unitTestDenseMatrix = testGroup "DenseMatrix tests " []
-    {-
-     -[ testCase "show on column oriented matrix" showColumnMatrixTest
-     -, testCase "show on row oriented matrix" showRowMatrixTest
-     -]
-     -}
-

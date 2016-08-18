@@ -5,7 +5,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FunctionalDependencies #-}
 
-module BLAS.Level1Spec (main, spec) where
+module HBLAS.BLAS.Level1Spec (main, spec) where
 
 import Data.Complex
 
@@ -24,15 +24,17 @@ spec = do
   copySpec
   dotSpec
   sdotSpec
+  dotcSpec
+  dotuSpec
   nrm2Spec
   rotSpec
-  --rotgSpec
-  --rotmSpec
-  --rotmgSpec
+  rotgSpec
+  rotmSpec
+  rotmgSpec
   scalSpec
   swapSpec
   iamaxSpec
-  --iaminSpec 
+  iaminSpec 
 
 asumSpec :: Spec
 asumSpec =
@@ -157,6 +159,20 @@ vecTest1DSDOT = do
   res `shouldBe` ((1 + 6 + 15 + 28 + 45 + 66) :: Double)
 
 
+dotcSpec :: Spec
+dotcSpec =
+  context "?DOTC" $ do
+    describe "CDOTC" $ do
+      it "vectors of length 6 and 9 with incx 2 and 3" $ do
+        vecTest1CDOTC
+        
+
+vecTest1CDOTC :: IO ()
+vecTest1CDOTC = do
+  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [2:+3, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  cdotc 3 left right `shouldReturn` ((-2):+(-9) :: Complex Float)
+
 
 dotuSpec :: Spec
 dotuSpec =
@@ -164,35 +180,15 @@ dotuSpec =
     describe "CDOTU" $ do
       it "vectors of length 6 and 9 with incx of 2 and 3" $ do
         vecTest1CDOTU
-        
+
 vecTest1CDOTU :: IO ()
 vecTest1CDOTU = do
   left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
   right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
-  res <- Matrix.generateMutableValue (1:+1)
-  cdotu 3 left right res
-  resValue <- Matrix.mutableValueToValue res
-  resValue `shouldBe` 5:+1
+  --res <- Matrix.generateMutableValue (1:+1)
+  res <- cdotu 3 left right
 
-
-
-dotcSpec :: Spec
-dotcSpec =
-  context "?DOTC" $ do
-    describe "CDOTC" $ do
-      it "vectors of length 6 and 9 with incx 2 and 3" $ do
-        vecTest1CDOTC
-
-vecTest1CDOTC :: IO ()
-vecTest1CDOTC = do
-  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [2:+3, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
-  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
-  res <- Matrix.generateMutableValue (1:+1)
-  cdotc 3 left right res
-  resValue <- Matrix.mutableValueToValue res
-  resValue `shouldBe` (-2):+(-9)
-
-
+  res `shouldBe` 5:+1
 
 nrm2Spec :: Spec
 nrm2Spec =
@@ -247,58 +243,58 @@ vecTest1DROT = do
   resLeft `shouldBe` [-16, -12, -8, -4]
   resRight `shouldBe` [2, 7, 4, 5, 6, 3, 8, 1]
 
-{-
 rotgSpec :: Spec
 rotgSpec =
   context "?ROTG" $ do
     describe "SROTG" $ do
       it "apply on 3 and 4" $ do
-        vecTest1SROTG
+        pending
     describe "DROTG" $ do
       it "apply on 5.8 and 3.4" $ do
-        vecTest1DROTG
-vecTest1SROTG :: IO ()
-vecTest1SROTG = do
-  a <- Matrix.generateMutableValue 3
-  b <- Matrix.generateMutableValue 4
-  c <- Matrix.generateMutableValue 0
-  s <- Matrix.generateMutableValue 0
-  srotg a b c s
-  av <- Matrix.mutableValueToValue a
-  bv <- Matrix.mutableValueToValue b
-  cv <- Matrix.mutableValueToValue c
-  sv <- Matrix.mutableValueToValue s
-  av `shouldBe` 5
-  True `shouldBe` 1e-6 > (abs $ bv - 1/0.6)
-  cv `shouldBe` 0.6
-  sv `shouldBe` 0.8
+        pending
 
-vecTest1DROTG :: IO ()
-vecTest1DROTG = do
-  a <- Matrix.generateMutableValue 5.8
-  b <- Matrix.generateMutableValue 3.4
-  c <- Matrix.generateMutableValue 0
-  s <- Matrix.generateMutableValue 0
-  drotg a b c s
-  av <- Matrix.mutableValueToValue a
-  bv <- Matrix.mutableValueToValue b
-  cv <- Matrix.mutableValueToValue c
-  sv <- Matrix.mutableValueToValue s
-  True `shouldBe` 1e-12 > (abs $ av - sqrt(3.4^2 + 5.8^2))
-  True `shouldBe` 1e-12 > (abs $ bv - 3.4 / sqrt(3.4^2 + 5.8^2))
-  True `shouldBe` 1e-12 > (abs $ cv - 5.8 / sqrt(3.4^2 + 5.8^2))
-  True `shouldBe` 1e-12 > (abs $ sv - 3.4 / sqrt(3.4^2 + 5.8^2))
--}
+{-vecTest1SROTG :: IO ()-}
+{-vecTest1SROTG = do-}
+  {-a <- Matrix.generateMutableValue 3-}
+  {-b <- Matrix.generateMutableValue 4-}
+  {-c <- Matrix.generateMutableValue 0-}
+  {-s <- Matrix.generateMutableValue 0-}
+  {-srotg a b c s-}
+  {-av <- Matrix.mutableValueToValue a-}
+  {-bv <- Matrix.mutableValueToValue b-}
+  {-cv <- Matrix.mutableValueToValue c-}
+  {-sv <- Matrix.mutableValueToValue s-}
+  {-av `shouldBe` 5-}
+  {-True `shouldBe` 1e-6 > (abs $ bv - 1/0.6)-}
+  {-cv `shouldBe` 0.6-}
+  {-sv `shouldBe` 0.8-}
 
-{-
+{-vecTest1DROTG :: IO ()-}
+{-vecTest1DROTG = do-}
+  {-a <- Matrix.generateMutableValue 5.8-}
+  {-b <- Matrix.generateMutableValue 3.4-}
+  {-c <- Matrix.generateMutableValue 0-}
+  {-s <- Matrix.generateMutableValue 0-}
+  {-drotg a b c s-}
+  {-av <- Matrix.mutableValueToValue a-}
+  {-bv <- Matrix.mutableValueToValue b-}
+  {-cv <- Matrix.mutableValueToValue c-}
+  {-sv <- Matrix.mutableValueToValue s-}
+  {-True `shouldBe` 1e-12 > (abs $ av - sqrt(3.4^2 + 5.8^2))-}
+  {-True `shouldBe` 1e-12 > (abs $ bv - 3.4 / sqrt(3.4^2 + 5.8^2))-}
+  {-True `shouldBe` 1e-12 > (abs $ cv - 5.8 / sqrt(3.4^2 + 5.8^2))-}
+  {-True `shouldBe` 1e-12 > (abs $ sv - 3.4 / sqrt(3.4^2 + 5.8^2))-}
+
+
 rotmSpec :: Spec
 rotmSpec =
   context "?ROTM" $ do
     it "vectors of length 4 and 8 with incx of 1 and 2, param starts with -1" $ do
-      vecTest1DROTM
+      pending
     it "vectors of length 6 and 9 with incx of 2 and 3, param starts with 1" $ do
-      vecTest1SROTM
+      pending
 
+{-
 vecTest1DROTM :: IO ()
 vecTest1DROTM = do
   x <- Matrix.generateMutableDenseVectorWithStride 4 1 (\idx -> [1, 2, 3, 4] !! idx)
@@ -322,14 +318,15 @@ vecTest1SROTM = do
   resY `shouldBe` [8, 8, 7, 3, 5, 4, -2, 2, 1]
 -}
 
-{-
+
 rotmgSpec :: Spec
 rotmgSpec =
   context "?ROTMG" $ do
     describe "SROTMG" $ do
       it "todo" $ do
-        vecTest1SROTMG
+        pending
 
+{-
 vecTest1SROTMG :: IO ()
 vecTest1SROTMG = do
   d1 <- Matrix.generateMutableValue 3
@@ -438,16 +435,17 @@ vecTest1ICAMAX = do
   idx `shouldBe` 8
 
 
-{-
 iaminSpec :: Spec
 iaminSpec =
   context "I?AMIN" $ do
     describe "ISAMIN" $ do
       it "vector of length 8 with incx 2" $ do
-        vecTest1ISAMIN
+        pending
     describe "ICAMIN" $ do
       it "vector of length 9 with incx 1" $ do
-        vecTest1ICAMIN
+        pending
+
+{-
 vecTest1ISAMIN :: IO ()
 vecTest1ISAMIN = do
   x <- Matrix.generateMutableDenseVector 8 (\idx -> [1, 2, 3, 4, -5, 6, 7, 8] !! idx)
