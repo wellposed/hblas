@@ -182,9 +182,8 @@ Test-suite unit-testsuite
          hblas
        , base        >= 4.6    &&  < 5
        , vector      >= 0.5    &&  < 0.12
-       , hspec       >= 1.9
+       , hspec       >= 2.0
        , primitive
-       --,QuickCheck  >= 2.7    &&  < 2.8
    hs-source-dirs: tests
    main-is: Spec.hs
 
