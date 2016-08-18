@@ -173,10 +173,10 @@ Test-suite unit-testsuite
    default-language: Haskell2010
    type: exitcode-stdio-1.0
    other-modules:
-      BLAS.Level1Spec
-      BLAS.Level2
-      BLAS.Level3
-      UnitMatrixTypes.DenseMatrix
+      HBLAS.BLAS.Level1Spec
+      HBLAS.BLAS.Level2Spec
+      HBLAS.BLAS.Level3Spec
+      HBLAS.MatrixTypesSpec
 
    build-depends:
          hblas

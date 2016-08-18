@@ -5,7 +5,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FunctionalDependencies #-}
 
-module BLAS.Level3Spec(main, spec) where
+module HBLAS.BLAS.Level3Spec(main, spec) where
 
 import Data.Complex
 
