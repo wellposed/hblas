@@ -83,18 +83,18 @@ type Column = 'Column
 data SOrientation :: Orientation -> * where
     SRow :: SOrientation Row
     SColumn :: SOrientation Column
-#if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
-    deriving (Typeable)
-#endif
+  deriving (Typeable)
+instance Eq (SOrientation a) where
+  _ == _ = True
+instance Ord (SOrientation a) where
+  compare _ _  = EQ
 
-instance Show (SOrientation Row) where
-     show _ = "SRow"
-instance Show (SOrientation Column) where
-     show _ = "SColumn"
-instance Eq (SOrientation Row) where
-    (==) _ _ = True
-instance Eq (SOrientation Column) where
-    (==) _ _ = True
+
+instance Show (SOrientation a) where
+     show SRow = "SRow"
+     show SColumn = "SColumn"
+
+
 
 
 sTranpose ::  (x~ TransposeF y, y~TransposeF x ) =>SOrientation x -> SOrientation y
@@ -179,9 +179,9 @@ data DenseMatrix :: Orientation -> * -> *  where
                     _YdimDenMat :: {-# UNPACK #-}!Int ,
                     _StrideDenMat :: {-# UNPACK #-} !Int ,
                     _bufferDenMat :: {-#UNPACK#-}!(S.Vector elem) }-> DenseMatrix ornt  elem
-#if defined(__GLASGOW_HASKELL_) && (__GLASGOW_HASKELL__ >= 707)
-    deriving (Typeable)
-#endif
+
+    deriving (Typeable,Eq,Ord,Show)
+
 
 -- | this should never be used in real code, ever ever, but its handy for testing
 -- but seriously never use this in real code, it doesn't do what you think
@@ -203,15 +203,15 @@ mutableVectorToList mv =  do
 {-
 need to handle rendering a slice differently than a direct matrix
 -}
-instance (Show el,SM.Storable el )=> Show (DenseMatrix Row el) where
-    show mat@(DenseMatrix SRow xdim ydim stride buffer)
-             |  stride == xdim = "DenseMatrix SRow " ++ " " ++show xdim ++ " "  ++ show ydim ++ " " ++ show stride ++ "(" ++ show buffer ++ ")"
-             | otherwise = show $ mapDenseMatrix id mat
+--instance (Show el,SM.Storable el )=> Show (DenseMatrix Row el) where
+--    show mat@(DenseMatrix SRow xdim ydim stride buffer)
+--             |  stride == xdim = "DenseMatrix SRow " ++ " " ++show xdim ++ " "  ++ show ydim ++ " " ++ show stride ++ "(" ++ show buffer ++ ")"
+--             | otherwise = show $ mapDenseMatrix id mat
 
-instance (Show el,SM.Storable el )=> Show (DenseMatrix Column el) where
-    show mat@(DenseMatrix SColumn xdim ydim stride buffer)
-             |  stride == ydim = "DenseMatrix SColumn " ++ " " ++show xdim ++ " " ++ show ydim ++ " " ++ show stride ++ "(" ++ show buffer ++ ")"
-             | otherwise = show $ mapDenseMatrix id mat
+--instance (Show el,SM.Storable el )=> Show (DenseMatrix Column el) where
+--    show mat@(DenseMatrix SColumn xdim ydim stride buffer)
+--             |  stride == ydim = "DenseMatrix SColumn " ++ " " ++show xdim ++ " " ++ show ydim ++ " " ++ show stride ++ "(" ++ show buffer ++ ")"
+--             | otherwise = show $ mapDenseMatrix id mat
 
 -- | 'MDenseMatrix'
 data MDenseMatrix :: *  ->Orientation  -> * -> *  where
