@@ -89,12 +89,12 @@ vecTest1DDOT = do
   res <- ddot 6 left right
   res @?= 1 + 6 + 15 + 28 + 45 + 66
 
-vecTest1SDSDOT :: IO ()
-vecTest1SDSDOT = do
-  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
-  right <- Matrix.generateMutableDenseVectorWithStride 12 4 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
-  res <- sdsdot 3 2.0 left right
-  res @?= 2 + 1 + 15 + 45
+--vecTest1SDSDOT :: IO ()
+--vecTest1SDSDOT = do
+--  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] !! idx)
+--  right <- Matrix.generateMutableDenseVectorWithStride 12 4 (\idx -> [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0] !! idx)
+--  res <- sdsdot 3 2.0 left right
+--  res @?= 2 + 1 + 15 + 45
 
 vecTest1DSDOT :: IO ()
 vecTest1DSDOT = do
@@ -103,23 +103,23 @@ vecTest1DSDOT = do
   res <- dsdot 6 left right
   res @?= 1 + 6 + 15 + 28 + 45 + 66
 
-vecTest1CDOTU :: IO ()
-vecTest1CDOTU = do
-  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
-  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
-  res <- Matrix.generateMutableValue (1:+1)
-  cdotu 3 left right res
-  resValue <- Matrix.mutableValueToValue res
-  resValue @?= 5:+1
+--vecTest1CDOTU :: IO ()
+--vecTest1CDOTU = do
+--  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+--  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+--  res <- Matrix.generateMutableValue (1:+1)
+--  cdotu 3 left right res
+--  resValue <- Matrix.mutableValueToValue res
+--  resValue @?= 5:+1
 
-vecTest1CDOTC :: IO ()
-vecTest1CDOTC = do
-  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [2:+3, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
-  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
-  res <- Matrix.generateMutableValue (1:+1)
-  cdotc 3 left right res
-  resValue <- Matrix.mutableValueToValue res
-  resValue @?= (-2):+(-9)
+--vecTest1CDOTC :: IO ()
+--vecTest1CDOTC = do
+--  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [2:+3, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+--  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+--  res <- Matrix.generateMutableValue (1:+1)
+--  cdotc 3 left right res
+--  resValue <- Matrix.mutableValueToValue res
+--  resValue @?= (-2):+(-9)
 
 vecTest1SNRM2 :: IO ()
 vecTest1SNRM2 = do
@@ -153,37 +153,37 @@ vecTest1DROT = do
   resLeft @?= [-16, -12, -8, -4]
   resRight @?= [2, 7, 4, 5, 6, 3, 8, 1]
 
-vecTest1SROTG :: IO ()
-vecTest1SROTG = do
-  a <- Matrix.generateMutableValue 3
-  b <- Matrix.generateMutableValue 4
-  c <- Matrix.generateMutableValue 0
-  s <- Matrix.generateMutableValue 0
-  srotg a b c s
-  av <- Matrix.mutableValueToValue a
-  bv <- Matrix.mutableValueToValue b
-  cv <- Matrix.mutableValueToValue c
-  sv <- Matrix.mutableValueToValue s
-  av @?= 5
-  True @?= 1e-6 > (abs $ bv - 1/0.6)
-  cv @?= 0.6
-  sv @?= 0.8
+--vecTest1SROTG :: IO ()
+--vecTest1SROTG = do
+--  a <- Matrix.generateMutableValue 3
+--  b <- Matrix.generateMutableValue 4
+--  c <- Matrix.generateMutableValue 0
+--  s <- Matrix.generateMutableValue 0
+--  srotg a b c s
+--  av <- Matrix.mutableValueToValue a
+--  bv <- Matrix.mutableValueToValue b
+--  cv <- Matrix.mutableValueToValue c
+--  sv <- Matrix.mutableValueToValue s
+--  av @?= 5
+--  True @?= 1e-6 > (abs $ bv - 1/0.6)
+--  cv @?= 0.6
+--  sv @?= 0.8
 
-vecTest1DROTG :: IO ()
-vecTest1DROTG = do
-  a <- Matrix.generateMutableValue 5.8
-  b <- Matrix.generateMutableValue 3.4
-  c <- Matrix.generateMutableValue 0
-  s <- Matrix.generateMutableValue 0
-  drotg a b c s
-  av <- Matrix.mutableValueToValue a
-  bv <- Matrix.mutableValueToValue b
-  cv <- Matrix.mutableValueToValue c
-  sv <- Matrix.mutableValueToValue s
-  True @?= 1e-12 > (abs $ av - sqrt(3.4^2 + 5.8^2))
-  True @?= 1e-12 > (abs $ bv - 3.4 / sqrt(3.4^2 + 5.8^2))
-  True @?= 1e-12 > (abs $ cv - 5.8 / sqrt(3.4^2 + 5.8^2))
-  True @?= 1e-12 > (abs $ sv - 3.4 / sqrt(3.4^2 + 5.8^2))
+--vecTest1DROTG :: IO ()
+--vecTest1DROTG = do
+--  a <- Matrix.generateMutableValue 5.8
+--  b <- Matrix.generateMutableValue 3.4
+--  c <- Matrix.generateMutableValue 0
+--  s <- Matrix.generateMutableValue 0
+--  drotg a b c s
+--  av <- Matrix.mutableValueToValue a
+--  bv <- Matrix.mutableValueToValue b
+--  cv <- Matrix.mutableValueToValue c
+--  sv <- Matrix.mutableValueToValue s
+--  True @?= 1e-12 > (abs $ av - sqrt(3.4^2 + 5.8^2))
+--  True @?= 1e-12 > (abs $ bv - 3.4 / sqrt(3.4^2 + 5.8^2))
+--  True @?= 1e-12 > (abs $ cv - 5.8 / sqrt(3.4^2 + 5.8^2))
+--  True @?= 1e-12 > (abs $ sv - 3.4 / sqrt(3.4^2 + 5.8^2))
 
 vecTest1DROTM :: IO ()
 vecTest1DROTM = do
@@ -207,22 +207,22 @@ vecTest1SROTM = do
   resX @?= [10, 2, 9, 4, 8, 6]
   resY @?= [8, 8, 7, 3, 5, 4, -2, 2, 1]
 
-vecTest1SROTMG :: IO ()
-vecTest1SROTMG = do
-  d1 <- Matrix.generateMutableValue 3
-  d2 <- Matrix.generateMutableValue 6
-  x <- Matrix.generateMutableValue 1
-  let y = 1
-  param <- Matrix.generateMutableDenseVector 5 (\idx -> [-1, 1, 1, -1, 1] !! idx)
-  srotmg d1 d2 x y param
-  paramR <- Matrix.mutableVectorToList $ _bufferMutDenseVector param
-  updatedD1 <- Matrix.mutableValueToValue d1
-  updatedD2 <- Matrix.mutableValueToValue d2
-  updatedX <- Matrix.mutableValueToValue x
-  paramR @?= [1, 0, 0.5, 0, 1]
-  updatedD1 @?= 4
-  updatedD2 @?= 2
-  updatedX @?= 1.5
+--vecTest1SROTMG :: IO ()
+--vecTest1SROTMG = do
+--  d1 <- Matrix.generateMutableValue 3
+--  d2 <- Matrix.generateMutableValue 6
+--  x <- Matrix.generateMutableValue 1
+--  let y = 1
+--  param <- Matrix.generateMutableDenseVector 5 (\idx -> [-1, 1, 1, -1, 1] !! idx)
+--  srotmg d1 d2 x y param
+--  paramR <- Matrix.mutableVectorToList $ _bufferMutDenseVector param
+--  updatedD1 <- Matrix.mutableValueToValue d1
+--  updatedD2 <- Matrix.mutableValueToValue d2
+--  updatedX <- Matrix.mutableValueToValue x
+--  paramR @?= [1, 0, 0.5, 0, 1]
+--  updatedD1 @?= 4
+--  updatedD2 @?= 2
+--  updatedX @?= 1.5
 
 vecTest1SSCAL :: IO ()
 vecTest1SSCAL = do
@@ -303,11 +303,11 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
 
                      testCase "sdot on vectors of lengths 6 and 12 with incx 2 and 4" vecTest1SDOT,
                      testCase "ddot on vectors of lengths 12 and 6 with incx 2 and 1" vecTest1DDOT,
-                     testCase "sdsdot on vectors of lengths 6 and 12 with incx 2 and 4" vecTest1SDSDOT,
+                     --testCase "sdsdot on vectors of lengths 6 and 12 with incx 2 and 4" vecTest1SDSDOT,
                      testCase "dsdot on vectors of 12 and 6 with incx 2 and 1" vecTest1DSDOT,
 
-                     testCase "cdotu on vectors of 6 and 9 with incx of 2 and 3" vecTest1CDOTU,
-                     testCase "cdotc on vectors of 6 and 9 with incx of 2 and 3" vecTest1CDOTC,
+                     --testCase "cdotu on vectors of 6 and 9 with incx of 2 and 3" vecTest1CDOTU,
+                     --testCase "cdotc on vectors of 6 and 9 with incx of 2 and 3" vecTest1CDOTC,
 
                      testCase "snrm on vector of length 6 with incx of 1" vecTest1SNRM2,
                      testCase "dznrm on vector of length 8 with incx of 2" vecTest1DZNRM2,
@@ -315,8 +315,8 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      testCase "srot on vectors of length 6 and 6 with incx of 2" vecTest1SROT,
                      testCase "drot on vectors of length 4 and 8 with incx of 1 and 2" vecTest1DROT,
 
-                     testCase "srotg on 3 4" vecTest1SROTG,
-                     testCase "drotg on 5.8 3.4" vecTest1DROTG,
+                     --testCase "srotg on 3 4" vecTest1SROTG,
+                     --testCase "drotg on 5.8 3.4" vecTest1DROTG,
 
                      testCase "drotm on vectors of 4 and 8 with incx of 1 and 2, param starts with -1" vecTest1DROTM,
                      testCase "srotm on vectors of 6 and 9 with incx of 2 and 3, param starts with 1" vecTest1SROTM,

@@ -60,51 +60,51 @@ import qualified Data.Vector.Storable.Mutable as SM
 import Data.Int
 
 -- In gbmv, only n is stored in a. So m and n are need to provided in the arguments.
-type GbmvFun el orient s m = Transpose -> Int -> Int -> Int -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m ()
+type GbmvFun el orient s m = Transpose -> Int -> Int -> Int -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s 'Direct el -> el -> MDenseVector s 'Direct el -> m ()
 
-type GemvFun el orient s m = Transpose -> el -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
+type GemvFun el orient s m = Transpose -> el -> el -> MDenseMatrix s orient el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m ()
 
-type GerFun el orient s m = el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
+type GerFun el orient s m = el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> MDenseMatrix s orient el -> m ()
 
-type HbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m ()
+type HbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s 'Direct el -> el -> MDenseVector s 'Direct el -> m ()
 
-type HemvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m ()
+type HemvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s 'Direct el -> el -> MDenseVector s 'Direct el -> m ()
 
-type HerFun scale el orient s m = MatUpLo -> scale -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
+type HerFun scale el orient s m = MatUpLo -> scale -> MDenseVector s 'Direct el -> MDenseMatrix s orient el -> m ()
 
-type Her2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
+type Her2Fun el orient s m = MatUpLo -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> MDenseMatrix s orient el -> m ()
 
-type HpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m ()
+type HpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> el -> MDenseVector s 'Direct el -> m ()
 
-type HprFun scale el orient s m = SOrientation orient -> MatUpLo -> Int -> scale -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
+type HprFun scale el orient s m = SOrientation orient -> MatUpLo -> Int -> scale -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
 
-type Hpr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
+type Hpr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
 
-type SbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m()
+type SbmvFun el orient s m = MatUpLo -> Int -> el -> MDenseMatrix s orient el -> MDenseVector s 'Direct el -> el -> MDenseVector s 'Direct el -> m()
 
-type SpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m()
+type SpmvFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> el -> MDenseVector s 'Direct el -> m()
 
-type SprFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
+type SprFun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m ()
 
-type Spr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
+type Spr2Fun el orient s m = SOrientation orient -> MatUpLo -> Int -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m ()
 
-type SymvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s Direct el -> el -> MDenseVector s Direct el -> m ()
+type SymvFun el orient s m = MatUpLo -> el -> MDenseMatrix s orient el -> MDenseVector s 'Direct el -> el -> MDenseVector s 'Direct el -> m ()
 
-type SyrFun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
+type SyrFun el orient s m = MatUpLo -> el -> MDenseVector s 'Direct el -> MDenseMatrix s orient el -> m ()
 
-type Syr2Fun el orient s m = MatUpLo -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseMatrix s orient el -> m ()
+type Syr2Fun el orient s m = MatUpLo -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> MDenseMatrix s orient el -> m ()
 
-type TbmvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
+type TbmvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s 'Direct el -> m ()
 
-type TbsvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
+type TbsvFun el orient s m = MatUpLo -> Transpose -> MatDiag -> Int -> MDenseMatrix s orient el -> MDenseVector s 'Direct el -> m ()
 
-type TpmvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
+type TpmvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m ()
 
-type TpsvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> m ()
+type TpsvFun el orient s m = SOrientation orient -> MatUpLo -> Transpose -> MatDiag -> Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m ()
 
-type TrmvFun el orient s m =  MatUpLo -> Transpose -> MatDiag -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
+type TrmvFun el orient s m =  MatUpLo -> Transpose -> MatDiag -> MDenseMatrix s orient el -> MDenseVector s 'Direct el -> m ()
 
-type TrsvFun el orient s m =  MatUpLo -> Transpose -> MatDiag -> MDenseMatrix s orient el -> MDenseVector s Direct el -> m ()
+type TrsvFun el orient s m =  MatUpLo -> Transpose -> MatDiag -> MDenseMatrix s orient el -> MDenseVector s 'Direct el -> m ()
 
 {-# NOINLINE gbmvAbstraction #-}
 gbmvAbstraction :: (SM.Storable el, PrimMonad m)

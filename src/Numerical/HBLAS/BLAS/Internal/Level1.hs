@@ -25,9 +25,9 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,complexDotAbstraction
   ,norm2Abstraction
   ,rotAbstraction
-  ,rotgAbstraction
+  --,rotgAbstraction
   ,rotmAbstraction
-  ,rotmgAbstraction
+  --,rotmgAbstraction
   ,scalAbstraction
   ,swapAbstraction
   ,iamaxAbstraction
@@ -44,24 +44,27 @@ import qualified Data.Vector.Storable.Mutable as SM
 import Foreign.C.Types
 import Foreign.Ptr
 
-type AsumFun el s m res = Int -> MDenseVector s Direct el -> m res
-type AxpyFun el s m = Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
-type CopyFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
-type NoScalarDotFun el s m res = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> m res
-type ScalarDotFun el s m res = Int -> el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m res
-type ComplexDotFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el ->  m el {-MValue (PrimState m) el -> m()-}
-type Nrm2Fun el s m res = Int -> MDenseVector s Direct el -> m res
-type RotFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> el -> el -> m()
+type AsumFun el s m res = Int -> MDenseVector s 'Direct el -> m res
+type AxpyFun el s m = Int -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
+type CopyFun el s m = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
+type NoScalarDotFun el s m res = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m res
+type ScalarDotFun el s m res = Int -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m res
+type ComplexDotFun el s m = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el ->  m el {-MValue (PrimState m) el -> m()-}
+type Nrm2Fun el s m res = Int -> MDenseVector s 'Direct el -> m res
+type RotFun el s m = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> el -> el -> m()
+
+-- for RotG The parameter z is defined such that if |a| > |b|, z is s; otherwise if c is not 0 z is 1/c; otherwise z is 1.
+-- Given the Cartesian coordinates (a, b) of a point, these routines return the parameters c, s, r, and z associated with the Givens rotation.
+data GivensRotation el = GivensRotation { _rotGr :: el, _rotGz :: el, _rotGc :: el , _rotGs :: el }
+type RotgFun el s m = el ->  el -> GivensRotation el
+
+type RotmFun el s m = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
+type RotmgFun el s m =  el ->  el ->  el -> el -> MDenseVector s 'Direct el -> m el
 
 
-type RotgFun el s m = MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> MValue (PrimState m) el -> m()
-type RotmFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
-type RotmgFun el s m =  el -> MValue (PrimState m) el -> MValue (PrimState m) el -> el -> MDenseVector s Direct el -> m()
-
-
-type ScalFun scale el s m = Int -> scale -> MDenseVector s Direct el -> m()
-type SwapFun el s m = Int -> MDenseVector s Direct el -> MDenseVector s Direct el -> m()
-type IamaxFun el s m = Int -> MDenseVector s Direct el -> m Int
+type ScalFun scale el s m = Int -> scale -> MDenseVector s 'Direct el -> m()
+type SwapFun el s m = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
+type IamaxFun el s m = Int -> MDenseVector s 'Direct el -> m Int
 --type IaminFun el s m = Int -> MDenseVector s Direct el -> Int -> m Int
 
 {-# NOINLINE asumAbstraction #-}
@@ -209,21 +212,21 @@ rotAbstraction rotName rotSafeFFI rotUnsafeFFI = rot
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
             do unsafePrimToPrim $! (if shouldCallFast n then rotUnsafeFFI else rotSafeFFI) (fromIntegral n) ap (fromIntegral astride) bp (fromIntegral bstride) c s
-{-
-{-# NOINLINE rotgAbstraction #-}
-rotgAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
-  RotgFunFFI el -> RotgFunFFI el ->
-  RotgFun el (PrimState m) m
-rotgAbstraction rotgName rotgSafeFFI rotgUnsafeFFI = rotg
-  where
-    shouldCallFast :: Bool
-    shouldCallFast = True -- not sure, seems O(1)
-    rotg (MutableValue aptr) (MutableValue bptr) (MutableValue cptr) (MutableValue sptr)
-      = unsafeWithPrim aptr $ \ap ->
-        unsafeWithPrim bptr $ \bp ->
-        unsafeWithPrim cptr $ \cp ->
-        unsafeWithPrim sptr $ \sp ->
-         do unsafePrimToPrim $! (if shouldCallFast then rotgUnsafeFFI else rotgSafeFFI) ap bp cp sp
+
+--{-# NOINLINE rotgAbstraction #-}
+--rotgAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+--  RotgFunFFI el -> RotgFunFFI el ->
+--  RotgFun el (PrimState m) m
+--rotgAbstraction rotgName rotgSafeFFI rotgUnsafeFFI = rotg
+--  where
+--    shouldCallFast :: Bool
+--    shouldCallFast = True -- not sure, seems O(1),
+--                          --- YUP !
+--    rotg a b
+--      = unsafeWithPrim aptr $ \ap ->
+--        unsafeWithPrim bptr $ \bp ->
+--        undefined $
+--         do unsafePrimToPrim $! (if shouldCallFast then rotgUnsafeFFI else rotgSafeFFI) ap bp
 
 {-# NOINLINE rotmAbstraction #-}
 rotmAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
@@ -245,26 +248,26 @@ rotmAbstraction rotmName rotmSafeFFI rotmUnsafeFFI = rotm
         unsafeWithPrim pbuff $ \pp ->
           do unsafePrimToPrim $! (if shouldCallFast then rotmUnsafeFFI else rotmSafeFFI) (fromIntegral n) ap (fromIntegral astride) bp (fromIntegral bstride) pp
 
-{-# NOINLINE rotmgAbstraction #-}
-rotmgAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
-  RotmgFunFFI el -> RotmgFunFFI el ->
-  RotmgFun el (PrimState m) m
-rotmgAbstraction rotmgName rotmgSafeFFI rotmgUnsafeFFI = rotmg
-  where
-    shouldCallFast :: Bool
-    shouldCallFast = True -- O(1)
-    rotmg (MutableValue d1)
-          (MutableValue d2)
-          (MutableValue x1)
-          y1
-          (MutableDenseVector _ pdim _ pbuff)
-      | pdim /= 5 = error $! rotmgName ++ " param dimension is not 5"
-      | otherwise =
-        unsafeWithPrim d1 $ \d1p ->
-        unsafeWithPrim d2 $ \d2p ->
-        unsafeWithPrim x1 $ \x1p ->
-        unsafeWithPrim pbuff $ \pp ->
-          do unsafePrimToPrim $! (if shouldCallFast then rotmgUnsafeFFI else rotmgSafeFFI) d1p d2p x1p y1 pp
+--{-# NOINLINE rotmgAbstraction #-}
+--rotmgAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+--  RotmgFunFFI el -> RotmgFunFFI el ->
+--  RotmgFun el (PrimState m) m
+--rotmgAbstraction rotmgName rotmgSafeFFI rotmgUnsafeFFI = rotmg
+--  where
+--    shouldCallFast :: Bool
+--    shouldCallFast = True -- O(1)
+--    rotmg (MutableValue d1)
+--          (MutableValue d2)
+--          (MutableValue x1)
+--          y1
+--          (MutableDenseVector _ pdim _ pbuff)
+--      | pdim /= 5 = error $! rotmgName ++ " param dimension is not 5"
+--      | otherwise =
+--        unsafeWithPrim d1 $ \d1p ->
+--        unsafeWithPrim d2 $ \d2p ->
+--        unsafeWithPrim x1 $ \x1p ->
+--        unsafeWithPrim pbuff $ \pp ->
+--          do unsafePrimToPrim $! (if shouldCallFast then rotmgUnsafeFFI else rotmgSafeFFI) d1p d2p x1p y1 pp
 
 {-# NOINLINE scalAbstraction #-}
 scalAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
