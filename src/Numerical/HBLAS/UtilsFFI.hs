@@ -1,9 +1,14 @@
 {-# LANGUAGE Trustworthy, ExplicitForAll, ScopedTypeVariables #-}
 {- VERY TRUST WORTHY :) -}
-module Numerical.HBLAS.UtilsFFI( withAllocaPrim
+module Numerical.HBLAS.UtilsFFI(
+    withAllocaPrim
   , unsafeWithPrim
   , withRStorable_
   , withRWStorable
+  , withRStorable
+  , unsafeWithPurePrim
+  , unsafeWithPrimLen
+  , unsafeWithPurePrimLen
   , storablePtrZero )  where
 
 
@@ -15,7 +20,7 @@ import  qualified Foreign.ForeignPtr.Unsafe as FFU
 
 import Foreign.Storable.Complex()
 import Data.Vector.Storable as S
-import Foreign.Ptr
+--import Foreign.Ptr
 import GHC.Ptr (Ptr(..))
 import Foreign.Storable
 import Foreign.Marshal (alloca)

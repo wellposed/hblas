@@ -31,6 +31,7 @@ module Numerical.HBLAS.BLAS.Internal.Level1(
   ,scalAbstraction
   ,swapAbstraction
   ,iamaxAbstraction
+  ,GivensRotation(..)
   --,iaminAbstraction
 ) where
 

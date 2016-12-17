@@ -10,7 +10,7 @@ name:                hblas
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.3.2.1
+version:             0.4.0.0
 
 -- A short (one-line) description of the package.
 synopsis:            Human friendly BLAS and Lapack bindings for Haskell.
@@ -66,9 +66,12 @@ category:            Math
 build-type:          Simple
 
 tested-with:
-                    GHC == 7.8.4
-                    GHC == 7.10.2
+
                     GHC == 7.10.3
+                    GHC == 8.0.1
+                    GHC == 8.0.2
+
+
 extra-source-files:
   readme.md,
   changelog.md
@@ -171,8 +174,8 @@ Test-suite unit-testsuite
    build-depends:
          hblas
        , base        >= 4.6    &&  < 5
-       , tasty       >= 0.8    &&  < 0.9
-       , tasty-hunit >= 0.8    &&  < 0.9
+       , tasty       >= 0.8    &&  < 0.12
+       , tasty-hunit >= 0.8    &&  < 0.10
        , HUnit       >= 1.2.5  &&  < 1.3
        , vector      >= 0.5    &&  < 0.12
        --,QuickCheck  >= 2.7    &&  < 2.8
