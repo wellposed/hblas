@@ -35,6 +35,7 @@ matrix:
     - compiler: "ghc-8.0.2"
     # env: TEST=--disable-tests BENCH=--disable-benchmarks
       addons: {apt: {packages: [ghc-ppa-tools,cabal-install-head,ghc-8.0.2], sources: [hvr-ghc]}}
+
     - env: CABALVER=head GHCVER=head
       addons: {apt: {packages: [ghc-ppa-tools,cabal-install-head,ghc-head],  sources: [hvr-ghc]}}
 
@@ -42,6 +43,7 @@ matrix:
    - env: CABALVER=head GHCVER=head
 
 before_install:
+ - travis_retry sudo apt-get install libblas-dev liblapack-dev
  - HC=${CC}
  - unset CC
  - PATH=/opt/ghc/bin:/opt/ghc-ppa-tools/bin:$PATH
