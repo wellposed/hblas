@@ -181,6 +181,14 @@ data DenseMatrix :: Orientation -> * -> *  where
                     _bufferDenMat :: {-#UNPACK#-}!(S.Vector elem) }-> DenseMatrix ornt  elem
 
     deriving (Typeable,Eq,Ord,Show)
+-- the Eq and Ord and Show should be using a traversal / mapM that
+-- respects the slicing structure
+-- currently they are WRONGGGG :)
+
+-- | toList routine for pure matrices
+-- TODO
+-- this should build on top of a traverse/mapM style routine like the mapper etc
+
 
 
 -- | this should never be used in real code, ever ever, but its handy for testing
@@ -188,6 +196,7 @@ data DenseMatrix :: Orientation -> * -> *  where
 -- because in the case of a matrix slice, the underlying buffer will have
 -- additional elements aside from the ones you expect!
 -- never use this in real code please. :)
+--- THIS SHOULD BE marked UNSAFE FOR LIFE
 mutableVectorToList :: (PrimMonad m, S.Storable a) => S.MVector (PrimState m) a -> m [a]
 mutableVectorToList mv =  do
         v <- S.unsafeFreeze mv
