@@ -3,6 +3,7 @@
 module Numerical.HBLAS.UtilsFFI( withAllocaPrim
   , unsafeWithPrim
   , withRStorable_
+  , withRWStorable
   , storablePtrZero )  where
 
 

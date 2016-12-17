@@ -152,7 +152,8 @@ library
 
   if flag(CBLAS)
     extra-libraries: cblas
-
+  if impl(ghc >= 8.0.1) && impl(ghc < 8.0.2)
+    ghc-options: -Wno-redundant-constraints
 
 
   -- Directories containing source files.
