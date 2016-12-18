@@ -1,3 +1,7 @@
+
+#0.4.0.0
+HBLAS now supports every single blas routine with the exception of
+
 #0.3.1.1
 release, bug fixes in show and improved tests, thanks to tomas musil for catching them
 

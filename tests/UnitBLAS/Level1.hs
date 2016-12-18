@@ -103,23 +103,21 @@ vecTest1DSDOT = do
   res <- dsdot 6 left right
   res @?= 1 + 6 + 15 + 28 + 45 + 66
 
---vecTest1CDOTU :: IO ()
---vecTest1CDOTU = do
---  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
---  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
---  res <- Matrix.generateMutableValue (1:+1)
---  cdotu 3 left right res
---  resValue <- Matrix.mutableValueToValue res
---  resValue @?= 5:+1
+vecTest1CDOTU :: IO ()
+vecTest1CDOTU = do
+  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  --res <- Matrix.generateMutableValue (1:+1)
+  res <- cdotu 3 left right
 
---vecTest1CDOTC :: IO ()
---vecTest1CDOTC = do
---  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [2:+3, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
---  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
---  res <- Matrix.generateMutableValue (1:+1)
---  cdotc 3 left right res
---  resValue <- Matrix.mutableValueToValue res
---  resValue @?= (-2):+(-9)
+  res @?= 5:+1
+
+vecTest1CDOTC :: IO ()
+vecTest1CDOTC = do
+  left <- Matrix.generateMutableDenseVectorWithStride 6 2 (\idx -> [2:+3, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  right <- Matrix.generateMutableDenseVectorWithStride 9 3 (\idx -> [1:+(-2), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1), 1:+1, 1:+(-1)] !! idx)
+  res <- cdotc 3 left right
+  res  @?= (-2):+(-9)
 
 vecTest1SNRM2 :: IO ()
 vecTest1SNRM2 = do
@@ -306,8 +304,8 @@ unitTestLevel1BLAS = testGroup "BlAS Level 1 tests " [
                      --testCase "sdsdot on vectors of lengths 6 and 12 with incx 2 and 4" vecTest1SDSDOT,
                      testCase "dsdot on vectors of 12 and 6 with incx 2 and 1" vecTest1DSDOT,
 
-                     --testCase "cdotu on vectors of 6 and 9 with incx of 2 and 3" vecTest1CDOTU,
-                     --testCase "cdotc on vectors of 6 and 9 with incx of 2 and 3" vecTest1CDOTC,
+                     testCase "cdotu on vectors of 6 and 9 with incx of 2 and 3" vecTest1CDOTU,
+                     testCase "cdotc on vectors of 6 and 9 with incx of 2 and 3" vecTest1CDOTC,
 
                      testCase "snrm on vector of length 6 with incx of 1" vecTest1SNRM2,
                      testCase "dznrm on vector of length 8 with incx of 2" vecTest1DZNRM2,
