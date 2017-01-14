@@ -173,20 +173,18 @@ Test-suite unit-testsuite
    default-language: Haskell2010
    type: exitcode-stdio-1.0
    other-modules:
-      UnitBLAS.Level1
-      UnitBLAS.Level2
-      UnitBLAS.Level3
+      BLAS.Level1Spec
+      BLAS.Level2
+      BLAS.Level3
       UnitMatrixTypes.DenseMatrix
 
    build-depends:
          hblas
        , base        >= 4.6    &&  < 5
-       , tasty       >= 0.8    &&  < 0.12
-       , tasty-hunit >= 0.8    &&  < 0.10
-       , HUnit       >= 1.2.5  &&  < 1.3
        , vector      >= 0.5    &&  < 0.12
+       , hspec       >= 1.9
+       , primitive
        --,QuickCheck  >= 2.7    &&  < 2.8
-       --,hspec       >= 1.9    &&  < 1.10
    hs-source-dirs: tests
-   main-is: MainUnit.hs
+   main-is: Spec.hs
 
