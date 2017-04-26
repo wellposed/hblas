@@ -386,11 +386,7 @@ generateMutableDenseVectorWithStride size stride init = do
 -- id =
   zeroOffStride i | i `mod` stride == 0  = init (i `div` stride)
                   | otherwise = 0
-{-#NOINLINE changeMutableDenseVectorStride#-}
-changeMutableDenseVectorStride :: (S.Storable a, PrimMonad m) => MDenseVector (PrimState m) 'Direct a -> Int ->
-     m (MDenseVector (PrimState m ) 'Direct a)
-changeMutableDenseVectorStride (MutableDenseVector _ size _ mv) newStride = do
-    return $!  MutableDenseVector SDirect size newStride mv
+
 
 --{-#NOINLINE generateMutableValue#-}
 --generateMutableValue :: (S.Storable a, PrimMonad m) => a -> m (MValue (PrimState m) a)
