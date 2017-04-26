@@ -7,9 +7,9 @@ import Numerical.HBLAS.MatrixTypes
 
 -- | isVectorBadWithNIncrement returns true if the range of accesses is bigger
 -- than the physical size of the underlying buffer
-isVectorBadWithNIncrement :: Int {- buffer -}
-      -> Int {- logical size -} -> Int {- stride -} -> Bool
-isVectorBadWithNIncrement bufferDim n incx = bufferDim < (1 + (n-1) * incx)
+isVectorBadWithNIncrement ::Int {- logical size -} ->  Int {- buffer -}
+      -> Int {- stride -} -> Bool
+isVectorBadWithNIncrement logDim bufferDim  incx = bufferDim < (1 + (logDim-1) * incx)
 {-
 these should be converted to integer/natural internally so theres no overflow checks
 
