@@ -135,7 +135,7 @@ library
         base             >= 4.6    &&  < 4.11,
         storable-complex >= 0.2.0  &&  < 0.3.0,
         primitive        >= 0.5    &&  < 0.7  ,
-        vector
+        vector           >= 0.10 && < 0.13
 
 
   if flag(OpenBLAS)
@@ -152,10 +152,11 @@ library
       extra-libraries: blas lapack
 
   if !os(windows)&& !os(OSX) && !flag(OpenBLAS)
-    extra-libraries: blas lapack
+    -- extra-libraries: blas lapack
+    pkgconfig-depends: blas, lapack
 
   if flag(CBLAS)
-    extra-libraries: cblas
+    pkgconfig-depends: cblas
   if impl(ghc >= 8.0.1) && impl(ghc < 8.0.2)
     ghc-options: -Wno-redundant-constraints
 
