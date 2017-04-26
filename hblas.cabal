@@ -154,10 +154,10 @@ library
 
   if !os(windows)&& !os(OSX) && !flag(OpenBLAS)
     -- extra-libraries: blas lapack
-    pkgconfig-depends: blas, lapack
+    extra-libraries: blas, lapack
 
   if flag(CBLAS)
-    pkgconfig-depends: cblas
+    extra-libraries: cblas
   if impl(ghc >= 8.0.1) && impl(ghc < 8.0.2)
     ghc-options: -Wno-redundant-constraints
 
