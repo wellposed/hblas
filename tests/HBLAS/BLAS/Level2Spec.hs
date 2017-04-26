@@ -44,7 +44,7 @@ spec = do
   tpsvSpec
   trmvSpec
   trsvSpec
-  
+
 gbmvSpec :: Spec
 gbmvSpec =
   context "?GBMV" $ do
@@ -64,7 +64,7 @@ gbmvSpec =
         matvecTest1ZGBMV
       it "2x10 a(5x10 matrix) all 1+i s with conjtranspose and alpha 1.0" $ do
         matvecTest2ZGBMV
-        
+
 
 matvecTest1SGBMV :: IO ()
 matvecTest1SGBMV = do
@@ -251,7 +251,7 @@ geruSpec =
     describe "ZGERU" $ do
       it "2x3 all 1+i's" $ do
         matmatTest1ZGERU
-      
+
 
 matmatTest1CGERU :: IO ()
 matmatTest1CGERU = do
@@ -384,7 +384,7 @@ matvecTest1ZHEMV = do
   resList `shouldBe` [1.0:+7.0, 3.0:+5.0, 5.0:+3.0, 7.0:+1.0]
 
 herSpec :: Spec
-herSpec = 
+herSpec =
   context "?HER" $ do
     describe "CHER" $ do
       it "4*4 a upper all 1+i's" $ do
@@ -416,7 +416,7 @@ matvecTest1ZHER = do
                9.0:+1.0, 17.0:+1.0, 25.0:+1.0, 33.0:+0.0]
 
 her2Spec :: Spec
-her2Spec = 
+her2Spec =
   context "?HER2" $ do
     describe "CHER2" $ do
       it "4*4 a upper all 1+i's" $ do
@@ -706,7 +706,7 @@ matvecTest1DSPR = do
   resList `shouldBe` [2, 3, 4, 5, 6, 7]
 
 spr2Spec :: Spec
-spr2Spec = 
+spr2Spec =
   context "?SPR2" $ do
     describe "SSPR2" $ do
       it "3*3 a upper (row oriented)" $ do
@@ -714,7 +714,7 @@ spr2Spec =
     describe "DSPR2" $ do
       it "3*3 a upper (column oriented)" $ do
         matvecTest1DSPR2
-    
+
 
 matvecTest1SSPR2 :: IO ()
 matvecTest1SSPR2 = do
@@ -900,7 +900,7 @@ tbsvSpec =
     describe "ZTBSV" $ do
       it "3x3 lower no trans (row oriented)" $ do
         matmatTest1ZTBSV
-        
+
 
 -- [ 1 2 0]   [-2]   [4]
 -- [ 0 1 1] * [ 3] = [5]
@@ -1022,7 +1022,7 @@ tpsvSpec =
     describe "ZTPSV" $ do
       it "3x3 lower no trans (row oriented)" $ do
         matmatTest1ZTPSV
-        
+
 -- [ 1 2 0]   [-2]   [4]
 -- [ 0 1 1] * [ 3] = [5]
 -- [ 0 0 1]   [ 2]   [2]
