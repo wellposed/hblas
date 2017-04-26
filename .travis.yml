@@ -35,6 +35,9 @@ matrix:
     - compiler: "ghc-8.0.2"
     # env: TEST=--disable-tests BENCH=--disable-benchmarks
       addons: {apt: {packages: [libblas-dev,liblapack-dev,ghc-ppa-tools,cabal-install-head,ghc-8.0.2], sources: [hvr-ghc]}}
+    - compiler: "ghc-8.2.1"
+    # env: TEST=--disable-tests BENCH=--disable-benchmarks
+      addons: {apt: {packages: [libblas-dev,liblapack-dev,ghc-ppa-tools,cabal-install-head,ghc-8.2.1], sources: [hvr-ghc]}}
     - compiler: "ghc-head"
     # env: TEST=--disable-tests BENCH=--disable-benchmarks
       addons: {apt: {packages: [libblas-dev,liblapack-dev,ghc-ppa-tools,cabal-install-head,ghc-head], sources: [hvr-ghc]}}

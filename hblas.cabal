@@ -70,7 +70,8 @@ tested-with:
                     GHC == 7.10.3
                     GHC == 8.0.1
                     GHC == 8.0.2
-                    GHC == 8.1.*
+                    GHC == 8.2.1
+                    GHC == 8.3.*
 
 
 extra-source-files:
