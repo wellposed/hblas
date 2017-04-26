@@ -200,7 +200,7 @@ foreign import ccall unsafe "cblas_zswap" cblas_zswap_unsafe :: SwapFunFFI (Comp
 --void cblas_cswap(  CInt n, Float *x,   CInt incx, Float *y,   CInt incy);
 --void cblas_zswap(  CInt n, Double *x,   CInt incx, Double *y,   CInt incy);
 
-type IamaxFunFFI el = CInt -> Ptr el -> CInt -> IO Int
+type IamaxFunFFI el = CInt -> Ptr el -> CInt -> IO CInt
 foreign import ccall "cblas_isamax" cblas_isamax_safe :: IamaxFunFFI Float
 foreign import ccall "cblas_idamax" cblas_idamax_safe :: IamaxFunFFI Double
 foreign import ccall "cblas_icamax" cblas_icamax_safe :: IamaxFunFFI (Complex Float)
@@ -215,18 +215,24 @@ foreign import ccall unsafe "cblas_izamax" cblas_izamax_unsafe :: IamaxFunFFI (C
 --CBLAS_INDEX cblas_icamax(  CInt n,   Float  *x,   CInt incx);
 --CBLAS_INDEX cblas_izamax(  CInt n,   Double *x,   CInt incx);
 
-{-
-type IaminFunFFI el = CInt -> Ptr el -> CInt -> IO Int
-foreign import ccall "cblas_isamin" cblas_isamin_safe :: IaminFunFFI Float
-foreign import ccall "cblas_idamin" cblas_idamin_safe :: IaminFunFFI Double
-foreign import ccall "cblas_icamin" cblas_icamin_safe :: IaminFunFFI (Complex Float)
-foreign import ccall "cblas_izamin" cblas_izamin_safe :: IaminFunFFI (Complex Double)
 
-foreign import ccall unsafe "cblas_isamin" cblas_isamin_unsafe :: IaminFunFFI Float
-foreign import ccall unsafe "cblas_idamin" cblas_idamin_unsafe :: IaminFunFFI Double
-foreign import ccall unsafe "cblas_icamin" cblas_icamin_unsafe :: IaminFunFFI (Complex Float)
-foreign import ccall unsafe "cblas_izamin" cblas_izamin_unsafe :: IaminFunFFI (Complex Double)
+
+{-
+these aren't provided by Accelerate frameowkr on OSX, not sure about other platforms
+
+but easy to write portable substitute I think?
 -}
+--type IaminFunFFI el = CInt -> Ptr el -> CInt -> IO CInt
+--foreign import ccall "cblas_isamin" cblas_isamin_safe :: IaminFunFFI Float
+--foreign import ccall "cblas_idamin" cblas_idamin_safe :: IaminFunFFI Double
+--foreign import ccall "cblas_icamin" cblas_icamin_safe :: IaminFunFFI (Complex Float)
+--foreign import ccall "cblas_izamin" cblas_izamin_safe :: IaminFunFFI (Complex Double)
+
+--foreign import ccall unsafe "cblas_isamin" cblas_isamin_unsafe :: IaminFunFFI Float
+--foreign import ccall unsafe "cblas_idamin" cblas_idamin_unsafe :: IaminFunFFI Double
+--foreign import ccall unsafe "cblas_icamin" cblas_icamin_unsafe :: IaminFunFFI (Complex Float)
+--foreign import ccall unsafe "cblas_izamin" cblas_izamin_unsafe :: IaminFunFFI (Complex Double)
+
 --CBLAS_INDEX cblas_isamin(  CInt n,   Float  *x,   CInt incx);
 --CBLAS_INDEX cblas_idamin(  CInt n,   Double *x,   CInt incx);
 --CBLAS_INDEX cblas_icamin(  CInt n,   Float  *x,   CInt incx);

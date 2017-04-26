@@ -65,8 +65,8 @@ type RotmgFun el s m =  el ->  el ->  el -> el -> MDenseVector s 'Direct el -> m
 
 type ScalFun scale el s m = Int -> scale -> MDenseVector s 'Direct el -> m()
 type SwapFun el s m = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
-type IamaxFun el s m = Int -> MDenseVector s 'Direct el -> m Int
---type IaminFun el s m = Int -> MDenseVector s Direct el -> Int -> m Int
+type IamaxFun el s m =  MDenseVector s 'Direct el -> m Int
+--type IaminFun el s m =  MDenseVector s 'Direct el -> m Int
 
 {-# NOINLINE asumAbstraction #-}
 asumAbstraction:: (SM.Storable el, PrimMonad m) => String ->
@@ -92,6 +92,7 @@ axpyAbstraction axpyName axpySafeFFI axpyUnsafeFFI constHandler = axpy
     axpy n alpha
       (MutableDenseVector _ adim astride abuff)
       (MutableDenseVector _ bdim bstride bbuff)
+       --- is this check correct?
         | isVectorBadWithNIncrement adim n astride = error $! vectorBadInfo axpyName "first matrix" adim n astride
         | isVectorBadWithNIncrement bdim n bstride = error $! vectorBadInfo axpyName "second matrix" bdim n bstride
         | otherwise =
@@ -270,6 +271,7 @@ rotmAbstraction rotmName rotmSafeFFI rotmUnsafeFFI = rotm
 --        unsafeWithPrim pbuff $ \pp ->
 --          do unsafePrimToPrim $! (if shouldCallFast then rotmgUnsafeFFI else rotmgSafeFFI) d1p d2p x1p y1 pp
 
+
 {-# NOINLINE scalAbstraction #-}
 scalAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
   ScalFunFFI scale el -> ScalFunFFI scale el -> (scaleplain -> (scale -> m()) -> m()) ->
@@ -310,24 +312,29 @@ iamaxAbstraction iamaxName iamaxSafeFFI iamaxUnsafeFFI = iamax
   where
     shouldCallFast :: Int -> Bool
     shouldCallFast n = flopsThreshold >= fromIntegral n -- n times comparison
-    iamax n (MutableDenseVector _ xdim xstride xbuff)
-      | isVectorBadWithNIncrement xdim n xstride = error $! vectorBadInfo iamaxName "target vector" xdim n xstride
+    iamax  (MutableDenseVector SDirect xdim xstride xbuff)
+      | isVectorBadWithNIncrement  (SM.length xbuff)  xdim xstride = error $! vectorBadInfo iamaxName "target vector"  xdim (SM.length xbuff) xstride
       | otherwise =
         unsafeWithPrim xbuff $ \xptr ->
-          do unsafePrimToPrim $! (if shouldCallFast n then iamaxUnsafeFFI else iamaxSafeFFI) (fromIntegral n) xptr (fromIntegral xstride)
+          do
+            x <- unsafePrimToPrim $! (if shouldCallFast xdim then iamaxUnsafeFFI else iamaxSafeFFI) (fromIntegral (SM.length xbuff)) xptr (fromIntegral xstride)
+            -- double check this
+            return $ fromIntegral x
 
-{-
-{-# NOINLINE iaminAbstraction #-}
-iaminAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
-  IaminFunFFI el -> IaminFunFFI el ->
-  IaminFun el (PrimState m) m
-iaminAbstraction iaminName iaminSafeFFI iaminUnsafeFFI = iamin
-  where
-    shouldCallFast :: Int -> Bool
-    shouldCallFast n = flopsThreshold >= fromIntegral n -- n times comparison
-    iamin n (MutableDenseVector _ xdim _ xbuff) xincx
-      | isVectorBadWithNIncrement xdim n xincx = error $! vectorBadInfo iaminName "target vector" xdim n xincx
-      | otherwise =
-        unsafeWithPrim xbuff $ \xptr ->
-          do unsafePrimToPrim $! (if shouldCallFast n then iaminUnsafeFFI else iaminSafeFFI) (fromIntegral n) xptr (fromIntegral xincx)
--}
+--{-# NOINLINE iaminAbstraction #-}
+--iaminAbstraction :: (SM.Storable el, PrimMonad m, Show el) => String ->
+--  IaminFunFFI el -> IaminFunFFI el ->
+--  IaminFun el (PrimState m) m
+--iaminAbstraction iaminName iaminSafeFFI iaminUnsafeFFI = iamin
+--  where
+--    shouldCallFast :: Int -> Bool
+--    shouldCallFast n = flopsThreshold >= fromIntegral n -- n times comparison
+--    iamin :: _
+--    iamin n (MutableDenseVector _ xdim _ xbuff) xincx
+--      | isVectorBadWithNIncrement xdim n xincx = error $! vectorBadInfo iaminName "target vector" xdim n xincx
+--      | otherwise =
+--        unsafeWithPrim xbuff $ \xptr ->
+--          do
+--            x <-unsafePrimToPrim $! (if shouldCallFast n then iaminUnsafeFFI else iaminSafeFFI) (fromIntegral n) xptr (fromIntegral xincx)
+--            return $ fromIntegral x
+

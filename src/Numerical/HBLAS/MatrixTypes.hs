@@ -373,13 +373,19 @@ generateMutableDenseVector size init = do
     mv <- S.unsafeThaw $ S.generate size init
     return $! MutableDenseVector SDirect size 1 mv
 
-{-#NOINLINE generateMutableDenseVectorWithStride#-}
-generateMutableDenseVectorWithStride :: (S.Storable a,PrimMonad m) => Int -> Int -> (Int -> a) ->
-     m (MDenseVector (PrimState m ) 'Direct a)
-generateMutableDenseVectorWithStride size stride init = do
-    mv <- S.unsafeThaw $ S.generate size init
-    return $! MutableDenseVector SDirect size stride mv
 
+
+--generateMutableDenseVectorWithStride is for testing only, never use it
+{-#NOINLINE generateMutableDenseVectorWithStride#-}
+generateMutableDenseVectorWithStride :: (Num a ,S.Storable a,PrimMonad m)
+    => Int -> Int -> (Int -> a) -> m (MDenseVector (PrimState m ) 'Direct a)
+generateMutableDenseVectorWithStride size stride init = do
+    mv <- S.unsafeThaw $ S.generate (size * stride) zeroOffStride
+    return $! MutableDenseVector SDirect size stride mv
+  where
+-- id =
+  zeroOffStride i | i `mod` stride == 0  = init (i `div` stride)
+                  | otherwise = 0
 {-#NOINLINE changeMutableDenseVectorStride#-}
 changeMutableDenseVectorStride :: (S.Storable a, PrimMonad m) => MDenseVector (PrimState m) 'Direct a -> Int ->
      m (MDenseVector (PrimState m ) 'Direct a)

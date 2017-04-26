@@ -4,11 +4,35 @@ module Numerical.HBLAS.BLAS.Internal.Utility where
 import Numerical.HBLAS.BLAS.FFI
 import Numerical.HBLAS.MatrixTypes
 
-isVectorBadWithNIncrement :: Int -> Int -> Int -> Bool
-isVectorBadWithNIncrement dim n incx = dim < (1 + (n-1) * incx)
+
+-- | isVectorBadWithNIncrement returns true if the range of accesses is bigger
+-- than the physical size of the underlying buffer
+isVectorBadWithNIncrement :: Int {- buffer -}
+      -> Int {- logical size -} -> Int {- stride -} -> Bool
+isVectorBadWithNIncrement bufferDim n incx = bufferDim < (1 + (n-1) * incx)
+{-
+these should be converted to integer/natural internally so theres no overflow checks
+
+-}
+
+
+{-
+import Data.Word (Word64)
+
+--- this assumes all the ints are positive :)
+isVectorBadWithNIncrement :: Word64 -> Word64 -> Word64 -> Bool
+isVectorBadWithNIncrement bufferSize {- n -} logicalSize {- dim -} incx
+    | bufferSize >=  0
+      && logicalSize > 0  && incx >= 0
+        = bufferSize <=  ((logicalSize - 1) * incx)
+
+
+-}
+
 
 vectorBadInfo :: String -> String -> Int -> Int -> Int -> String
-vectorBadInfo funName matName dim n incx = "Function " ++ funName ++ ": " ++ matName ++ " constains too few elements of " ++ show dim ++ " and " ++ show (1 + (n-1) * incx) ++ " elements are needed."
+vectorBadInfo funName matName dim n incx = "error info: Function " ++ funName ++ ": " ++ matName ++ " has buffer size of " ++ show dim ++ "\n stride "
+     ++ show incx ++  "\n logical size "  ++ show n
 
 coordSwapper :: Transpose -> (a,a)-> (a,a)
 coordSwapper NoTranspose (a,b) = (a,b)
