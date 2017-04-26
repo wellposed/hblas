@@ -182,8 +182,8 @@ Test-suite unit-testsuite
 
    build-depends:
          hblas
-       , base        >= 4.6    &&  < 5
-       , vector      >= 0.5    &&  < 0.12
+       , base
+       , vector
        , hspec       >= 2.0
        , primitive
    hs-source-dirs: tests
