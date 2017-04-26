@@ -14,6 +14,7 @@ import Numerical.HBLAS.BLAS.Level1 as BLAS
 
 import Test.Hspec
 
+
 main :: IO ()
 main = hspec spec
 
@@ -34,7 +35,7 @@ spec = do
   scalSpec
   swapSpec
   iamaxSpec
-  iaminSpec 
+  iaminSpec
 
 asumSpec :: Spec
 asumSpec =
@@ -48,14 +49,14 @@ asumSpec =
 vecTest1SASUM :: IO ()
 vecTest1SASUM = do
   vec <- Matrix.generateMutableDenseVector 6 (\idx -> [1 .. 6] !! idx)
-  res <- BLAS.sasum 6 vec 
+  res <- BLAS.sasum vec
   res `shouldBe` (21.0 :: Float)
 
 vecTest2SASUM :: IO ()
 vecTest2SASUM = do
   vec <- Matrix.generateMutableDenseVectorWithStride 12 2 (\idx -> [1 .. 12] !! idx)
-  res <- BLAS.sasum 6 vec
-  res `shouldBe` (36.0 :: Float)
+  res <- BLAS.sasum  vec
+  res `shouldBe` (sum [1,3 .. 12] :: Float)
 
 axpySpec :: Spec
 axpySpec =
@@ -165,7 +166,7 @@ dotcSpec =
     describe "CDOTC" $ do
       it "vectors of length 6 and 9 with incx 2 and 3" $ do
         vecTest1CDOTC
-        
+
 
 vecTest1CDOTC :: IO ()
 vecTest1CDOTC = do
@@ -391,7 +392,7 @@ swapSpec =
     describe "CSWAP" $ do
       it "vectors of length 9 and 6 with incx 3 and 2" $ do
         vecTest1CSWAP
-      
+
 vecTest1SSWAP :: IO ()
 vecTest1SSWAP = do
   x <- Matrix.generateMutableDenseVectorWithStride 8 2 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
@@ -425,13 +426,13 @@ iamaxSpec =
 vecTest1ISAMAX :: IO ()
 vecTest1ISAMAX = do
   x <- Matrix.generateMutableDenseVectorWithStride 8 2 (\idx -> [1, 2, 3, 4, 5, 6, 7, 8] !! idx)
-  idx <- isamax 4 x
-  idx `shouldBe` 3
+  idx <- isamax  x
+  idx `shouldBe` 7
 
 vecTest1ICAMAX :: IO ()
 vecTest1ICAMAX = do
   x <- Matrix.generateMutableDenseVector 9 (\idx -> [1:+1, 1:+2, 2:+(-3), 2:+(-2), (-3):+1, (-3):+0, (-4):+2, (-4):+1, 0:+9] !! idx)
-  idx <- icamax 9 x
+  idx <- icamax  x
   idx `shouldBe` 8
 
 

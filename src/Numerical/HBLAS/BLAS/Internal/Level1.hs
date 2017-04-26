@@ -45,14 +45,14 @@ import qualified Data.Vector.Storable.Mutable as SM
 import Foreign.C.Types
 import Foreign.Ptr
 
-type AsumFun el s m res = Int -> MDenseVector s 'Direct el -> m res
-type AxpyFun el s m = Int -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
-type CopyFun el s m = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
-type NoScalarDotFun el s m res = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m res
-type ScalarDotFun el s m res = Int -> el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m res
-type ComplexDotFun el s m = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el ->  m el {-MValue (PrimState m) el -> m()-}
-type Nrm2Fun el s m res = Int -> MDenseVector s 'Direct el -> m res
-type RotFun el s m = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> el -> el -> m()
+type AsumFun el s m res =  MDenseVector s 'Direct el -> m res
+type AxpyFun el s m =  el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
+type CopyFun el s m =  MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m()
+type NoScalarDotFun el s m res =  MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m res
+type ScalarDotFun el s m res =  el -> MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> m res
+type ComplexDotFun el s m =  MDenseVector s 'Direct el -> MDenseVector s 'Direct el ->  m el {-MValue (PrimState m) el -> m()-}
+type Nrm2Fun el s m res =  MDenseVector s 'Direct el -> m res
+type RotFun el s m =  MDenseVector s 'Direct el -> MDenseVector s 'Direct el -> el -> el -> m()
 
 -- for RotG The parameter z is defined such that if |a| > |b|, z is s; otherwise if c is not 0 z is 1/c; otherwise z is 1.
 -- Given the Cartesian coordinates (a, b) of a point, these routines return the parameters c, s, r, and z associated with the Givens rotation.
@@ -68,6 +68,10 @@ type SwapFun el s m = Int -> MDenseVector s 'Direct el -> MDenseVector s 'Direct
 type IamaxFun el s m =  MDenseVector s 'Direct el -> m Int
 --type IaminFun el s m =  MDenseVector s 'Direct el -> m Int
 
+
+buflen:: SM.Storable a => SM.MVector s a -> Int
+buflen= SM.length
+
 {-# NOINLINE asumAbstraction #-}
 asumAbstraction:: (SM.Storable el, PrimMonad m) => String ->
   AsumFunFFI el res -> AsumFunFFI el res ->
@@ -76,10 +80,11 @@ asumAbstraction asumName asumSafeFFI asumUnsafeFFI = asum
   where
     shouldCallFast :: Int -> Bool
     shouldCallFast n = flopsThreshold >= 2 * (fromIntegral n) -- for complex vector, 2n additions are needed
-    asum n (MutableDenseVector _ dim stride buff)
-      | isVectorBadWithNIncrement dim n stride = error $! vectorBadInfo asumName "source matrix" dim n stride
+    asum  (MutableDenseVector _ dim stride buff)
+      | isVectorBadWithNIncrement dim (buflen buff)   stride
+         = error $! vectorBadInfo asumName "source buffer" dim (SM.length buff) stride
       | otherwise = unsafeWithPrim buff $ \ptr ->
-        do unsafePrimToPrim $! (if shouldCallFast n then asumUnsafeFFI else asumSafeFFI) (fromIntegral n) ptr (fromIntegral stride)
+        do unsafePrimToPrim $! (if shouldCallFast dim then asumUnsafeFFI else asumSafeFFI) (fromIntegral $ dim) ptr (fromIntegral stride)
 
 {-# NOINLINE axpyAbstraction #-}
 axpyAbstraction :: (SM.Storable el, PrimMonad m) => String ->
@@ -89,12 +94,13 @@ axpyAbstraction axpyName axpySafeFFI axpyUnsafeFFI constHandler = axpy
   where
     shouldCallFast :: Int -> Bool
     shouldCallFast n = flopsThreshold >= 2 * (fromIntegral n) -- n for a*x, and n for +y
-    axpy n alpha
+    axpy  alpha
       (MutableDenseVector _ adim astride abuff)
       (MutableDenseVector _ bdim bstride bbuff)
        --- is this check correct?
-        | isVectorBadWithNIncrement adim n astride = error $! vectorBadInfo axpyName "first matrix" adim n astride
-        | isVectorBadWithNIncrement bdim n bstride = error $! vectorBadInfo axpyName "second matrix" bdim n bstride
+       -- TODO FIXME , dimension checking
+        | isVectorBadWithNIncrement adim  (buflen abuff)  astride = error $! vectorBadInfo axpyName "first matrix" adim n astride
+        | isVectorBadWithNIncrement adim  (buflen bbuff)   bstride = error $! vectorBadInfo axpyName "second matrix" bdim n bstride
         | otherwise =
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
@@ -109,11 +115,11 @@ copyAbstraction copyName copySafeFFI copyUnsafeFFI = copy
   where
     shouldCallFast :: Bool
     shouldCallFast = True -- TODO:(yjj) to confirm no flops are needed in copy
-    copy n
+    copy
       (MutableDenseVector _ adim astride abuff)
       (MutableDenseVector _ bdim bstride bbuff)
-        | isVectorBadWithNIncrement adim n astride = error $! vectorBadInfo copyName "first matrix" adim n astride
-        | isVectorBadWithNIncrement bdim n bstride = error $! vectorBadInfo copyName "second matrix" bdim n bstride
+        | isVectorBadWithNIncrement adim (buflen abuff)  astride = error $! vectorBadInfo copyName "first matrix" adim n astride
+        | isVectorBadWithNIncrement bdim (buflen bbuff) bstride = error $! vectorBadInfo copyName "second matrix" bdim n bstride
         | otherwise =
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
@@ -127,11 +133,11 @@ noScalarDotAbstraction dotName dotSafeFFI dotUnsafeFFI = dot
   where
     shouldCallFast :: Int -> Bool
     shouldCallFast n = flopsThreshold >= fromIntegral n
-    dot n
+    dot
       (MutableDenseVector _ adim astride abuff)
       (MutableDenseVector _ bdim bstride bbuff)
-        | isVectorBadWithNIncrement adim n astride = error $! vectorBadInfo dotName "first matrix" adim n astride
-        | isVectorBadWithNIncrement bdim n bstride = error $! vectorBadInfo dotName "second matrix" bdim n bstride
+        | isVectorBadWithNIncrement adim (buflen abuff) astride = error $! vectorBadInfo dotName "first matrix" adim n astride
+        | isVectorBadWithNIncrement bdim  (buflen bbuff) bstride = error $! vectorBadInfo dotName "second matrix" bdim n bstride
         | otherwise =
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
@@ -145,11 +151,11 @@ scalarDotAbstraction dotName dotSafeFFI dotUnsafeFFI intConstHandler scaleConstH
   where
     shouldCallFast :: Int -> Bool
     shouldCallFast n = flopsThreshold >= fromIntegral n
-    dot n sb
+    dot  sb
       (MutableDenseVector _ adim astride abuff)
       (MutableDenseVector _ bdim bstride bbuff)
-        | isVectorBadWithNIncrement adim n astride = error $! vectorBadInfo dotName "first matrix" adim n astride
-        | isVectorBadWithNIncrement bdim n bstride = error $! vectorBadInfo dotName "second matrix" bdim n bstride
+        | isVectorBadWithNIncrement adim (buflen abuff) astride = error $! vectorBadInfo dotName "first matrix" adim n astride
+        | isVectorBadWithNIncrement bdim (buflen bbuff) bstride = error $! vectorBadInfo dotName "second matrix" bdim n bstride
         | otherwise =
           unsafeWithPrim abuff $ \ap ->
           unsafeWithPrim bbuff $ \bp ->
