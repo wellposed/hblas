@@ -110,10 +110,10 @@ library
     Numerical.HBLAS.BLAS.FFI.Level3
     Numerical.HBLAS.MatrixTypes
     Numerical.HBLAS.UtilsFFI
-    Numerical.HBLAS.BLAS.Level1
+    --Numerical.HBLAS.BLAS.Level1
     Numerical.HBLAS.BLAS.Level2
     Numerical.HBLAS.BLAS.Level3
-    Numerical.HBLAS.BLAS.Internal.Level1
+    --Numerical.HBLAS.BLAS.Internal.Level1
     Numerical.HBLAS.BLAS.Internal.Level2
     Numerical.HBLAS.BLAS.Internal.Level3
     Numerical.HBLAS.BLAS.Internal.Utility
@@ -173,7 +173,7 @@ Test-suite unit-testsuite
    default-language: Haskell2010
    type: exitcode-stdio-1.0
    other-modules:
-      HBLAS.BLAS.Level1Spec
+      --  HBLAS.BLAS.Level1Spec
       HBLAS.BLAS.Level2Spec
       HBLAS.BLAS.Level3Spec
       HBLAS.MatrixTypesSpec
