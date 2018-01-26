@@ -126,17 +126,17 @@ library
   if flag(OpenBLAS)
     extra-libraries: openblas pthread
 
-  if flag(OpenBLAS)&& os(OSX)
+  if flag(OpenBLAS) && os(OSX)
     extra-lib-dirs: /usr/local/lib
 
-  if os(OSX)&&!flag(OpenBLAS)
+  if os(OSX) && !flag(OpenBLAS)
       frameworks: Accelerate
       -- extra-libraries: cblas lapack
 
   if os(windows) && !flag(OpenBLAS)
       extra-libraries: blas lapack
 
-  if !os(windows)&& !os(OSX) && !flag(OpenBLAS)
+  if !os(windows) && !os(OSX) && !flag(OpenBLAS)
     extra-libraries: blas lapack
 
   if flag(CBLAS)
