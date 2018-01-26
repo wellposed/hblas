@@ -1,10 +1,10 @@
 
-#0.4.0.0
+# 0.4.0.0
 HBLAS now implements every single blas routine. Thanks to the contributors who
 make this possible. This release disables level1 routines for now
 
 
-#0.3.1.1
+# 0.3.1.1
 release, bug fixes in show and improved tests, thanks to tomas musil for catching them
 
 # 0.3.1.0

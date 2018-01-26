@@ -44,6 +44,19 @@ spec = do
   tpsvSpec
   trmvSpec
   trsvSpec
+  gemvBugJune2017
+
+gemvBugJune2017 :: Spec
+gemvBugJune2017  =
+  --context "?gemv bug"
+    describe "dgemv abstraction" $ do
+      it "3*2 matrix vector product sadness" $ do
+            mat  <- generateMutableDenseMatrix (SRow)  (3,2)  (\(colx,rowy) -> ((fromIntegral rowy * 3) + fromIntegral colx ) :: Double  )
+            right <- generateMutableDenseVector 3 (\i  ->  fromIntegral i * 10 + 10 )
+            res  <- generateMutableDenseVector 2  (\_ -> (0.0 ))
+            dgemv NoTranspose 1.0 0 mat right res
+            resList <-mutableVectorToList $ _bufferMutDenseVector res
+            resList `shouldBe` [140, 320]
 
 gbmvSpec :: Spec
 gbmvSpec =

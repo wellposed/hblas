@@ -167,16 +167,18 @@ gemvAbstraction gemvName gemvSafeFFI gemvUnsafeFFI constHandler = gemv
             error $! "The read and write inputs for: " ++ gemvName ++ " overlap. This is a programmer error. Please fix."
         | otherwise = call
             where
-              (newx,newy) = coordSwapper tr (ax,ay)
+              --(newx,newy) = coordSwapper tr (ax,ay)
               call = unsafeWithPrim abuff $ \ap ->
                      unsafeWithPrim bbuff $ \bp ->
                      unsafeWithPrim cbuff $ \cp ->
                      constHandler alpha $ \alphaPtr ->
                      constHandler beta  $ \betaPtr  ->
-                       unsafePrimToPrim $! (if shouldCallFast newx newy  then gemvUnsafeFFI else gemvSafeFFI)
+                       unsafePrimToPrim $! (if shouldCallFast ax ay  then gemvUnsafeFFI else gemvSafeFFI)
                          (encodeNiceOrder ornta) (encodeFFITranspose tr)
-                         (fromIntegral newx) (fromIntegral newy) alphaPtr ap (fromIntegral astride) bp
-                         (fromIntegral bstride) betaPtr cp (fromIntegral cstride)
+                         (fromIntegral ay) (fromIntegral ax) alphaPtr ap (fromIntegral astride)
+                         bp (fromIntegral bstride)
+                         betaPtr
+                         cp (fromIntegral cstride)
 
 {-# NOINLINE gerAbstraction #-}
 gerAbstraction :: (SM.Storable el, PrimMonad m)
