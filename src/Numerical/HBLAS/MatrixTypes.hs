@@ -1,4 +1,3 @@
-
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -226,7 +225,9 @@ need to handle rendering a slice differently than a direct matrix
 data MDenseMatrix :: *  ->Orientation  -> * -> *  where
     MutableDenseMatrix :: { _OrientationMutMat :: SOrientation ornt ,
                             _XdimDenMutMat :: {-# UNPACK #-}!Int ,
+                            --- change --XDIM to leading Dim
                             _YdimDenMutMat ::  {-# UNPACK #-}!Int,
+                            -- CHANGE YDIM to inner dim
                             _StrideDenMutMat :: {-# UNPACK #-} !Int,
                             _bufferDenMutMat :: {-# UNPACK #-} !(SM.MVector s  elem) } -> MDenseMatrix s ornt elem
 

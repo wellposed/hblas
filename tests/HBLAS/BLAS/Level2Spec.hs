@@ -13,6 +13,8 @@ import Test.Hspec
 
 import Numerical.HBLAS.MatrixTypes as Matrix
 import Numerical.HBLAS.BLAS.Level2 as BLAS
+import qualified Data.Vector.Storable as S
+import qualified Data.Vector.Storable.Mutable as SM
 
 main :: IO ()
 main = hspec spec
@@ -49,14 +51,32 @@ spec = do
 gemvBugJune2017 :: Spec
 gemvBugJune2017  =
   --context "?gemv bug"
+
+ {-
+
+
+
+ -}
     describe "dgemv abstraction" $ do
-      it "3*2 matrix vector product sadness" $ do
-            mat  <- generateMutableDenseMatrix (SRow)  (3,2)  (\(colx,rowy) -> ((fromIntegral rowy * 3) + fromIntegral colx ) :: Double  )
-            right <- generateMutableDenseVector 3 (\i  ->  fromIntegral i * 10 + 10 )
-            res  <- generateMutableDenseVector 2  (\_ -> (0.0 ))
-            dgemv NoTranspose 1.0 0 mat right res
-            resList <-mutableVectorToList $ _bufferMutDenseVector res
-            resList `shouldBe` [140, 320]
+      it "3*2 matrix vector product sadness" $
+             let m = S.fromList [1,2,3, 4,5,6]
+                 x = S.fromList [10,20,30]
+             in
+             do
+
+              m' <- S.unsafeThaw m
+              x' <- S.unsafeThaw x
+              y' <- SM.new 2
+
+              let mat   = MutableDenseMatrix SRow 3 2 3 m'
+                  xvec  = MutableDenseVector SDirect 3 1 x'
+                  yvec  = MutableDenseVector SDirect 2 1 y'
+
+              dgemv NoTranspose 1 0 mat xvec yvec
+              resList <-mutableVectorToList $ _bufferMutDenseVector yvec
+              resList `shouldBe` [140, 320]
+
+
 
 gbmvSpec :: Spec
 gbmvSpec =

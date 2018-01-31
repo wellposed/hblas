@@ -132,7 +132,7 @@ gbmvAbstraction gbmvName gbmvSafeFFI gbmvUnsafeFFI constHandler = gbmv
           constHandler alpha $ \alphaPtr ->
           constHandler beta $ \betaPtr ->
             do unsafePrimToPrim $! (if shouldCallFast ax ay then gbmvUnsafeFFI else gbmvSafeFFI) (encodeNiceOrder ornta) (encodeFFITranspose trans) (fromIntegral m) (fromIntegral n) (fromIntegral kl) (fromIntegral ku) alphaPtr ap (fromIntegral astride) xp (fromIntegral xstride) betaPtr yp (fromIntegral ystride)
-        where srcVecLen = snd $ coordSwapper trans (m, n)
+        where srcVecLen = snd $ coordSwapper trans (m, n)  -- check this too
               dstVecLen = fst $ coordSwapper trans (m, n)
 
 gemvComplexity :: Integral a => a -> a -> Int64
@@ -167,7 +167,7 @@ gemvAbstraction gemvName gemvSafeFFI gemvUnsafeFFI constHandler = gemv
             error $! "The read and write inputs for: " ++ gemvName ++ " overlap. This is a programmer error. Please fix."
         | otherwise = call
             where
-              (newx,newy) = coordSwapper tr (ax,ay)
+              (newx,newy) = coordSwapper tr (ay,ax) -- get this correct ... with care
               call = unsafeWithPrim abuff $ \ap ->
                      unsafeWithPrim bbuff $ \bp ->
                      unsafeWithPrim cbuff $ \cp ->
