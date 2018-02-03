@@ -334,8 +334,9 @@ uncheckedDenseMatrixNextTuple (DenseMatrix SColumn xdim ydim _ _ ) =
 -- | generateDenseMatrix Row (k,k) \(i,j)-> if i == j then 1.0 else 0.0 would generate a KxK identity matrix
 generateDenseMatrix :: (S.Storable a)=> SOrientation x -> (Int,Int)->((Int,Int)-> a) -> DenseMatrix x a
 generateDenseMatrix SRow (xdim,ydim) f = DenseMatrix SRow  xdim ydim xdim $!
-             S.generate (xdim * ydim) (\ix -> let !ixtup@(!_,!_) = swap $ quotRem ix xdim in
-                                         f  ixtup )
+             S.generate (xdim * ydim) (\ix ->
+                  let !ixtup@(!_,!_) = swap $ quotRem ix xdim
+                    in   f  ixtup )
 generateDenseMatrix SColumn (xdim,ydim) f = DenseMatrix SColumn xdim ydim ydim $!
          S.generate (xdim * ydim ) (\ix -> let  ixtup@(!_,!_) = ( quotRem ix ydim ) in
                                          f ixtup )
